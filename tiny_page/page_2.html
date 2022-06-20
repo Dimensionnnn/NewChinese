@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="./static/tinymce/js/tinymce/tinymce.min.js" referrerpolicy="origin"></script>
+    <script src="./static/tinymce/js/tinymce/langs/zh-Hans.js"></script>
+    <script type="text/javascript" src="./static/js/vendor/jquery-1.10.2.min.js"></script>
+    <script src="./static/tinymce/js/tinymce/FileSaver.js"></script>
+    <script src="./static/tinymce/js/tinymce/jquery.wordexport.js"></script>
+
+    <script type="text/javascript">
+        $(function () {
+            $('#test1').click(function () {
+                alert($('#customBtn').attr('value'));
+            });
+            $('#test2').click(function () {
+                alert($('#customBtn').val());
+            });
+        });  
+    </script>
+    <script>
+        tinymce.init({
+            selector: '#textarea1',
+            language: 'zh-Hans',
+            width: 590,
+            height: 600,
+            autoresize_bottom_margin: 50,
+            autoresize_overflow_padding: 50,
+            min_height: 540,
+            //content_css: './static/tinymce/js/tinymce/mycss/EditDisable.css',
+            plugins: ' autoresize save print  searchreplace autolink fullscreen\
+               link charmap pagebreak insertdatetime advlist lists wordcount paste',
+            // toolbar: 'code forecolor backcolor bold italic underline strikethrough link anchor  | blockquote subscript superscript removeformat emoticons charmap| alignleft aligncenter alignright indent2em lineheight bullist numlist  \
+            //          table image media bdmap  hr pagebreak insertdatetime  fullscreen ',
+            menubar: false,
+            // plugins: 'link wordcount save noneditable',
+            // menubar: 'edit format',
+            toolbar: 'link  newdocument save print searchreplace undo redo cut copy paste blockquote removeformat forecolor backcolor bold italic underline strikethrough charmap\
+               formatselect fontselect fontsizeselect alignleft aligncenter alignright alignjustify outdent indent pagebreak insertdatetime  fullscreen',//'link save wordcount',
+
+            save_onsavecallback: function () { tipsJS('已保存'); },
+
+
+
+            file_browser_callback_types: 'file image media',//这个根据个人需要配置            
+            file_picker_callback: function (callback, value, meta) {
+                //文件分类
+                var filetype = '.pdf, .txt, .zip, .rar, .7z, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .mp3, .mp4';
+                var upurl = '/api/controller/';
+                //为不同插件指定文件类型及后端地址
+                switch (meta.filetype) {
+                    case 'image':
+                        filetype = '.jpg, .jpeg, .png, .gif';
+                        upurl += 'action1';
+                        break;
+                    case 'media':
+                        filetype = '.mp3, .mp4';
+                        upurl += 'action2';
+                        break;
+                    case 'file':
+                        break;
+                };
+                //模拟出一个input用于添加本地文件
+                var input = document.createElement('input');
+                input.setAttribute('type', 'file');
+                input.setAttribute('accept', filetype);
+                input.click();
+                input.onchange = function () {
+                    var file = this.files[0];
+                    var xhr, formData;
+                    console.log(file.name);
+                    //TODO:这里写请求
+                };
+            },
+        });
+    </script>
+    
+    <script>
+        function download() {
+            $(".comeOn").wordExport('生成word文档'); //此处可以写上自己想取的名字哟！！！
+        }
+    </script>
+    <script type="text/javascript">
+        // jQuery(document).ready(function ($) {
+        //     $("a.word-export").click(function (event) {
+        //         $("#page-content").wordExport("测试");
+        //     });
+        // });
+        function exportWord() {
+                $("#export_word").hide();
+                $("#page-content").wordExport();
+                $("#export_word").show();
+            }
+    </script>
+    <script>
+        $(function () {
+            $('#submit').click(function () {
+                //var content = tinymce.activeEditor.getContent('textarea2');
+                var data_value = $("#textarea1").val();
+                //var data_value = $("#textarea2").attr();
+                //console.log(data_value);
+                alert(data_value);
+
+            });
+        });
+
+    </script>
+    <style>
+        /* #wai {
+            width: 400px;
+            border: 2px solid #900;
+            padding: 10px;
+            overflow: hidden
+        } */
+        .wai  {
+            height: 100%;
+            width: 1480px;
+            border: 2px solid #900;
+            padding: 10px;
+            margin: auto;
+        }
+        .divup  {
+            height: 50px;
+            width: 1200px;
+            border: 1px solid #900;
+            /* padding: 10px; */
+            margin: 10px;
+        }
+        .divdown  {
+            /* height: 100px; */
+            width: 1200px;
+            /* border: 2px solid #900; */
+            /* padding: 10px; */
+            margin: 10px;
+        }
+        .divleft {
+            float: left;
+            /* width: 600px; */
+            /* border: 1px solid #900; */
+            /* position:absolute; */
+        }
+
+        .divright {
+            float: right;
+            height: 540px;
+            width: 590px;
+            border: 1px solid #900;
+            /* position:absolute; */
+        }
+        .button_at_bottom {
+            /* position:relative; */
+            margin-bottom: 0;
+            width: 100px;
+        
+            /* height: 100%; */
+    
+            /* background-color: palevioletred; */
+    
+        }
+        .inline1 {
+            display: inline-block;
+            /* width: 100px;
+    
+            height: 100px; */
+
+            /* background-color: palevioletred; */
+
+        }
+        .disable {
+            /* position: relative;
+            left: 0;
+            top: 0;
+            opacity: 0.5;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 998;   */
+            /*pointer-events: none; 是可以点击下面的事件，但是因为div是包着tinymac的，所以无效 */
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <div class="divup">
+            分析结果： 适合HSK 6级以上的学习者
+        </div>
+        <div class="divdown">
+            <div class="divleft">
+            
+                <textarea id="textarea1">
+                    <div class="comeOn">
+                        <!-- <font color="red"> -->
+                            <p>
+                                Welcome !
+                            </p>
+                        <!-- </font> -->
+                    </div>
+                    
+                    <div id="page-content">
+                        jquery 测试
+                    </div>
+                                            
+                </textarea>
+            
+            
+                <div>
+                    <div class="inline1">
+                        <div class="button_at_bottom">
+                            <input onclick="download()" type="button" id="text_download" value="下载当前文本" />
+                        </div>
+                        <!-- <a class="word-export" href="javascript:void(0)"> 导出word</a> -->
+                        
+                        
+                    </div>
+                    <!-- <div class="inline1">
+                        <a id="export_word" href="javascript:void(0)" class="btn btn-primary" onclick="exportWord()">导出</a>
+                    </div> -->
+                    <div class="inline1">
+                        <div class="button_at_bottom">
+                            <input type="button" id="analyze2" value="再次分析" />
+                        </div>
+            
+                    </div>
+                </div>
+            </div>
+            
+            <div class="divright">
+            
+                <strong class="mceNonEditable">用于展示统计信息及明细</strong>
+                <div style="width: 570px; height: 200px; border: 1px; margin:10px">
+                </div>
+                <div style="width: 570px; height: 100px; border: 1px; margin:10px">
+                </div>
+                <div style="width: 570px; height: 150px; border: 1px; margin:10px">
+                </div>
+                <div style="text-align:center">
+            
+                    <input type="button" id="result_download" value="下载统计信息及明细" />
+                </div>
+            
+            </div>
+        </div>
+        
+    </div>
+        
+    
+
+
+
+
+
+</body>
+
+</html>
