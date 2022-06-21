@@ -14,6 +14,6 @@ https://github.com/tinymce/tinymce
 完成跳转、权限系统调研、高级搜索完善
 
 
-## milestone:6.16-6.21
+## milestone: 6.16-6.21
 完成tinymce转换为react框架
 完成meilisearch高级搜索基础界面
