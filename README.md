@@ -15,5 +15,4 @@ https://github.com/tinymce/tinymce
 
 
 ## milestone: 6.16-6.21
-完成tinymce转换为react框架
-完成meilisearch高级搜索基础界面
+完成tinymce转换为react框架，meilisearch高级搜索基础界面
