@@ -9,10 +9,12 @@ https://github.com/tinymce/tinymce
 
 
 更新Log：每周更新issue
+## 本周milestone：6.29-7.6
+完成项目合并、搭建初步权限系统、完善编辑器功能。
 
-## 本周milestone：6.22-6.28
-完成跳转、权限系统调研、高级搜索完善
+## milestone：6.22-6.28
+完成跳转、权限系统调研、高级搜索完善。
 
 
 ## milestone: 6.16-6.21
-完成tinymce转换为react框架，meilisearch高级搜索基础界面
+完成tinymce转换为react框架，meilisearch高级搜索基础界面。
