@@ -3,16 +3,16 @@ import IndexItem from "./IndexItem"
 
 export default class IndexList extends Component {
     render() {
-        const { indexs } = this.props
-        console.log(indexs)
+        const { indexs, setIndex } = this.props
         return (
-            <ul>
-                {
-                    indexs.map((indexStr) => {
-                        return <IndexItem key={indexStr} indexStr={indexStr} setIndex={this.props.setIndex} />
-                    })
-                }
-            </ul>
+                <ul class="btn-group-vertical">
+                    {
+                        indexs.map((indexStr) => {
+                            return <IndexItem key={indexStr} indexStr={indexStr} setIndex={setIndex} />
+                        })
+                    }
+                </ul>
+
         )
     }
 }
