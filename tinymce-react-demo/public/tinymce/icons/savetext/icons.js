@@ -1,0 +1,6 @@
+import Tinymce from 'tinymce'
+Tinymce.IconManager.add('savetext', {
+  icons: {
+    'save': '<svg class="icon" width="200" height="200" viewBox="0 0 1024 1024"><path d="M925.2 357L667.1 98.7A64 64 0 00621.8 80H144a64 64 0 00-64 64v736a64 64 0 0064 64h736a64 64 0 0064-64V402.2a64 64 0 00-18.8-45.3zM288 144h192v112H288V144zm448 736H288V736h448v144zm144 0h-80V704a32 32 0 00-32-32H256a32 32 0 00-32 32v176h-80V144h80v144a32 32 0 0032 32h256a32 32 0 0032-32V144h77.8L880 402.2V880z"/></svg>',
+  }
+});
