@@ -24,7 +24,7 @@ import { instantMeiliSearch } from "@meilisearch/instant-meilisearch";
 const searchClient = instantMeiliSearch("http://127.0.0.1:7700/");
 
 export default class wordPage extends Component {
-  updateAppState = () => {
+  componentDidMount = () => {
     this.props.updateIndexs();
   };
   render() {
@@ -33,13 +33,13 @@ export default class wordPage extends Component {
     return (
       <InstantSearch indexName={selectedIndex} searchClient={searchClient}>
         <div className="left-panel">
-          <button
+          {/* <button
             type="button"
             class="btn btn-default"
             onClick={this.updateAppState}
           >
             点击更新索引数据
-          </button>
+          </button> */}
           <IndexList indexs={indexs} setIndex={setIndex} />
           <IndexRefine filterableAttributes={filterableAttributes} />
 
