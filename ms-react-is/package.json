@@ -6,13 +6,18 @@
   "main": "src/index.js",
   "dependencies": {
     "@meilisearch/instant-meilisearch": "0.7.1",
+    "@tinymce/tinymce-react": "^4.1.0",
     "bootstrap": "^3.4.1",
+    "fs-extra": "^10.1.0",
     "instantsearch.css": "7.4.2",
     "meilisearch": "^0.25.1",
     "react": "17.0.1",
     "react-dom": "17.0.1",
+    "react-html-table-to-excel": "^2.0.0",
     "react-instantsearch-dom": "6.12.1",
-    "react-scripts": "3.0.1"
+    "react-router-dom": "^6.3.0",
+    "react-scripts": "3.0.1",
+    "tinymce": "^6.1.0"
   },
   "devDependencies": {
     "typescript": "3.8.3"
@@ -20,7 +25,8 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "postinstall": "node ./postinstall.js"
   },
   "browserslist": [
     ">0.2%",
