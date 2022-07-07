@@ -2,17 +2,14 @@ import "instantsearch.css/themes/algolia-min.css";
 import React, { Component } from "react";
 import IndexList from "./IndexList";
 import IndexRefine from "./IndexRefine";
-import Hit from "./Hit";
+import { Snippet } from "react-instantsearch-dom";
+import { useNavigate } from "react-router-dom";
 
 import {
   InstantSearch,
   Hits,
   SearchBox,
   Pagination,
-  // ClearRefinements,
-  // RefinementList,
-  // Highlight,
-  // HierarchicalMenu,
   HitsPerPage,
   CurrentRefinements,
   Configure,
@@ -28,18 +25,32 @@ export default class wordPage extends Component {
     this.props.updateIndexs();
   };
   render() {
-    const { filterableAttributes, selectedIndex, indexs, setIndex } =
-      this.props;
+    const { filterableAttributes, selectedIndex, indexs, setIndex, displayedAttributes } = this.props;
+    const Hit = ({ hit }) => {
+      let navigate = useNavigate();
+      const routeChange = () => {
+        let path = `/analysis`;
+        navigate(path, { state: { value: hit.白皮书词语 } });
+      };
+      return (
+        <div key={hit.id}>
+          {
+            displayedAttributes.map((attribute) => {
+              return (
+                <div className="hit-description">
+                  {attribute}:
+                  <Snippet attribute={attribute} hit={hit} />
+                </div>
+              );
+            })
+          }
+          <button onClick={routeChange}>分析文本</button>
+        </div>
+      );
+    };
     return (
       <InstantSearch indexName={selectedIndex} searchClient={searchClient}>
         <div className="left-panel">
-          {/* <button
-            type="button"
-            class="btn btn-default"
-            onClick={this.updateAppState}
-          >
-            点击更新索引数据
-          </button> */}
           <IndexList indexs={indexs} setIndex={setIndex} />
           <IndexRefine filterableAttributes={filterableAttributes} />
 
@@ -67,15 +78,4 @@ export default class wordPage extends Component {
     );
   }
 }
-// const Hit = ({ hit }) => (
-  
-//   <div key={hit.id}>
-//     <div className="hit-description">
-//       生词：
-//       <Snippet attribute="生词" hit={hit} />
-//     </div>
-//     <div className="hit-info">HSK级别: {hit.HSK级别}</div>
-//     <div className="hit-info">词性: {hit.备注}</div>
-//     <button>分析文本</button>
-//   </div>
-// );
+

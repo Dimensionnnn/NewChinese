@@ -11,7 +11,8 @@ export default class Home extends Component {
   state = {
     indexs: [],
     selectedIndex: '',
-    filterableAttributes: []
+    filterableAttributes: [],
+    displayedAttributes: []
   }
   updateIndexs = () => {
     //获取现在所有的indexs
@@ -41,13 +42,28 @@ export default class Home extends Component {
       }
     )
   }
+  getDisplayedAttributes = (selectedIndex) => {
+    const client = new MeiliSearch({ host: 'http://127.0.0.1:7700' })
+    const displayedAttributes = client.index(selectedIndex).getDisplayedAttributes()
+    console.log("displayedAttributes",displayedAttributes)
+    var newDisplayedAttributes = []
+    displayedAttributes.then(
+      res => {
+        for (var i = 0; i < res.length; i++) {
+          newDisplayedAttributes.push(res[i])
+        }
+        this.setState({ displayedAttributes: newDisplayedAttributes })
+      }
+    )
+  }
   setIndex = (indexName) => {
     this.setState({ selectedIndex: indexName })
     this.getFilterableAttributes(indexName)
+    this.getDisplayedAttributes(indexName)
   }
 
   render() {
-    const { indexs, selectedIndex,filterableAttributes } = this.state
+    const { indexs, selectedIndex, filterableAttributes,displayedAttributes } = this.state
     return (
       <div className="ais-InstantSearch">
         <h1>新中文分级检索系统</h1>
@@ -62,11 +78,10 @@ export default class Home extends Component {
         </p>
 
         <WordPage
-          selectedIndex={selectedIndex}
-          indexs={indexs}
           updateIndexs={this.updateIndexs}
           setIndex={this.setIndex}
-          filterableAttributes={filterableAttributes} />
+          {...this.state}
+          />
       </div>
     )
   }
