@@ -49,6 +49,9 @@ body {
 .hit-description {
   color: grey;
   margin-bottom: 0.5em;
+  overflow: hidden;
+  max-height: 100px;
+  line-height: 20px;
 }
 
 .hit-info {

@@ -28,11 +28,6 @@ export default class wordPage extends Component {
   render() {
     const { filterableAttributes, selectedIndex, indexs, setIndex, displayedAttributes } = this.props;
     const Hit = ({ hit }) => {
-      let navigate = useNavigate();
-      const routeChange = () => {
-        let path = `/analysis`;
-        navigate(path, { state: { value: hit.白皮书词语 } });
-      };
       return (
         <div key={hit.id}>
           {
@@ -40,12 +35,11 @@ export default class wordPage extends Component {
               return (
                 <div className="hit-description">
                   {attribute}:
-                  <Snippet attribute={attribute} hit={hit} />
+                  <Snippet  attribute={attribute} hit={hit} />
                 </div>
               );
             })
           }
-          <button onClick={routeChange}>分析文本</button>
         </div>
       );
     };
@@ -55,12 +49,6 @@ export default class wordPage extends Component {
           <button onClick={this.updateWordIndexs} class="btn btn-default">加载indexs</button>
           <IndexList indexs={indexs} setIndex={setIndex} />
           <IndexRefine filterableAttributes={filterableAttributes} />
-
-          <Configure
-            hitsPerPage={12}
-            attributesToSnippet={["description:50"]}
-            snippetEllipsisText={"..."}
-          />
         </div>
         <div className="right-panel">
           <CurrentRefinements />
