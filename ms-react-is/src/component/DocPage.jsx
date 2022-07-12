@@ -20,18 +20,17 @@ import { instantMeiliSearch } from "@meilisearch/instant-meilisearch";
 
 const searchClient = instantMeiliSearch("http://127.0.0.1:7700/","MASTER_KEY");
 
-export default class wordPage extends Component {
-  updateWordIndexs = () => {
-    this.props.updateIndexs('0imUupoz14753a3dd31e77e894154b9b7d6b7d15bd9d26f53322cd1efca9a6724c26b9c1');
+export default class DocPage extends Component {
+  updateDocIndexs = () => {
+    this.props.updateIndexs('puQ8edwLae5cf8cd8b9c91c1f22ab17756e1f973dd621cd172e939e192a8908f5d99e4d2');
   };
-
   render() {
     const { filterableAttributes, selectedIndex, indexs, setIndex, displayedAttributes } = this.props;
     const Hit = ({ hit }) => {
       let navigate = useNavigate();
       const routeChange = () => {
         let path = `/analysis`;
-        navigate(path, { state: { value: hit.白皮书词语 } });
+        navigate(path, { state: { value: hit.text } });
       };
       return (
         <div key={hit.id}>
@@ -52,13 +51,12 @@ export default class wordPage extends Component {
     return (
       <InstantSearch indexName={selectedIndex} searchClient={searchClient}>
         <div className="left-panel">
-          <button onClick={this.updateWordIndexs} class="btn btn-default">加载indexs</button>
+          <button onClick={this.updateDocIndexs} class="btn btn-default">加载indexs</button>
           <IndexList indexs={indexs} setIndex={setIndex} />
           <IndexRefine filterableAttributes={filterableAttributes} />
 
           <Configure
-            hitsPerPage={12}
-            attributesToSnippet={["description:50"]}
+            attributesToSnippet={["description:"]}
             snippetEllipsisText={"..."}
           />
         </div>

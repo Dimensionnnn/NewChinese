@@ -1,8 +1,8 @@
 import "instantsearch.css/themes/algolia-min.css";
 import React, { Component } from "react";
 import { MeiliSearch } from "meilisearch";
-// import IndexList from "./component/IndexList";
-import WordPage from "../component/WordPage";
+
+
 import {
   Box,
   Container,
@@ -17,8 +17,10 @@ import {
 } from "@chakra-ui/react";
 import ThemeButton from "../component/themeButton";
 import Footer from "../component/footer";
+import WordPage from "../component/WordPage";
+import DocPage from "../component/DocPage";
 
-// import "../App.css";
+
 
 export default class Home extends Component {
   state = {
@@ -26,10 +28,11 @@ export default class Home extends Component {
     selectedIndex: "",
     filterableAttributes: [],
     displayedAttributes: [],
+    tab:""
   };
-  updateIndexs = () => {
+  updateIndexs = (apiKey) => {
     //获取现在所有的indexs
-    const client = new MeiliSearch({ host: "http://127.0.0.1:7700" });
+    const client = new MeiliSearch({ host: "http://127.0.0.1:7700",apiKey: apiKey });
     const curIndex = client.getIndexes();
     //API取得的数据是Promise {<pending>}类型，使用此then方法获取数据
     var newIndex = [];
@@ -41,7 +44,7 @@ export default class Home extends Component {
     });
   };
   getFilterableAttributes = (selectedIndex) => {
-    const client = new MeiliSearch({ host: "http://127.0.0.1:7700" });
+    const client = new MeiliSearch({ host: "http://127.0.0.1:7700",apiKey: "MASTER_KEY" });
     //获取所有filterableAttributes
     const settings = client.index(selectedIndex).getSettings();
     console.log(settings);
@@ -51,7 +54,7 @@ export default class Home extends Component {
     });
   };
   getDisplayedAttributes = (selectedIndex) => {
-    const client = new MeiliSearch({ host: "http://127.0.0.1:7700" });
+    const client = new MeiliSearch({ host: "http://127.0.0.1:7700",apiKey: "MASTER_KEY" });
     const displayedAttributes = client
       .index(selectedIndex)
       .getDisplayedAttributes();
@@ -87,8 +90,8 @@ export default class Home extends Component {
         </Box>
         <Tabs isFitted variant="enclosed">
           <TabList>
-            <Tab _selected={{ color: "white", bg: "blue.500" }}>生词检索</Tab>
-            <Tab _selected={{ color: "white", bg: "green.400" }}>句子检索</Tab>
+            <Tab _selected={{ color: "white", bg: "blue.500" }} onClick={this.state.tab==='doc'?()=>this.setState({tab:'word',indexs:[]}):()=>this.setState({tab:'word'})}>生词检索</Tab>
+            <Tab _selected={{ color: "white", bg: "green.400" }} onClick={this.state.tab==='word'?()=>this.setState({tab:'doc',indexs:[]}):()=>this.setState({tab:'doc'})}>句子检索</Tab>
           </TabList>
           <TabPanels>
             <TabPanel>
@@ -99,7 +102,10 @@ export default class Home extends Component {
               />
             </TabPanel>
             <TabPanel>
-              <Text>句子</Text>
+              <DocPage
+                updateIndexs={this.updateIndexs}
+                setIndex={this.setIndex}
+                {...this.state} />
             </TabPanel>
           </TabPanels>
         </Tabs>
