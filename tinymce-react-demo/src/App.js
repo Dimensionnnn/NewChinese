@@ -8,14 +8,14 @@ function App() {
   
   return (
     <>
-      <Router>
+      
         <Routes>
           <Route path='/Page2' element={<Page2 />} />
           <Route path='/' element={<Page1 />} />
 
         </Routes>
         
-      </Router>
+      
       
       
     </>
