@@ -15,7 +15,7 @@ import {
   Configure,
 } from "react-instantsearch-dom";
 
-import "../App.css";
+// import "../App.css";
 import { instantMeiliSearch } from "@meilisearch/instant-meilisearch";
 
 const searchClient = instantMeiliSearch("http://127.0.0.1:7700/","MASTER_KEY");

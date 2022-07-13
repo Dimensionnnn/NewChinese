@@ -9309,6 +9309,11 @@ react-html-table-to-excel@^2.0.0:
   dependencies:
     prop-types "^15.5.10"
 
+react-icons@^4.4.0:
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/react-icons/-/react-icons-4.4.0.tgz#a13a8a20c254854e1ec9aecef28a95cdf24ef703"
+  integrity sha512-fSbvHeVYo/B5/L4VhB7sBA1i2tS8MkT0Hb9t2H1AVPkwGfVHLJCqyr2Py9dKMxsyM63Eng1GkdZfbWj+Fmv8Rg==
+
 react-instantsearch-core@^6.12.1:
   version "6.30.0"
   resolved "https://registry.yarnpkg.com/react-instantsearch-core/-/react-instantsearch-core-6.30.0.tgz#f749d78c0d1023ef084fbce712acdbcc26cf5139"
