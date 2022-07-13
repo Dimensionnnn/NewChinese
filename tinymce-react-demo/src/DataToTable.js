@@ -3,21 +3,28 @@ class DataToTable extends React.Component {
     constructor(props) {
         super(props);
         this.state={
-            str1: this.writeToTable1(),
-            str2: this.writeToTable2()
+            arr11: this.props.arr1,
+            arr22: this.props.arr2,
+            // str1: this.writeToTable1(),
+            // str2: this.writeToTable2()
         }
-    const fontStlye = {
-        border: '1px solid blueviolet'
+        this.writeToTable1 = this.writeToTable1.bind(this);
+        this.writeToTable2 = this.writeToTable2.bind(this);
+        this.str1 = this.writeToTable1();
+        this.str2 = this.writeToTable2();
+        const fontStlye = {
+            border: '1px solid blueviolet'
+        }
+        
     }
-    this.writeToTable1 = this.writeToTable1.bind(this);
-    this.writeToTable2 = this.writeToTable2.bind(this);
-}
+    UNSAFE_componentWillReceiveProps(nextProps) {
+        this.setState({ arr11: nextProps.arr1,
+            arr22: nextProps.arr2
+});
+    }
     writeToTable1 = () => {
-        var arr = [
-            ['字数', '10', '20', '30', '40', '50', '60', '70', '80', '90','未录入',],
-            ['占比', '8%', '8%', '8%', '8%', '8%', '8%', '8%', '8%', '8%','9%'],
-            
-        ];
+        var arr = this.state.arr11;
+        console.log(arr);
         // 定义变量,存储生成的字符串内容,使用 += 拼接字符串形式
         var strr = '';
         //外层循环,生成tr
@@ -44,11 +51,8 @@ class DataToTable extends React.Component {
         return strr
     }
     writeToTable2 = () => {
-        var arr = [
-            ['词数', '11', '22', '33', '44', '55', '65', '75', '85', '9', '未录入',],
-            ['占比', '9%', '9%', '9%', '9%', '9%', '9%', '20%', '23%', '18%', '55%'],
-
-        ];
+        var arr = this.state.arr22;
+        console.log(arr);
         // 定义变量,存储生成的字符串内容,使用 += 拼接字符串形式
         var strr = '';
         //外层循环,生成tr
@@ -94,7 +98,7 @@ class DataToTable extends React.Component {
                         <th>未录入</th>
                     </tr>
                 </thead>
-                <tbody dangerouslySetInnerHTML={{ __html: `<div>${this.state.str1}</div>` }} />
+                <tbody dangerouslySetInnerHTML={{ __html: `<div>${this.str1}</div>` }} />
                 
             </table>
             <p>总词数：300；
@@ -115,7 +119,7 @@ class DataToTable extends React.Component {
                         <th>未录入</th>
                     </tr>
                 </thead>
-                <tbody dangerouslySetInnerHTML={{ __html: `<div>${this.state.str2}</div>` }} />
+                <tbody dangerouslySetInnerHTML={{ __html: `<div>${this.str2}</div>` }} />
 
             </table>
         </div>

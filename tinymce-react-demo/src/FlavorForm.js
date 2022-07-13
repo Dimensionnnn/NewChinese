@@ -13,9 +13,9 @@ class FlavorForm extends React.Component {
 
     render() {
         return (
-            <div>
+            <div style={{ display: 'inline-block' }}>
                 <label > <input type="radio" name='gender' value="公有"
-                    onChange={this.handleChange} />公有</label><br />
+                    onChange={this.handleChange} />公有</label>
                 <label > <input type="radio" name='gender' value="私有"
                     onChange={this.handleChange} />私有</label>
                 <div>权限设置为: {this.state.value}</div>

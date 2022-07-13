@@ -5,14 +5,29 @@ import ReactHTMLTableToExcel from 'react-html-table-to-excel'; //导表
 import AllPostPage from './AllPostPage';
 import DataToTable from './DataToTable'
 import FlavorForm from './FlavorForm';
+import FileSaver from 'file-saver';
+import {wordExport} from './jquery.wordexport';
+import $ from 'jquery';
+
 
 class Page2 extends React.Component {
     constructor(props) {
         super(props);
+        this.state = {
+            array1: [
+                ['字数', '10', '20', '30', '40', '50', '60', '70', '80', '90', '6',],
+                ['占比', '8%', '8%', '8%', '8%', '8%', '8%', '8%', '8%', '8%', '9%'],
+            ],
+            array2: [
+                ['词数', '11', '22', '33', '44', '55', '65', '75', '85', '9', '23',],
+                ['占比', '9%', '9%', '9%', '9%', '9%', '9%', '20%', '23%', '18%', '55%'],
+
+            ] }
         this.myRef = React.createRef();
         // const centerStyle = {
         //     textAlign: 'center'
         // }
+        this._downloadWord=this._downloadWord.bind(this);
         this.fontStlye = {
             fontSize: '18px',
             color: 'red'
@@ -156,14 +171,70 @@ class Page2 extends React.Component {
                 未录入: ' 40',
             }
         ]
+        // this.array1 = [
+        //     ['字数', '10', '20', '30', '40', '50', '60', '70', '80', '90', '6',],
+        //     ['占比', '8%', '8%', '8%', '8%', '8%', '8%', '8%', '8%', '8%', '9%'],
+        // ];
+        // this.array2 = [
+        //     ['词数', '11', '22', '33', '44', '55', '65', '75', '85', '9', '23',],
+        //     ['占比', '9%', '9%', '9%', '9%', '9%', '9%', '20%', '23%', '18%', '55%'],
+
+        // ];
+    }
+    
+    /**
+  * 下载word
+  */
+    _downloadWord = () => {
+        let tinyContent = this.myRef.current.getContent();
+        let node = tinyContent;
+
+        
+        let style = ".title-span{ font-size:16px; color:red }";
+        let html = this._creatHtmlTree(node, style);
+        let blob = new Blob([html], { type: "application/vnd.ms-word;charset=UTF-8" });
+        FileSaver.saveAs(blob, "文档名称.doc");
+    }
+    /**
+     * 生成HTML
+     * @param {String} htmlTree html
+     * @param {String} style 样式
+     */
+    _creatHtmlTree = (htmlTree, style = '') => {
+        return `
+                <!DOCTYPE html>
+                    <html lang="en">
+   					<head>
+                    <meta charset="UTF-8">
+                    <style>
+                        ${style}
+                    </style>
+                    </head>
+                    <body>
+                        ${htmlTree}
+                    </body>
+                    </html>`
+    }
+  //直接调用   _downloadWord方法即可。
+    reAnalyze = () =>{
+        this.setState({
+            array1: [
+                ['字数', '9', '5', '77', '54', '8', '73', '33', '22', '75', '3',],
+                ['占比', '21%', '4%', '6%', '14%', '9%', '24%', '22%', '6%', '11%', '4%'],
+            ],
+            array2: [
+                ['词数', '9', '5', '77', '54', '8', '73', '33', '22', '75', '3',],
+                ['占比', '21%', '4%', '6%', '14%', '9%', '24%', '22%', '6%', '11%', '4%'],
+            ]
+        })
+        console.log(this);      
     }
     log = () => {
-
-        console.log('hi');
-
+        alert(this.myRef.current.getContent());
+        // this.myRef.current.getContent().wordExport('生成word文档');
     };
     setOne = () => {
-        const contentOne = '<p style="color:orange">一级文本,</p> <p style="color:black">二级文本. </p>'
+        const contentOne = '<div class="comeOn"><p style="color:orange">一级文本,</p> <p style="color:black">二级文本. </p></div>'
         if (this.myRef.current) {
             this.myRef.current.setContent(contentOne);
         }
@@ -174,7 +245,11 @@ class Page2 extends React.Component {
             this.myRef.current.setContent(contentTwo);
         }
     };
-    
+    onFormSubmit = (evt) => {
+        //this.prohibitRefresh();
+        evt.preventDefault();
+        //console.log(this.array1);
+    };
     render () {
         return (
             <>
@@ -183,7 +258,7 @@ class Page2 extends React.Component {
                 </div>
                 <div style={this.downStyle}>
                     <div style={{ float: 'left' }}>
-                        <form method="post">
+                        <form onSubmit={this.onFormSubmit}>
                             <Editor
                                 tinymceScriptSrc={process.env.PUBLIC_URL + '/tinymce/tinymce.min.js'}
                                 onInit={(evt, editor) => this.myRef.current = editor}
@@ -194,8 +269,8 @@ class Page2 extends React.Component {
                                     min_height: 540,
                                     width: 590,
                                     menubar: false,
-                                    icons_url: '/icons/savetext/icons.js',
-                                    icons: 'savetext',
+                                    // icons_url: '/icons/savetext/icons.js',
+                                    // icons: 'savetext',
                                     plugins: ' autoresize save  searchreplace autolink fullscreen link charmap pagebreak insertdatetime advlist lists wordcount',
                                     toolbar: ' link  newdocument save print searchreplace undo redo cut copy paste blockquote removeformat forecolor backcolor bold italic underline strikethrough charmap blocks fontsize alignleft aligncenter alignright alignjustify outdent indent pagebreak insertdatetime  fullscreen',
                                     content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
@@ -234,18 +309,21 @@ class Page2 extends React.Component {
                             />
 
                             <div style={{ display: 'inline-block' }}>
-                                <button style={this.buttonStyle} id="text_download" >下载当前文本</button>
+                                <button style={this.buttonStyle} id="text_download" onClick={this._downloadWord}>下载当前文本</button>
+                                <button id='btn_analyze2' style={this.buttonStyle} onClick={this.reAnalyze}>再次分析</button>
+                                <button  style={this.buttonStyle} onClick={this.log}>获取当前文本</button>
                             </div>
-                            <div style={{ display: 'inline-block' }}>
-                                <button id='btn_analyze2' style={this.buttonStyle}>再次分析</button>
-                            </div>
-                            <button name="submitbtn" style={this.buttonStyle} onClick={this.log}>获取当前文本</button>
-                            <FlavorForm/>
+                            
+                            
+                            <FlavorForm />
+                            
+                                
+                            
                         </form>
                     </div>
                     <div style={this.rightStyle}>
                         <strong style={this.fontStlye}>统计信息：</strong>
-                        <DataToTable tableID="table-to-xls" setone={this.setOne} settwo={this.setTwo}/>
+                        <DataToTable key={this.state.array1} tableID="table-to-xls" arr1={this.state.array1} arr2={this.state.array2} setone={this.setOne} settwo={this.setTwo}/>
 
                         {/* <table border="1" style={{ margin: '0 auto', width: '500px', height: ' 100px' }}>
                             <thead>
