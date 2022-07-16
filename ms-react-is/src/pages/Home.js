@@ -28,7 +28,7 @@ export default class Home extends Component {
     selectedIndex: "",
     filterableAttributes: [],
     displayedAttributes: [],
-    tab:""
+    tab:"word"
   };
   updateIndexs = (apiKey) => {
     //获取现在所有的indexs
