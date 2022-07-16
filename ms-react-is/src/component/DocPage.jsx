@@ -18,7 +18,7 @@ import {
 import "../App.css";
 import { instantMeiliSearch } from "@meilisearch/instant-meilisearch";
 
-const searchClient = instantMeiliSearch("http://127.0.0.1:7700/","MASTER_KEY");
+const searchClient = instantMeiliSearch("http://127.0.0.1:7700/", "MASTER_KEY");
 
 export default class DocPage extends Component {
   updateDocIndexs = () => {
@@ -37,6 +37,11 @@ export default class DocPage extends Component {
           {
             displayedAttributes.map((attribute) => {
               return (
+                attribute === "public"?
+                <div className="hit-description">
+                  已公开：
+                  {hit.public === 'true'?'是':'否'}
+                </div>:
                 <div className="hit-description">
                   {attribute}:
                   <Snippet attribute={attribute} hit={hit} />
@@ -44,7 +49,16 @@ export default class DocPage extends Component {
               );
             })
           }
+          {
+
+          }
+          <form action="" method="get">
+            <label><input name="public" type="radio" value="true" />公有 </label>
+            <label><input name="public" type="radio" value="false" />私有 </label>
+            <button class="btn btn-default">确认</button>
+          </form>
           <button onClick={routeChange}>分析文本</button>
+
         </div>
       );
     };
