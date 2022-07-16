@@ -53,9 +53,9 @@ export default class DocPage extends Component {
 
           }
           <form action="" method="get">
-            <label><input name="public" type="radio" value="true" />公有 </label>
+            <label><input name="public" type="radio" value="true" checked={hit.public}/>公有 </label>
             <label><input name="public" type="radio" value="false" />私有 </label>
-            <button class="btn btn-default">确认</button>
+            <button className="btn btn-default">确认</button>
           </form>
           <button onClick={routeChange}>分析文本</button>
 
