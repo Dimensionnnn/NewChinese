@@ -55,10 +55,7 @@ export default class Home extends Component {
   };
   getDisplayedAttributes = (selectedIndex) => {
     const client = new MeiliSearch({ host: "http://127.0.0.1:7700",apiKey: "MASTER_KEY" });
-    const displayedAttributes = client
-      .index(selectedIndex)
-      .getDisplayedAttributes();
-    console.log("displayedAttributes", displayedAttributes);
+    const displayedAttributes = client.index(selectedIndex).getDisplayedAttributes();
     var newDisplayedAttributes = [];
     displayedAttributes.then((res) => {
       for (var i = 0; i < res.length; i++) {
@@ -74,8 +71,6 @@ export default class Home extends Component {
   };
 
   render() {
-    const { indexs, selectedIndex, filterableAttributes, displayedAttributes } =
-      this.state;
     return (
       <>
         <Box mt={6} mb={15}>

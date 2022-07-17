@@ -22,9 +22,12 @@
     "react-instantsearch-dom": "6.12.1",
     "react-router-dom": "^6.3.0",
     "react-scripts": "3.0.1",
+    "sass-loader": "^7.3.1",
     "tinymce": "^6.1.0"
   },
   "devDependencies": {
+    "sass": "^1.53.0",
+    "style-loader": "^3.3.1",
     "typescript": "3.8.3"
   },
   "scripts": {
