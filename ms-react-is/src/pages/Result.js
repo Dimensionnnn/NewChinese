@@ -4,11 +4,23 @@ import { Editor } from "@tinymce/tinymce-react";
 import ReactHTMLTableToExcel from "react-html-table-to-excel"; //导表
 // import AllPostPage from "./AllPostPage";
 // import DataToTable from "../component/result/DataToTable";
-import { Button } from "@chakra-ui/react";
 import FlavorForm from "../component/result/FlavorForm";
 import { useLocation } from "react-router-dom";
 import FileSaver from "file-saver";
 // import { jsPDF } from "jspdf";
+import {
+  Button,
+  Table,
+  Thead,
+  Tbody,
+  Tfoot,
+  Tr,
+  Th,
+  Td,
+  TableCaption,
+  TableContainer,
+  Text
+} from "@chakra-ui/react";
 
 function Result() {
   const location = useLocation();
@@ -58,7 +70,6 @@ function Result() {
   }, []);
   return (
     <>
-      <div>分析结果： 适合HSK 6级以上的学习者</div>
       <div>
         <div style={{ float: "left" }}>
           <form
@@ -125,17 +136,47 @@ function Result() {
             <FlavorForm />
           </form>
         </div>
-        <div>
-          <strong>统计信息：</strong>
-          <ReactHTMLTableToExcel
-            id="test-table-xls-button"
-            className="download-table-xls-button"
-            table="table-to-xls"
-            filename="tablexls"
-            sheet="tablexls"
-            buttonText="下载分析明细"
-          />
-        </div>
+        <>
+          <TableContainer>
+            <Table variant="simple">
+              <TableCaption>统计信息</TableCaption>
+              <Thead>
+                <Tr>
+                  <Th>级别</Th>
+                  <Th>1</Th>
+                  <Th>2</Th>
+                  <Th>3</Th>
+                  <Th>4</Th>
+                  <Th>5</Th>
+                  <Th>6</Th>
+                  <Th>7</Th>
+                  <Th>8</Th>
+                  <Th>9</Th>
+                  <Th>未录入</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                <Tr>
+                  <Td>字数</Td>
+                </Tr>
+                <Tr>
+                  <Td>占比</Td>
+                </Tr>
+              </Tbody>
+            </Table>
+          </TableContainer>
+          <Text>分析结果： 适合HSK 6级以上的学习者</Text>
+          <Button>
+            <ReactHTMLTableToExcel
+              id="test-table-xls-button"
+              className="download-table-xls-button"
+              table="table-to-xls"
+              filename="tablexls"
+              sheet="tablexls"
+              buttonText="下载分析明细"
+            />
+          </Button>
+        </>
       </div>
     </>
   );

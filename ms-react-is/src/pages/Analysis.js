@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import { Editor } from "@tinymce/tinymce-react";
 import {useLocation, useNavigate} from 'react-router-dom';
-import { Button } from '@chakra-ui/react'
+import { Button } from '@chakra-ui/react';
 
 
 const Analysis = () => {
