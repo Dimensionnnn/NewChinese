@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 // import "./App.css";
 import { Editor } from "@tinymce/tinymce-react";
 import ReactHTMLTableToExcel from "react-html-table-to-excel"; //导表
@@ -25,6 +25,10 @@ import {
 function Result() {
   const location = useLocation();
   const editorValue = useRef("");
+  const [showTable, setShowTable] = useState(true);
+  const handler = () => {
+    setShowTable(!showTable);
+  }
   const creatHtmlTree = (htmlTree, style = "") => {
     return `
             <!DOCTYPE html>
@@ -137,7 +141,8 @@ function Result() {
           </form>
         </div>
         <>
-          <TableContainer>
+          <Button onClick={handler}>展示/隐藏统计信息</Button>
+          {showTable && <TableContainer>
             <Table variant="simple">
               <TableCaption>统计信息</TableCaption>
               <Thead>
@@ -164,7 +169,7 @@ function Result() {
                 </Tr>
               </Tbody>
             </Table>
-          </TableContainer>
+          </TableContainer>}
           <Text>分析结果： 适合HSK 6级以上的学习者</Text>
           <Button>
             <ReactHTMLTableToExcel
