@@ -7,9 +7,12 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 
-const Login = () => {
+const Login = (props) => {
   const formBackground = useColorModeValue("gray.100", "gray.700");
 
+  const login = () => {
+    props.loggedIn(true);
+  }
   return (
     <Flex h="100vh" alignItems="center" justifyContent="center">
       <Flex
@@ -21,18 +24,18 @@ const Login = () => {
       >
         <Heading mb={6}>Log In</Heading>
         <Input
-          placeholder="johndoe@gmail.com"
+          placeholder="admin"
           type="email"
           variant="filled"
           mb={3}
         />
         <Input
-          placeholder="**********"
+          placeholder="123456"
           type="password"
           variant="filled"
           mb={6}
         />
-        <Button colorScheme="teal" mb={8}>
+        <Button colorScheme="teal" mb={8} onClick={login}>
           Log In
         </Button>
       </Flex>

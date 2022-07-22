@@ -142,7 +142,7 @@ export default class DocPage extends Component {
     return (
       <InstantSearch indexName={selectedIndex} searchClient={instantMeiliSearch("http://127.0.0.1:7700/", "MASTER_KEY")}>
         <div className="left-panel">
-          <button onClick={this.updateDocIndexs} class="btn btn-default">加载indexs</button>
+          <button onClick={this.updateDocIndexs} class="btn btn-default">加载文本库</button>
           <IndexList indexs={indexs} setIndex={setIndex} />
           <IndexRefine filterableAttributes={filterableAttributes} />
 
