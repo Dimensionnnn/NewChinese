@@ -4,8 +4,8 @@ import { MeiliSearch } from "meilisearch";
 import IndexList from "./IndexList";
 import IndexRefine from "./IndexRefine";
 import { Snippet } from "react-instantsearch-dom";
+import PubSub from 'pubsub-js'
 import { useNavigate } from "react-router-dom";
-
 
 import {
   InstantSearch,
@@ -20,13 +20,13 @@ import {
 import "../App.css";
 import { instantMeiliSearch } from "@meilisearch/instant-meilisearch";
 
-// const searchClient = instantMeiliSearch("http://127.0.0.1:7700/", "MASTER_KEY")
 const client = new MeiliSearch({ host: "http://127.0.0.1:7700", apiKey: "MASTER_KEY" });
 export default class DocPage extends Component {
-  state = {
-    curIndex: 20
+
+  refreshIndex(indexName) {
+    PubSub.publish('refreshIndex', indexName)
   }
-  setWaitPublicCheck = (hit) => {// 私有或公有加入待审核
+  setWaitPublicCheck = (hit) => {// 公有加入待审核
     //加入到待审核index，同时需要携带该用户的userid，以便后续限制此用户只能访问用户id是自己的数据
     // hit数据中加入userid
     if (window.confirm('确定公开该条吗？管理员通过后将从私有index删除，可在公有库搜索', hit.title, '，若存在则为审核通过')) {
@@ -38,12 +38,9 @@ export default class DocPage extends Component {
         public: 'false',
         userid: 'admin' //后续根据当前登录用户进行修改
       }])
-      this.setState({ curIndex: this.state.curIndex + 1 })// 防止页面缓存不加载新加入的待审核
-      this.setState({ curIndex: this.state.curIndex - 1 })// 防止页面缓存不加载新加入的待审核
-      // window.location.reload()
     }
   }
-  setWaitPrivateCheck = (hit) => {// 私有或公有加入待审核
+  setWaitPrivateCheck = (hit) => {// 私有加入待审核
     //加入到待审核index，同时需要携带该用户的userid，以便后续限制此用户只能访问用户id是自己的数据
     // hit数据中加入userid
     if (window.confirm('确定私有该条吗？管理员通过后将从公有index删除，可在私有库搜索', hit.title, '，若存在则为审核通过')) {
@@ -55,9 +52,6 @@ export default class DocPage extends Component {
         public: "true",
         userid: 'admin' //后续根据当前登录用户进行修改
       }])
-      this.setState({ curIndex: this.state.curIndex + 1 })// 防止页面缓存不加载新加入的待审核
-      this.setState({ curIndex: this.state.curIndex - 1 })// 防止页面缓存不加载新加入的待审核
-      // window.location.reload()
     }
   }
   setPrivate = (hit) => {// 通过私有化申请
@@ -72,11 +66,9 @@ export default class DocPage extends Component {
       }])
       //设为私有从此index删除
       client.index('wait_to_check').deleteDocument(hit.id)
-      setTimeout(this.setState({ curIndex: this.state.curIndex + 1 }), 2000);// 防止页面缓存不加载新加入的待审核
       client.index('doc_wiki_05').deleteDocument(hit.id)
-      setTimeout(this.setState({ curIndex: this.state.curIndex - 1 }), 2000);// 防止页面缓存不加载新加入的待审核
-      
-      // window.location.reload()
+      this.refreshIndex('wait_to_check')
+
     }
   }
   setPublic = (hit) => {// 通过公有化申请 （未实现公开到哪个index，还需选择）
@@ -91,10 +83,8 @@ export default class DocPage extends Component {
       }])
       //设为私有从此index删除
       client.index('wait_to_check').deleteDocument(hit.id)
-      setTimeout(this.setState({ curIndex: this.state.curIndex + 1 }), 2000);// 防止页面缓存不加载新加入的待审核
       client.index('all_private').deleteDocument(hit.id)
-      setTimeout(this.setState({ curIndex: this.state.curIndex - 1 }), 1000);// 防止页面缓存不加载新加入的待审核
-      // window.location.reload()
+      this.refreshIndex('wait_to_check')
     }
   }
   updateDocIndexs = () => {
@@ -109,16 +99,16 @@ export default class DocPage extends Component {
         navigate(path, { state: { value: hit.text } });
       };
       return (
-        <div key={hit.id+hit.title}>
+        <div key={hit.id + hit.title}>
           {
             displayedAttributes.map((attribute) => {
               return (
                 attribute === "public" ?
-                  <div key={hit.id+attribute} className="hit-description">
+                  <div key={hit.id + attribute} className="hit-description">
                     已公开：
                     {hit.public === 'true' ? '是' : '否'}
                   </div> :
-                  <div className="hit-description" key={hit.id+attribute}>
+                  <div className="hit-description" key={hit.id + attribute}>
                     {attribute}:
                     <Snippet attribute={attribute} hit={hit} />
                   </div>
@@ -126,7 +116,6 @@ export default class DocPage extends Component {
             })
           }
           {
-
             this.props.selectedIndex === 'wait_to_check' ?
               hit.public === 'true' ?
                 <button onClick={() => this.setPrivate(hit)} className="btn btn-default">通过私有化申请</button> :
@@ -142,7 +131,7 @@ export default class DocPage extends Component {
     return (
       <InstantSearch indexName={selectedIndex} searchClient={instantMeiliSearch("http://127.0.0.1:7700/", "MASTER_KEY")}>
         <div className="left-panel">
-          <button onClick={this.updateDocIndexs} class="btn btn-default">加载文本库</button>
+          <button onClick={this.updateDocIndexs} class="btn btn-default">加载indexs</button>
           <IndexList indexs={indexs} setIndex={setIndex} />
           <IndexRefine filterableAttributes={filterableAttributes} />
 
@@ -155,11 +144,11 @@ export default class DocPage extends Component {
           <CurrentRefinements />
           <SearchBox />
           <HitsPerPage
-            defaultRefinement={this.state.curIndex}
+            defaultRefinement={20}
             items={[
-              { value: this.state.curIndex - 10, label: "显示 10 条每页" },
-              { value: this.state.curIndex, label: "显示 20 条每页" },
-              { value: this.state.curIndex + 20, label: "显示 40 条每页" },
+              { value: 10, label: "显示 10 条每页" },
+              { value: 20, label: "显示 20 条每页" },
+              { value: 40, label: "显示 40 条每页" },
             ]}
           />
           <Hits hitComponent={Hit} />
