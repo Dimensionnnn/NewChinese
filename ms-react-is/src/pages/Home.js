@@ -53,7 +53,6 @@ export default class Home extends Component {
     });
     //获取所有filterableAttributes
     const settings = client.index(selectedIndex).getSettings();
-    console.log(settings);
     settings.then((res) => {
       this.setState({ filterableAttributes: res.filterableAttributes });
       console.log(res.filterableAttributes);
