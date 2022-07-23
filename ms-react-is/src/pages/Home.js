@@ -1,34 +1,22 @@
 import "instantsearch.css/themes/algolia-min.css";
-import React, { Component } from "react";
+import React, { Component, useContext } from "react";
 import { MeiliSearch } from "meilisearch";
 
-import {
-  Box,
-  Button,
-  Container,
-  Flex,
-  Heading,
-  Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
-  Text,
-} from "@chakra-ui/react";
-import ThemeButton from "../component/themeButton";
+import { Button, Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
 import Footer from "../component/footer";
 import WordPage from "../component/WordPage";
 import DocPage from "../component/DocPage";
-import Login from "../component/login/login";
+import NavBar from "../component/navbar/NavBar";
+import { UserContext } from "../component/utils/userContext";
 
-export default class Home extends Component {
+
+class Home extends Component {
   state = {
     indexs: [],
     selectedIndex: "",
     filterableAttributes: [],
     displayedAttributes: [],
     tab: "word",
-    login: false,
   };
   updateIndexs = (apiKey) => {
     //获取现在所有的indexs
@@ -53,10 +41,9 @@ export default class Home extends Component {
     });
     //获取所有filterableAttributes
     const settings = client.index(selectedIndex).getSettings();
-    console.log(settings);
     settings.then((res) => {
       this.setState({ filterableAttributes: res.filterableAttributes });
-      console.log(res.filterableAttributes);
+      // console.log(res.filterableAttributes);
     });
   };
   getDisplayedAttributes = (selectedIndex) => {
@@ -82,74 +69,65 @@ export default class Home extends Component {
   };
   getLogin = (value) => {
     this.setState({ login: value });
-  }
+  };
+
 
   render() {
     return (
       <>
-        {this.state.login ? (
-          <>
-            <Box mt={6} mb={15}>
-              <Container
-                display="flex"
-                p={2}
-                wrap="wrap"
-                justify="space-between"
+        <>
+          <NavBar user={this.props.user} />
+          <Tabs isFitted variant="enclosed">
+            <TabList>
+              <Tab
+                _selected={{ color: "white", bg: "blue.500" }}
+                onClick={
+                  this.state.tab === "doc"
+                    ? () => this.setState({ tab: "word", indexs: [] })
+                    : () => this.setState({ tab: "word" })
+                }
               >
-                <Flex align="left" mr={10}>
-                  <Heading as="h2">新中文分级检索系统</Heading>
-                </Flex>
-                <Box flex={1} align="right">
-                  <ThemeButton />
-                </Box>
-              </Container>
-            </Box>
-            <Tabs isFitted variant="enclosed">
-              <TabList>
-                <Tab
-                  _selected={{ color: "white", bg: "blue.500" }}
-                  onClick={
-                    this.state.tab === "doc"
-                      ? () => this.setState({ tab: "word", indexs: [] })
-                      : () => this.setState({ tab: "word" })
-                  }
-                >
-                  生词检索
-                </Tab>
-                <Tab
-                  _selected={{ color: "white", bg: "green.400" }}
-                  onClick={
-                    this.state.tab === "word"
-                      ? () => this.setState({ tab: "doc", indexs: [] })
-                      : () => this.setState({ tab: "doc" })
-                  }
-                >
-                  句子检索
-                </Tab>
-              </TabList>
-              <TabPanels>
-                <TabPanel>
-                  <WordPage
-                    updateIndexs={this.updateIndexs}
-                    setIndex={this.setIndex}
-                    {...this.state}
-                  />
-                </TabPanel>
-                <TabPanel>
-                  <DocPage
-                    updateIndexs={this.updateIndexs}
-                    setIndex={this.setIndex}
-                    {...this.state}
-                  />
-                </TabPanel>
-              </TabPanels>
-            </Tabs>
-            <Footer />
-          </>
-        ) : (
-          <Login loggedIn={this.getLogin} />
-        )}
+                生词检索
+              </Tab>
+              <Tab
+                _selected={{ color: "white", bg: "green.400" }}
+                onClick={
+                  this.state.tab === "word"
+                    ? () => this.setState({ tab: "doc", indexs: [] })
+                    : () => this.setState({ tab: "doc" })
+                }
+              >
+                句子检索
+              </Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel>
+                <WordPage
+                  updateIndexs={this.updateIndexs}
+                  setIndex={this.setIndex}
+                  {...this.state}
+                />
+              </TabPanel>
+              <TabPanel>
+                <DocPage
+                  updateIndexs={this.updateIndexs}
+                  setIndex={this.setIndex}
+                  {...this.state}
+                />
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
+          <Footer />
+        </>
       </>
     );
   }
+}
+
+
+export default () => {
+  const {user, setUser} = useContext(UserContext);
+  return (
+    <Home user={user} />
+  )
 }

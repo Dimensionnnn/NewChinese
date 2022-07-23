@@ -46,7 +46,7 @@ export default class wordPage extends Component {
     return (
       <InstantSearch indexName={selectedIndex} searchClient={searchClient}>
         <div className="left-panel">
-          <button onClick={this.updateWordIndexs} class="btn btn-default">加载单词库</button>
+          <button onClick={this.updateWordIndexs} className="btn btn-default">加载单词库</button>
           <IndexList indexs={indexs} setIndex={setIndex} />
           <IndexRefine filterableAttributes={filterableAttributes} />
         </div>

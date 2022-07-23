@@ -10,6 +10,7 @@
     "@emotion/styled": "^11.9.3",
     "@meilisearch/instant-meilisearch": "0.7.1",
     "@tinymce/tinymce-react": "^4.1.0",
+    "axios": "^0.27.2",
     "bootstrap": "^3.4.1",
     "file-saver": "^2.0.5",
     "framer-motion": "^4.1.17",

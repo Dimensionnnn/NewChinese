@@ -45,7 +45,7 @@ function Result() {
                 </html>`;
   };
   const log = () => {
-    console.log(editorValue.current.startContent);
+    // console.log(editorValue.current.startContent);
     let content = editorValue.current.startContent;
     let style = ".title-span{ font-size:16px; color:red }";
     let html = creatHtmlTree(content, style);
