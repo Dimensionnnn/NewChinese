@@ -7,7 +7,6 @@ import IndexRefineItem from './IndexRefineItem';
 export default class IndexRefine extends Component {
   render() {
     const { filterableAttributes } = this.props
-    console.log('1', filterableAttributes)
     return (
       <div>
         <ClearRefinements />
