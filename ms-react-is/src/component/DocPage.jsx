@@ -4,7 +4,7 @@ import { MeiliSearch } from "meilisearch";
 import IndexList from "./IndexList";
 import IndexRefine from "./IndexRefine";
 import { Snippet } from "react-instantsearch-dom";
-import PubSub from 'pubsub-js'
+import PubSub from 'pubsub-js';
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -131,7 +131,7 @@ export default class DocPage extends Component {
     return (
       <InstantSearch indexName={selectedIndex} searchClient={instantMeiliSearch("http://127.0.0.1:7700/", "MASTER_KEY")}>
         <div className="left-panel">
-          <button onClick={this.updateDocIndexs} class="btn btn-default">加载indexs</button>
+          <button onClick={this.updateDocIndexs} className="btn btn-default">加载indexs</button>
           <IndexList indexs={indexs} setIndex={setIndex} />
           <IndexRefine filterableAttributes={filterableAttributes} />
 

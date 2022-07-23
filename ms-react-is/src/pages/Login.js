@@ -39,17 +39,17 @@ function LoginForm() {
     axios
       .request(options)
       .then((res) => {
-        // console.log(res.data);
         const statusCode = res.data.code;
         switch (statusCode) {
           case 200:
             const token = res.data.data.token;
             const user = res.data.data.name;
-            alert(user);
+            alert("用户" + user + "登陆成功！");
             setToken(token);
             setUser(user);
             setLoggedIn(true);
           default:
+            event.target.reset();
             setError("Invalid username or password");
             setUsername("");
             setPassword("");
@@ -91,7 +91,7 @@ function LoginForm() {
               <FormLabel>密码</FormLabel>
               <Input
                 type="password"
-                placeholder="*******"
+                placeholder="********"
                 size="lg"
                 onChange={(event) => setPassword(event.currentTarget.value)}
               />

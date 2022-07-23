@@ -17,6 +17,7 @@
     "fs-extra": "^10.1.0",
     "instantsearch.css": "7.4.2",
     "meilisearch": "^0.25.1",
+    "pubsub-js": "^1.9.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-html-table-to-excel": "^2.0.0",

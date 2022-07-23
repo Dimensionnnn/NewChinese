@@ -6,21 +6,23 @@ const MenuItem = ({ children, isLogout, to = "/", ...rest }) => {
     localStorage.clear();
   }
   return (
-    <Link href={to}>
-      <Text display="block" {...rest}>
-        {children}
-      </Text>
-    </Link>
+    <Box p={5} border="1px solid gray" borderRadius="5" {...rest}>
+      <Link href={to}>
+        <Text display="block" {...rest}>
+          {children}
+        </Text>
+      </Link>
+    </Box>
   );
 };
 
 const TextItem = ({ children }) => {
   return (
-    <Text display="block">
-      {children}
-    </Text>
-  )
-}
+    <Box p={5} border="1px solid gray" borderRadius="5">
+      <Text display="block">{children}</Text>
+    </Box>
+  );
+};
 
 const MenuLinks = (props) => {
   return (
@@ -28,14 +30,12 @@ const MenuLinks = (props) => {
       display={{ base: "block", md: "block" }}
       flexBasis={{ base: "100%", md: "auto" }}
     >
-      <Stack
-        spacing={8}
-        align="center"
-        justify={["center", "space-between", "flex-end", "flex-end"]}
-        direction={["column", "row", "row", "row"]}
-        pt={[4, 4, 0, 0]}
-      >
-        {props.user && <MenuItem isLogout={true} to="/">登出</MenuItem>}
+      <Stack spacing={2} direction="row" align="left">
+        {props.user && (
+          <MenuItem isLogout={true} to="/">
+            登出
+          </MenuItem>
+        )}
         {props.user && <TextItem>用户{props.user}已登陆</TextItem>}
         {!props.user && <MenuItem to="/Login">登陆</MenuItem>}
       </Stack>
