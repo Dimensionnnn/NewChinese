@@ -1,8 +1,12 @@
-import React from "react";
+import React, {useContext} from "react";
 import { Box, Link, Stack, Text } from "@chakra-ui/react";
+import { UserContext } from "../component/utils/userContext";
+
 
 const MenuItem = ({ children, isLogout, to = "/", ...rest }) => {
+  const {user, setUser} = useContext(UserContext);
   if (isLogout) {
+    setUser('');
     localStorage.clear();
   }
   return (
