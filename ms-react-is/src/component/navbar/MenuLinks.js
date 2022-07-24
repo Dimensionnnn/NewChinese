@@ -1,6 +1,6 @@
 import React, {useContext} from "react";
 import { Box, Link, Stack, Text } from "@chakra-ui/react";
-import { UserContext } from "../component/utils/userContext";
+import { UserContext } from "../utils/userContext";
 
 
 const MenuItem = ({ children, isLogout, to = "/", ...rest }) => {
