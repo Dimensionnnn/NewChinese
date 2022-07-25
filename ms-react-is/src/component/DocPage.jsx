@@ -2,7 +2,6 @@ import "instantsearch.css/themes/algolia-min.css";
 import React, { Component } from "react";
 import { MeiliSearch } from "meilisearch";
 import IndexList from "./IndexList";
-import IndexRefine from "./IndexRefine";
 import { Snippet } from "react-instantsearch-dom";
 import PubSub from 'pubsub-js';
 import { useNavigate } from "react-router-dom";
@@ -13,7 +12,6 @@ import {
   SearchBox,
   Pagination,
   HitsPerPage,
-  CurrentRefinements,
   Configure,
 } from "react-instantsearch-dom";
 
@@ -22,7 +20,56 @@ import { instantMeiliSearch } from "@meilisearch/instant-meilisearch";
 
 const client = new MeiliSearch({ host: "http://127.0.0.1:7700", apiKey: "MASTER_KEY" });
 export default class DocPage extends Component {
+  state = {
+    token: 'puQ8edwLae5cf8cd8b9c91c1f22ab17756e1f973dd621cd172e939e192a8908f5d99e4d2'
+  }
 
+  createToken = () => {
+    // const jwt = require('jsonwebtoken');
+    // const apiKey = 'puQ8edwLae5cf8cd8b9c91c1f22ab17756e1f973dd621cd172e939e192a8908f5d99e4d2';
+    // // const apiKeyUid = 'puQ8edwLae5cf8cd8b9c91c1f22ab17756e1f973dd621cd172e939e192a8908f5d99e4d2';
+    // const currentUserID = 'admin';
+    // const tokenPayload = {
+    //   searchRules: {
+    //     'all_private': {
+    //       'filter': `userid = ${currentUserID}`
+    //     }
+    //   }
+    // };
+    // const token = jwt.sign(tokenPayload, apiKey, {algorithm: 'HS256'});
+    // console.log("token:", token)
+    // this.setState({token:token1});
+
+    // const searchRules = {
+    //   all_private: {
+    //     filter: 'userid = admin'
+    //   }
+    // }
+    // const apiKey = 'yari9Jc576d08458114246e24760cfb138b8ed470096b56e9fe8414af90e042ac2709fca'
+    // const expiresAt = new Date('2025-12-20') // optional
+
+    // const token = client.generateTenantToken(searchRules, {
+    //   apiKey: apiKey,
+    //   expiresAt: expiresAt,
+    // })
+    // console.log(token)
+    // console.log('window',window)
+    // const searchRules = {
+    //   all_private: {
+    //     filter: 'userid = admin'
+    //   }
+    // }
+    // var token = "";
+    // const expiresAt = new Date('2026-12-20') // optional
+    // this.props.selectedIndex === "all_private" ?
+    //   token = client.generateTenantToken(searchRules, {
+    //     apiKey: this.state.token,
+    //     expiresAt: expiresAt,
+    //   }) :
+    //   // token = this.state.token;
+    // // this.setState({ token: token })
+    // console.log("token:", token)
+  }
   refreshIndex(indexName) {
     PubSub.publish('refreshIndex', indexName)
   }
@@ -36,7 +83,7 @@ export default class DocPage extends Component {
         title: hit.title,
         text: hit.text,
         public: 'false',
-        userid: 'admin' //后续根据当前登录用户进行修改
+        userid: '' //后续根据当前登录用户进行修改
       }])
     }
   }
@@ -79,7 +126,7 @@ export default class DocPage extends Component {
         title: hit.title,
         text: hit.text,
         public: "true",
-        userid: 'admin' //后续根据当前登录用户进行修改
+        userid: '' //后续根据当前登录用户进行修改
       }])
       //设为私有从此index删除
       client.index('wait_to_check').deleteDocument(hit.id)
@@ -91,12 +138,12 @@ export default class DocPage extends Component {
     this.props.updateIndexs('puQ8edwLae5cf8cd8b9c91c1f22ab17756e1f973dd621cd172e939e192a8908f5d99e4d2');
   };
   render() {
-    const { filterableAttributes, selectedIndex, indexs, setIndex, displayedAttributes } = this.props;
+    const { selectedIndex, indexs, setIndex, displayedAttributes } = this.props;
     const Hit = ({ hit }) => {
       let navigate = useNavigate();
       const routeChange = () => {
         let path = `/analysis`;
-        navigate(path, { state: { value: hit.text } });
+        navigate(path, { state: { value: hit.text, hit: hit } });
       };
       return (
         <div key={hit.id + hit.title}>
@@ -120,28 +167,24 @@ export default class DocPage extends Component {
               hit.public === 'true' ?
                 <button onClick={() => this.setPrivate(hit)} className="btn btn-default">通过私有化申请</button> :
                 <button onClick={() => this.setPublic(hit)} className="btn btn-default">通过公有化申请</button> :
-              this.props.selectedIndex === 'all_private' ?
-                <button onClick={() => this.setWaitPublicCheck(hit)} className="btn btn-default">公开此条</button> :
-                <button onClick={() => this.setWaitPrivateCheck(hit)} className="btn btn-default">点击设为私有</button>
+              <></>
           }
           <button onClick={routeChange} className="btn btn-default">分析文本</button>
         </div>
       );
     };
     return (
-      <InstantSearch indexName={selectedIndex} searchClient={instantMeiliSearch("http://127.0.0.1:7700/", "MASTER_KEY")}>
+      <InstantSearch indexName={selectedIndex} searchClient={instantMeiliSearch("http://127.0.0.1:7700/", this.state.token)}>
         <div className="left-panel">
-          <button onClick={this.updateDocIndexs} className="btn btn-default">加载indexs</button>
+          <button onClick={this.updateDocIndexs} className="btn btn-default">加载文本库</button>
           <IndexList indexs={indexs} setIndex={setIndex} />
-          <IndexRefine filterableAttributes={filterableAttributes} />
-
+          <button onClick={this.createToken}>点击过滤</button>
           <Configure
             attributesToSnippet={["description:"]}
             snippetEllipsisText={"..."}
           />
         </div>
         <div className="right-panel">
-          <CurrentRefinements />
           <SearchBox />
           <HitsPerPage
             defaultRefinement={20}

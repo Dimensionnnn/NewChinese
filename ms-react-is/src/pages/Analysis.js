@@ -1,8 +1,8 @@
 import React, { useRef } from "react";
 import { Editor } from "@tinymce/tinymce-react";
-import {useLocation, useNavigate} from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@chakra-ui/react';
-
+import { MeiliSearch } from "meilisearch";
 
 const Analysis = () => {
   let navigate = useNavigate();
@@ -10,8 +10,23 @@ const Analysis = () => {
   const location = useLocation();
   const routeChange = () => {
     let path = `/result`;
-    navigate(path, { state: { value: location.state.value } });
+    navigate(path, { state: { value: location.state.value,hit:location.state.hit } });
   };
+  const client = new MeiliSearch({ host: "http://127.0.0.1:7700", apiKey: "MASTER_KEY" });
+  const setWaitPrivateCheck = (hit) => {// 私有加入待审核
+    //加入到待审核index，同时需要携带该用户的userid，以便后续限制此用户只能访问用户id是自己的数据
+    // hit数据中加入userid
+    if (window.confirm('确定私有该条吗？管理员通过后将从公有index删除，可在私有库搜索', hit.title, '，若存在则为审核通过')) {
+      client.index('wait_to_check').addDocuments([{
+        id: hit.id,
+        url: hit.url,
+        title: hit.title,
+        text: hit.text,
+        public: "true",
+        userid: 'admin' //后续根据当前登录用户进行修改
+      }])
+    }
+  }
   return (
     <>
       <Editor
@@ -49,17 +64,17 @@ const Analysis = () => {
           //     case "file":
           //       break;
           //   }
-            // //模拟出一个input用于添加本地文件
-            // var input = document.createElement("input");
-            // input.setAttribute("type", "file");
-            // input.setAttribute("accept", filetype);
-            // input.click();
-            // input.onchange = function () {
-            //   var file = this.files[0];
-            //   var xhr, formData;
-            //   console.log(file.name);
-            //   //TODO:这里写请求
-            // };
+          // //模拟出一个input用于添加本地文件
+          // var input = document.createElement("input");
+          // input.setAttribute("type", "file");
+          // input.setAttribute("accept", filetype);
+          // input.click();
+          // input.onchange = function () {
+          //   var file = this.files[0];
+          //   var xhr, formData;
+          //   console.log(file.name);
+          //   //TODO:这里写请求
+          // };
           // },
         }}
       />
@@ -72,6 +87,11 @@ const Analysis = () => {
         >
           分析文本
         </Button>
+        {
+            location.state.hit.public === 'true' ?
+            <button onClick={() => setWaitPrivateCheck(location.state.hit)} className="btn btn-default">点击设为私有</button>:
+            <></>
+        }
       </div>
     </>
   );
