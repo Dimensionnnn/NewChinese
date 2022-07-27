@@ -17,7 +17,7 @@
     "fs-extra": "^10.1.0",
     "instantsearch.css": "7.4.2",
     "jsonwebtoken": "^8.5.1",
-    "meilisearch": "^0.25.1",
+    "meilisearch": "^0.28.0-pagination-beta.0",
     "pubsub-js": "^1.9.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -27,7 +27,8 @@
     "react-router-dom": "^6.3.0",
     "react-scripts": "3.0.1",
     "sass-loader": "^7.3.1",
-    "tinymce": "^6.1.0"
+    "tinymce": "^6.1.0",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "sass": "^1.53.0",
@@ -45,5 +46,6 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "proxy": "http://localhost:5000"
 }

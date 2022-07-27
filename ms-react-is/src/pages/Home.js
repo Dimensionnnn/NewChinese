@@ -21,23 +21,23 @@ class Home extends Component {
   updateIndexs = (apiKey) => {
     //获取现在所有的indexs
     const client = new MeiliSearch({
-      host: "http://127.0.0.1:7700",
-      apiKey: apiKey,
+      host: "http://127.0.0.1:7700/",
+      apiKey: apiKey
     });
     const curIndex = client.getIndexes();
-    //API取得的数据是Promise {<pending>}类型，使用此then方法获取数据
     var newIndex = [];
     curIndex.then((res) => {
-      for (var i = 0; i < res.length; i++) {
-        newIndex.push(res[i].uid);
+      for (var i = 0; i < res.results.length; i++) {
+        console.log(res.results)
+        newIndex.push(res.results[i].uid);
       }
       this.setState({ indexs: newIndex });
     });
   };
   getFilterableAttributes = (selectedIndex) => {
     const client = new MeiliSearch({
-      host: "http://127.0.0.1:7700",
-      apiKey: "MASTER_KEY",
+      host: "http://127.0.0.1:7700/",
+      apiKey: "MASTER_KEY"
     });
     //获取所有filterableAttributes
     const settings = client.index(selectedIndex).getSettings();

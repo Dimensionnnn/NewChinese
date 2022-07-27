@@ -89,7 +89,7 @@ const Analysis = () => {
         </Button>
         {
             location.state.hit.public === 'true' ?
-            <button onClick={() => setWaitPrivateCheck(location.state.hit)} className="btn btn-default">点击设为私有</button>:
+            <Button onClick={() => setWaitPrivateCheck(location.state.hit)} style={{ backgroundColor: "#F0F2F5" }}>点击设为私有</Button>:
             <></>
         }
       </div>

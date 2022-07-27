@@ -18,11 +18,11 @@ import {
 // import "../App.css";
 import { instantMeiliSearch } from "@meilisearch/instant-meilisearch";
 
-const searchClient = instantMeiliSearch("http://127.0.0.1:7700/","MASTER_KEY");
+const searchClient = instantMeiliSearch("http://127.0.0.1:7700/","0fd3796be6b4d2bf5b5e5c4ae1f42a21fc3b05c8ff324f7c0bbbfb44dd2b69bb");
 
 export default class wordPage extends Component {
   updateWordIndexs = () => {
-    this.props.updateIndexs('0imUupoz14753a3dd31e77e894154b9b7d6b7d15bd9d26f53322cd1efca9a6724c26b9c1');
+    this.props.updateIndexs("0fd3796be6b4d2bf5b5e5c4ae1f42a21fc3b05c8ff324f7c0bbbfb44dd2b69bb");
   };
 
   render() {

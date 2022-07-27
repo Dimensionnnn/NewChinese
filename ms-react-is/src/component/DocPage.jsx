@@ -5,6 +5,8 @@ import IndexList from "./IndexList";
 import { Snippet } from "react-instantsearch-dom";
 import PubSub from 'pubsub-js';
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { v4 as uuidv4 } from 'uuid';
 
 import {
   InstantSearch,
@@ -21,25 +23,15 @@ import { instantMeiliSearch } from "@meilisearch/instant-meilisearch";
 const client = new MeiliSearch({ host: "http://127.0.0.1:7700", apiKey: "MASTER_KEY" });
 export default class DocPage extends Component {
   state = {
-    token: 'puQ8edwLae5cf8cd8b9c91c1f22ab17756e1f973dd621cd172e939e192a8908f5d99e4d2'
+    token: '47b83daac247b48aa570d8fd01d7b9bac651a8416ef0c8eb6b6a1ba749bba571'
   }
 
   createToken = () => {
-    // const jwt = require('jsonwebtoken');
-    // const apiKey = 'puQ8edwLae5cf8cd8b9c91c1f22ab17756e1f973dd621cd172e939e192a8908f5d99e4d2';
-    // // const apiKeyUid = 'puQ8edwLae5cf8cd8b9c91c1f22ab17756e1f973dd621cd172e939e192a8908f5d99e4d2';
-    // const currentUserID = 'admin';
-    // const tokenPayload = {
-    //   searchRules: {
-    //     'all_private': {
-    //       'filter': `userid = ${currentUserID}`
-    //     }
-    //   }
-    // };
-    // const token = jwt.sign(tokenPayload, apiKey, {algorithm: 'HS256'});
-    // console.log("token:", token)
-    // this.setState({token:token1});
+    axios.get("http://localhost:3000/students").then(
+      response => {console.log("成功了",response.data);}
+    )
 
+    
     // const searchRules = {
     //   all_private: {
     //     filter: 'userid = admin'
@@ -54,6 +46,7 @@ export default class DocPage extends Component {
     // })
     // console.log(token)
     // console.log('window',window)
+
     // const searchRules = {
     //   all_private: {
     //     filter: 'userid = admin'
@@ -61,45 +54,33 @@ export default class DocPage extends Component {
     // }
     // var token = "";
     // const expiresAt = new Date('2026-12-20') // optional
-    // this.props.selectedIndex === "all_private" ?
-    //   token = client.generateTenantToken(searchRules, {
-    //     apiKey: this.state.token,
-    //     expiresAt: expiresAt,
-    //   }) :
-    //   // token = this.state.token;
-    // // this.setState({ token: token })
-    // console.log("token:", token)
+    // // this.props.selectedIndex === "all_private" ?
+    // window.close()
+
+    // token = client.generateTenantToken(searchRules, {
+    //   apiKey: this.state.token,
+    //   expiresAt: expiresAt
+    // });
+    // window.open("http://localhost:3000/")
+    // console.log("token:", token);
+    // const searchRules = {
+    //   all_private: {
+    //     filter: 'userid = admin'
+    //   }
+    // }
+    // var token = "";
+    // const expiresAt = new Date('2026-12-20') // optional
+    // // this.props.selectedIndex === "all_private" ?
+
+    // token = Token.generateTenantToken(searchRules, {
+    //   apiKey: token,
+    //   expiresAt: expiresAt
+    // })
+    // // :
+    // console.log("token:", token);
   }
   refreshIndex(indexName) {
     PubSub.publish('refreshIndex', indexName)
-  }
-  setWaitPublicCheck = (hit) => {// 公有加入待审核
-    //加入到待审核index，同时需要携带该用户的userid，以便后续限制此用户只能访问用户id是自己的数据
-    // hit数据中加入userid
-    if (window.confirm('确定公开该条吗？管理员通过后将从私有index删除，可在公有库搜索', hit.title, '，若存在则为审核通过')) {
-      client.index('wait_to_check').addDocuments([{
-        id: hit.id,
-        url: hit.url,
-        title: hit.title,
-        text: hit.text,
-        public: 'false',
-        userid: '' //后续根据当前登录用户进行修改
-      }])
-    }
-  }
-  setWaitPrivateCheck = (hit) => {// 私有加入待审核
-    //加入到待审核index，同时需要携带该用户的userid，以便后续限制此用户只能访问用户id是自己的数据
-    // hit数据中加入userid
-    if (window.confirm('确定私有该条吗？管理员通过后将从公有index删除，可在私有库搜索', hit.title, '，若存在则为审核通过')) {
-      client.index('wait_to_check').addDocuments([{
-        id: hit.id,
-        url: hit.url,
-        title: hit.title,
-        text: hit.text,
-        public: "true",
-        userid: 'admin' //后续根据当前登录用户进行修改
-      }])
-    }
   }
   setPrivate = (hit) => {// 通过私有化申请
     if (window.confirm('确定通过私有申请吗？通过后将从公有index删除，可在私有index搜索', hit.title, '查找私有后的信息')) {
@@ -135,7 +116,7 @@ export default class DocPage extends Component {
     }
   }
   updateDocIndexs = () => {
-    this.props.updateIndexs('puQ8edwLae5cf8cd8b9c91c1f22ab17756e1f973dd621cd172e939e192a8908f5d99e4d2');
+    this.props.updateIndexs(this.state.token);
   };
   render() {
     const { selectedIndex, indexs, setIndex, displayedAttributes } = this.props;
@@ -174,7 +155,7 @@ export default class DocPage extends Component {
       );
     };
     return (
-      <InstantSearch indexName={selectedIndex} searchClient={instantMeiliSearch("http://127.0.0.1:7700/", this.state.token)}>
+      <InstantSearch indexName={selectedIndex} searchClient={instantMeiliSearch("http://127.0.0.1:7700/", "gt5EzAOSKjjX0srJZO3_RZr2YWsz6YVg3Jy3M8jxjw0")}>
         <div className="left-panel">
           <button onClick={this.updateDocIndexs} className="btn btn-default">加载文本库</button>
           <IndexList indexs={indexs} setIndex={setIndex} />
