@@ -5,6 +5,7 @@ import MenuLinks from "./MenuLinks";
 import ThemeButton from "./themeButton";
 
 const NavBar = (props) => {
+  console.log(props.user);
   return (
     <NavBarContainer {...props}>
       <Logo
