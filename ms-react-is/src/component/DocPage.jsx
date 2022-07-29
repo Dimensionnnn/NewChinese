@@ -28,10 +28,10 @@ export default class DocPage extends Component {
 
   createToken = () => {
     axios.get("http://localhost:3000/students").then(
-      response => {console.log("成功了",response.data);}
+      response => { console.log("成功了", response.data); }
     )
 
-    
+
     // const searchRules = {
     //   all_private: {
     //     filter: 'userid = admin'
@@ -90,7 +90,7 @@ export default class DocPage extends Component {
         title: hit.title,
         text: hit.text,
         public: "false",
-        userid: 'admin' //后续根据当前登录用户进行修改
+        userid: 'userid' //后续根据当前登录用户进行修改
       }])
       //设为私有从此index删除
       client.index('wait_to_check').deleteDocument(hit.id)
@@ -127,35 +127,44 @@ export default class DocPage extends Component {
         navigate(path, { state: { value: hit.text, hit: hit } });
       };
       return (
-        <div key={hit.id + hit.title}>
+        <div key={hit.id + hit.title} className="hit-description">
           {
             displayedAttributes.map((attribute) => {
               return (
                 attribute === "public" ?
-                  <div key={hit.id + attribute} className="hit-description">
+                  <div key={hit.id + attribute} >
                     已公开：
                     {hit.public === 'true' ? '是' : '否'}
                   </div> :
-                  <div className="hit-description" key={hit.id + attribute}>
-                    {attribute}:
-                    <Snippet attribute={attribute} hit={hit} />
-                  </div>
+                  attribute === "id" ?
+                    <></> :
+                    attribute === "url" ?
+                      <></> :
+                      attribute === "text"?
+                      <div className='hit-passage' key={hit.id + attribute}>
+                        {attribute}:
+                        <Snippet attribute={attribute} hit={hit} />
+                      </div>:
+                      <div key={hit.id + attribute}>
+                        {attribute}:
+                        <Snippet attribute={attribute} hit={hit} />
+                      </div>
               );
             })
           }
-          {
+          {/* {
             this.props.selectedIndex === 'wait_to_check' ?
               hit.public === 'true' ?
                 <button onClick={() => this.setPrivate(hit)} className="btn btn-default">通过私有化申请</button> :
                 <button onClick={() => this.setPublic(hit)} className="btn btn-default">通过公有化申请</button> :
               <></>
-          }
-          <button onClick={routeChange} className="btn btn-default">分析文本</button>
+          } */}
+          <button onClick={routeChange} className="btn btn-default">浏览文本</button>
         </div>
       );
     };
     return (
-      <InstantSearch indexName={selectedIndex} searchClient={instantMeiliSearch("http://127.0.0.1:7700/", "gt5EzAOSKjjX0srJZO3_RZr2YWsz6YVg3Jy3M8jxjw0")}>
+      <InstantSearch indexName={selectedIndex} searchClient={instantMeiliSearch("http://127.0.0.1:7700/", this.state.token)}>
         <div className="left-panel">
           <button onClick={this.updateDocIndexs} className="btn btn-default">加载文本库</button>
           <IndexList indexs={indexs} setIndex={setIndex} />

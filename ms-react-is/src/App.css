@@ -50,8 +50,20 @@ body {
   color: grey;
   margin-bottom: 0.5em;
   overflow: hidden;
-  max-height: 50px;
+  max-height: 300px;
   line-height: 20px;
+  /* overflow-y: scroll; */
+  /* overflow-x: scroll; */
+}
+
+.hit-passage {
+  color: grey;
+  margin-bottom: 0.5em;
+  overflow: hidden;
+  max-height: 200px;
+  line-height: 20px;
+  overflow-y: scroll;
+  /* overflow-x: scroll; */
 }
 
 .hit-info {
