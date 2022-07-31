@@ -2,6 +2,7 @@ import "instantsearch.css/themes/algolia-min.css";
 import React, { Component } from "react";
 import { MeiliSearch } from "meilisearch";
 import IndexList from "./IndexList";
+import IndexRefine from "./IndexRefine";
 import { Snippet } from "react-instantsearch-dom";
 import PubSub from 'pubsub-js';
 import { useNavigate } from "react-router-dom";
@@ -15,6 +16,8 @@ import {
   Pagination,
   HitsPerPage,
   Configure,
+  Stats,
+  CurrentRefinements
 } from "react-instantsearch-dom";
 
 import "../App.css";
@@ -23,80 +26,44 @@ import { instantMeiliSearch } from "@meilisearch/instant-meilisearch";
 const client = new MeiliSearch({ host: "http://127.0.0.1:7700", apiKey: "MASTER_KEY" });
 export default class DocPage extends Component {
   state = {
-    token: '47b83daac247b48aa570d8fd01d7b9bac651a8416ef0c8eb6b6a1ba749bba571'
+    apikey: '47b83daac247b48aa570d8fd01d7b9bac651a8416ef0c8eb6b6a1ba749bba571',
+    userid: "admin",
+    tenant_token: ''
   }
 
-  createToken = () => {
-    axios.get("http://localhost:3000/students").then(
-      response => { console.log("成功了", response.data); }
+  createToken = () => {  //应在登陆成功后调用，登录后向state传递一个userid，产生其tenant_token
+    axios.get("http://localhost:3000/newTenantToken", { params: { 'userid': this.state.userid } }).then(
+      response => {
+        console.log("成功了", response.data);
+        this.setState({ tenant_token: response.data })
+      }
     )
-
-
-    // const searchRules = {
-    //   all_private: {
-    //     filter: 'userid = admin'
-    //   }
-    // }
-    // const apiKey = 'yari9Jc576d08458114246e24760cfb138b8ed470096b56e9fe8414af90e042ac2709fca'
-    // const expiresAt = new Date('2025-12-20') // optional
-
-    // const token = client.generateTenantToken(searchRules, {
-    //   apiKey: apiKey,
-    //   expiresAt: expiresAt,
-    // })
-    // console.log(token)
-    // console.log('window',window)
-
-    // const searchRules = {
-    //   all_private: {
-    //     filter: 'userid = admin'
-    //   }
-    // }
-    // var token = "";
-    // const expiresAt = new Date('2026-12-20') // optional
-    // // this.props.selectedIndex === "all_private" ?
-    // window.close()
-
-    // token = client.generateTenantToken(searchRules, {
-    //   apiKey: this.state.token,
-    //   expiresAt: expiresAt
-    // });
-    // window.open("http://localhost:3000/")
-    // console.log("token:", token);
-    // const searchRules = {
-    //   all_private: {
-    //     filter: 'userid = admin'
-    //   }
-    // }
-    // var token = "";
-    // const expiresAt = new Date('2026-12-20') // optional
-    // // this.props.selectedIndex === "all_private" ?
-
-    // token = Token.generateTenantToken(searchRules, {
-    //   apiKey: token,
-    //   expiresAt: expiresAt
-    // })
-    // // :
-    // console.log("token:", token);
+  }
+  componentDidMount(){
+    this.createToken()
   }
   refreshIndex(indexName) {
     PubSub.publish('refreshIndex', indexName)
   }
-  setPrivate = (hit) => {// 通过私有化申请
+  setPrivate = (hit) => {// 通过私有化申请,改为收藏，不从原数据删除
     if (window.confirm('确定通过私有申请吗？通过后将从公有index删除，可在私有index搜索', hit.title, '查找私有后的信息')) {
-      client.index('all_private').addDocuments([{
-        id: hit.id,
-        url: hit.url,
-        title: hit.title,
-        text: hit.text,
-        public: "false",
-        userid: 'userid' //后续根据当前登录用户进行修改
-      }])
-      //设为私有从此index删除
-      client.index('wait_to_check').deleteDocument(hit.id)
-      client.index('doc_wiki_05').deleteDocument(hit.id)
-      this.refreshIndex('wait_to_check')
-
+      if (this.state.userid === '') { window.alert("请先登录，才可收藏此条") }
+      else {
+        client.index('all_private').addDocuments([{
+          id: hit.id,
+          url: hit.url,
+          title: hit.title,
+          text: hit.text,
+          public: "true", 
+          userid: this.state.userid, //后续根据当前登录用户进行修改
+          级别: hit.级别,
+          genre: hit.genre
+        }])
+        //设为私有从此index删除
+        // client.index('wait_to_check').deleteDocument(hit.id)
+        // client.index('doc_wiki_05').deleteDocument(hit.id)
+        // this.refreshIndex('wait_to_check')
+      }
     }
   }
   setPublic = (hit) => {// 通过公有化申请 （未实现公开到哪个index，还需选择）
@@ -107,24 +74,30 @@ export default class DocPage extends Component {
         title: hit.title,
         text: hit.text,
         public: "true",
-        userid: '' //后续根据当前登录用户进行修改
+        级别: hit.级别,
+        genre: hit.genre
       }])
       //设为私有从此index删除
       client.index('wait_to_check').deleteDocument(hit.id)
-      client.index('all_private').deleteDocument(hit.id)
+      //公有后将私有index的此条记录更新为公开状态
+      client.index('all_private').updateDocuments([{
+        id: hit.id,
+        public: 'true',
+    }])
+
       this.refreshIndex('wait_to_check')
     }
   }
   updateDocIndexs = () => {
-    this.props.updateIndexs(this.state.token);
+    this.props.updateIndexs(this.state.apikey);
   };
   render() {
-    const { selectedIndex, indexs, setIndex, displayedAttributes } = this.props;
+    const { selectedIndex, indexs, setIndex, displayedAttributes, filterableAttributes } = this.props;
     const Hit = ({ hit }) => {
       let navigate = useNavigate();
       const routeChange = () => {
         let path = `/analysis`;
-        navigate(path, { state: { value: hit.text, hit: hit } });
+        navigate(path, { state: { value: hit.text, hit: hit, selectedIndex: selectedIndex,userid:this.state.userid } });
       };
       return (
         <div key={hit.id + hit.title} className="hit-description">
@@ -140,42 +113,45 @@ export default class DocPage extends Component {
                     <></> :
                     attribute === "url" ?
                       <></> :
-                      attribute === "text"?
-                      <div className='hit-passage' key={hit.id + attribute}>
-                        {attribute}:
-                        <Snippet attribute={attribute} hit={hit} />
-                      </div>:
-                      <div key={hit.id + attribute}>
-                        {attribute}:
-                        <Snippet attribute={attribute} hit={hit} />
-                      </div>
+                      attribute === "text" ?
+                        <div className='hit-passage' key={hit.id + attribute}>
+                          {"文章"}：
+                          <Snippet attribute={attribute} hit={hit} />
+                        </div> :
+                        <div key={hit.id + attribute}>
+                          {attribute === "title" ? "标题" : attribute}：
+                          <Snippet attribute={attribute} hit={hit} />
+                        </div>
               );
             })
           }
-          {/* {
+          { //在审核页面显示
+          this.state.userid==="admin"?
             this.props.selectedIndex === 'wait_to_check' ?
               hit.public === 'true' ?
                 <button onClick={() => this.setPrivate(hit)} className="btn btn-default">通过私有化申请</button> :
                 <button onClick={() => this.setPublic(hit)} className="btn btn-default">通过公有化申请</button> :
-              <></>
-          } */}
+              <></>:<></>
+          }
           <button onClick={routeChange} className="btn btn-default">浏览文本</button>
         </div>
       );
     };
     return (
-      <InstantSearch indexName={selectedIndex} searchClient={instantMeiliSearch("http://127.0.0.1:7700/", this.state.token)}>
+      <InstantSearch indexName={selectedIndex} searchClient={instantMeiliSearch("http://127.0.0.1:7700/", this.state.tenant_token)}>
         <div className="left-panel">
           <button onClick={this.updateDocIndexs} className="btn btn-default">加载文本库</button>
           <IndexList indexs={indexs} setIndex={setIndex} />
-          <button onClick={this.createToken}>点击过滤</button>
+          <IndexRefine filterableAttributes={filterableAttributes} />
           <Configure
             attributesToSnippet={["description:"]}
             snippetEllipsisText={"..."}
           />
         </div>
         <div className="right-panel">
+          <CurrentRefinements />
           <SearchBox />
+          <Stats />
           <HitsPerPage
             defaultRefinement={20}
             items={[

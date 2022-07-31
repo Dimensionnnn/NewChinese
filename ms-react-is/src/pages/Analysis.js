@@ -10,21 +10,32 @@ const Analysis = () => {
   const location = useLocation();
   const routeChange = () => {
     let path = `/result`;
-    navigate(path, { state: { value: location.state.value,hit:location.state.hit } });
+    navigate(path, {
+      state: {
+        value: location.state.value,
+        hit: location.state.hit,
+        selectedIndex: location.state.selectedIndex,
+        userid: location.state.userid
+      }
+    });
   };
   const client = new MeiliSearch({ host: "http://127.0.0.1:7700", apiKey: "MASTER_KEY" });
-  const setWaitPrivateCheck = (hit) => {// 私有加入待审核
-    //加入到待审核index，同时需要携带该用户的userid，以便后续限制此用户只能访问用户id是自己的数据
-    // hit数据中加入userid
-    if (window.confirm('确定私有该条吗？管理员通过后将从公有index删除，可在私有库搜索', hit.title, '，若存在则为审核通过')) {
-      client.index('wait_to_check').addDocuments([{
-        id: hit.id,
-        url: hit.url,
-        title: hit.title,
-        text: hit.text,
-        public: "true",
-        userid: 'admin' //后续根据当前登录用户进行修改
-      }])
+
+  const setPrivate = (hit) => {// 通过私有化申请,改为收藏，不从原数据删除
+    if (window.confirm('确定收藏？在all_private中搜索', hit.title, '查找收藏后的信息')) {
+      if (location.state.userid === '') { window.alert("请先登录，才可收藏此条") }
+      else {
+        client.index('all_private').addDocuments([{
+          id: hit.id,
+          url: hit.url,
+          title: hit.title,
+          text: hit.text,
+          public: "true", //收藏后仍为公有，直到修改保存后需要改为false，直到将其公开
+          userid: location.state.userid,
+          级别: hit.级别,
+          genre: hit.genre
+        }])
+      }
     }
   }
   return (
@@ -88,9 +99,10 @@ const Analysis = () => {
           分析文本
         </Button>
         {
+          location.state.selectedIndex !== "all_private" && location.state.selectedIndex !== "wait_to_check" ?
             location.state.hit.public === 'true' ?
-            <Button onClick={() => setWaitPrivateCheck(location.state.hit)} style={{ backgroundColor: "#F0F2F5" }}>点击设为私有</Button>:
-            <></>
+              <Button onClick={() => setPrivate(location.state.hit)} style={{ backgroundColor: "#F0F2F5" }}>点击收藏</Button> :
+              <></> : <></>
         }
       </div>
     </>

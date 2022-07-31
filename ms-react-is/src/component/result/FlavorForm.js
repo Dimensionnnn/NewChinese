@@ -4,7 +4,10 @@ import { Button } from "@chakra-ui/react";
 class FlavorForm extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { value: '' };
+        this.state = {
+            value: '',
+            changed: false //修改保存后改为true
+        };
         this.handleChange = this.handleChange.bind(this);
     }
 
@@ -16,13 +19,16 @@ class FlavorForm extends React.Component {
         //加入到待审核index，同时需要携带该用户的userid，以便后续限制此用户只能访问用户id是自己的数据
         // hit数据中加入userid
         if (window.confirm('确定公开该条吗？管理员通过后将从私有index删除，可在公有库搜索', hit.title, '，若存在则为审核通过')) {
+            // 此处要根据修改后tiny内的值进行修改，例如下面text所述
             client.index('wait_to_check').addDocuments([{
                 id: hit.id,
                 url: hit.url,
                 title: hit.title,
-                text: hit.text,
+                text: hit.text,  // 将hit.text替换成tiny内新保存的值
+                级别: hit.级别,
+                genre: hit.genre,
                 public: 'false',
-                userid: '' //后续根据当前登录用户进行修改
+                userid: this.props.userid //后续根据当前登录用户进行修改
             }])
         }
     }
@@ -30,9 +36,21 @@ class FlavorForm extends React.Component {
     render() {
         return (
             <div>
-                {this.props.hit.public === 'true' ?
-                    <></> :
-                    <Button onClick={() => this.setWaitPublicCheck(this.props.hit)} style={{ backgroundColor: "#F0F2F5" }}>公开此条</Button>}
+                {
+                    this.props.selectedIndex === "doc_wiki_05" ?
+                        this.state.changed === true ?
+                            <Button onClick={() => this.setWaitPublicCheck(this.props.hit)} style={{ backgroundColor: "#F0F2F5" }}>公开此条</Button>
+                            //此事件应在保存后执行
+                            : <></>
+                        : this.props.selectedIndex === "all_private" ?
+                            this.props.hit.public === 'true' ?
+                                this.state.changed === false ? <></> :
+                                    <Button onClick={() => this.setWaitPublicCheck(this.props.hit)} style={{ backgroundColor: "#F0F2F5" }}>公开此条</Button>
+                                //此事件应在保存后执行
+                                : <Button onClick={() => this.setWaitPublicCheck(this.props.hit)} style={{ backgroundColor: "#F0F2F5" }}>公开此条</Button>
+                            // 此按钮用于原本私有的文章，直接设为公有
+                            : <></>
+                }
             </div>
         )
     }

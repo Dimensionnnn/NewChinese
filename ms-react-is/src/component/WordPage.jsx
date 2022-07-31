@@ -2,7 +2,7 @@ import "instantsearch.css/themes/algolia-min.css";
 import React, { Component } from "react";
 import IndexList from "./IndexList";
 import IndexRefine from "./IndexRefine";
-import { Snippet } from "react-instantsearch-dom";
+import { Snippet, Stats } from "react-instantsearch-dom";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -53,6 +53,7 @@ export default class wordPage extends Component {
         <div className="right-panel">
           <CurrentRefinements />
           <SearchBox />
+          <Stats />
           <HitsPerPage
             defaultRefinement={20}
             items={[

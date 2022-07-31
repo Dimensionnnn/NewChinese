@@ -137,7 +137,7 @@ function Result() {
             />
             <Button onClick={log}>下载当前文本doc</Button>
             {/* <Button onClick={download}>下载当前文本pdf</Button> */}
-            <FlavorForm hit={location.state.hit}/>
+            <FlavorForm hit={location.state.hit} selectedIndex={location.state.selectedIndex} userid={location.state.userid}/>
           </form>
         </div>
         <>
