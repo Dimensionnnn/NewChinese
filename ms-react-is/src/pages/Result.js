@@ -75,75 +75,85 @@ function Result() {
   return (
     <>
       <div>
-        <div style={{ float: "left" }}>
-          <form
-            onSubmit={(event) => {
-              event.preventDefault();
-            }}
-          >
-            <Editor
-              tinymceScriptSrc={
-                process.env.PUBLIC_URL + "/tinymce/tinymce.min.js"
-              }
-              onInit={(evt, editor) => (editorValue.current = editor)}
-              initialValue={location.state.value}
-              init={{
-                id: "tiny2",
-                language: "zh-Hans",
-                min_height: 540,
-                width: 590,
-                menubar: false,
-                icons_url: "/icons/savetext/icons.js",
-                icons: "savetext",
-                plugins:
-                  " autoresize save  searchreplace autolink fullscreen link charmap pagebreak insertdatetime advlist lists wordcount",
-                toolbar:
-                  " link  newdocument save print searchreplace undo redo cut copy paste blockquote removeformat forecolor backcolor bold italic underline strikethrough charmap blocks fontsize alignleft aligncenter alignright alignjustify outdent indent pagebreak insertdatetime  fullscreen",
-                content_style:
-                  "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
-                save_onsavecallback: function () {
-                  console.log("Saved");
-                },
-                file_picker_callback: function (callback, value, meta) {
-                  //文件分类
-                  var filetype =
-                    ".pdf, .txt, .zip, .rar, .7z, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .mp3, .mp4";
-                  var upurl = "/api/controller/";
-                  //为不同插件指定文件类型及后端地址
-                  switch (meta.filetype) {
-                    case "image":
-                      filetype = ".jpg, .jpeg, .png, .gif";
-                      upurl += "action1";
-                      break;
-                    case "media":
-                      filetype = ".mp3, .mp4";
-                      upurl += "action2";
-                      break;
-                    case "file":
-                      break;
-                  }
-                  // //模拟出一个input用于添加本地文件
-                  // var input = document.createElement("input");
-                  // input.setAttribute("type", "file");
-                  // input.setAttribute("accept", filetype);
-                  // input.click();
-                  // input.onchange = function () {
-                  //   var file = this.files[0];
-                  //   var xhr, formData;
-                  //   console.log(file.name);
-                  // };
-                },
+        <div style={{
+          height: '100 %',
+          border: '2px solid #900',
+          padding: '10px',
+          margin: 'auto'
+          }}>
+          <Text>分析结果： 适合HSK 6级以上的学习者</Text>
+        </div>
+        <div>
+          <div style={{ float: "left" }}>
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
               }}
-            />
-            <Button onClick={log}>下载当前文本doc</Button>
-            {/* <Button onClick={download}>下载当前文本pdf</Button> */}
-            <FlavorForm hit={location.state.hit} selectedIndex={location.state.selectedIndex} userid={location.state.userid}/>
-          </form>
+            >
+              <Editor
+                tinymceScriptSrc={
+                  process.env.PUBLIC_URL + "/tinymce/tinymce.min.js"
+                }
+                onInit={(evt, editor) => (editorValue.current = editor)}
+                initialValue={location.state.value}
+                init={{
+                  id: "tiny2",
+                  language: "zh-Hans",
+                  min_height: 540,
+                  width: 590,
+                  menubar: false,
+                  icons_url: "/icons/savetext/icons.js",
+                  icons: "savetext",
+                  plugins:
+                    " autoresize save  searchreplace autolink fullscreen link charmap pagebreak inserTdatetime advlist lists wordcount",
+                  toolbar:
+                    " link  newdocument save print searchreplace undo redo cut copy paste blockquote removeformat forecolor backcolor bold italic underline strikethrough charmap blocks fontsize alignleft aligncenter alignright alignjustify ouTdent indent pagebreak inserTdatetime  fullscreen",
+                  content_style:
+                    "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
+                  save_onsavecallback: function () {
+                    console.log("Saved");
+                  },
+                  file_picker_callback: function (callback, value, meta) {
+                    //文件分类
+                    var filetype =
+                      ".pdf, .txt, .zip, .rar, .7z, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .mp3, .mp4";
+                    var upurl = "/api/controller/";
+                    //为不同插件指定文件类型及后端地址
+                    switch (meta.filetype) {
+                      case "image":
+                        filetype = ".jpg, .jpeg, .png, .gif";
+                        upurl += "action1";
+                        break;
+                      case "media":
+                        filetype = ".mp3, .mp4";
+                        upurl += "action2";
+                        break;
+                      case "file":
+                        break;
+                    }
+                    // //模拟出一个input用于添加本地文件
+                    // var input = document.createElement("input");
+                    // input.setAttribute("type", "file");
+                    // input.setAttribute("accept", filetype);
+                    // input.click();
+                    // input.onchange = function () {
+                    //   var file = this.files[0];
+                    //   var xhr, formData;
+                    //   console.log(file.name);
+                    // };
+                  },
+                }}
+              />
+              <Button onClick={log}>下载当前文本doc</Button>
+              {/* <Button onClick={download}>下载当前文本pdf</Button> */}
+              <FlavorForm hit={location.state.hit} selectedIndex={location.state.selectedIndex} userid={location.state.userid} />
+            </form>
+          </div>
         </div>
         <>
           <Button onClick={handler}>展示/隐藏统计信息</Button>
           {showTable && <TableContainer>
-            <Table variant="simple">
+            <Table variant="simple" id="table-to-xls">
               <TableCaption>统计信息</TableCaption>
               <Thead>
                 <Tr>
@@ -163,14 +173,33 @@ function Result() {
               <Tbody>
                 <Tr>
                   <Td>字数</Td>
+                  <Td></Td>
+                  <Td></Td>
+                  <Td></Td>
+                  <Td></Td>
+                  <Td></Td>
+                  <Td></Td>
+                  <Td></Td>
+                  <Td></Td>
+                  <Td></Td>
+                  <Td></Td>
                 </Tr>
                 <Tr>
                   <Td>占比</Td>
+                  <Td></Td>
+                  <Td></Td>
+                  <Td></Td>
+                  <Td></Td>
+                  <Td></Td>
+                  <Td></Td>
+                  <Td></Td>
+                  <Td></Td>
+                  <Td></Td>
+                  <Td></Td>
                 </Tr>
               </Tbody>
             </Table>
           </TableContainer>}
-          <Text>分析结果： 适合HSK 6级以上的学习者</Text>
           <Button>
             <ReactHTMLTableToExcel
               id="test-table-xls-button"
