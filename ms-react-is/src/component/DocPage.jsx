@@ -71,6 +71,7 @@ export default class DocPage extends Component {
       client.index('doc_wiki_05').addDocuments([{
         id: hit.id,
         url: hit.url,
+        userid: hit.userid,
         title: hit.title,
         text: hit.text,
         public: "true",
