@@ -8,7 +8,7 @@ import FlavorForm from "../component/result/FlavorForm";
 import { useLocation } from "react-router-dom";
 import { MeiliSearch } from "meilisearch";
 import FileSaver from "file-saver";
-import {nanoid} from 'nanoid';
+import { nanoid } from 'nanoid';
 // import { jsPDF } from "jspdf";
 import {
   Button,
@@ -23,11 +23,17 @@ import {
   TableContainer,
   Text
 } from "@chakra-ui/react";
+import CheckBox from "../component/CheckBox";
 
 function Result() {
   const location = useLocation();
   const editorValue = useRef("");
   const [showTable, setShowTable] = useState(true);
+  var pblc = "0"
+  const handlePublic = (newValue) => {
+    pblc = newValue
+    console.log('111',{pblc})
+  }
   const handler = () => {
     setShowTable(!showTable);
   }
@@ -56,39 +62,45 @@ function Result() {
     });
     FileSaver.saveAs(blob, "文档名称.doc");
   };
-  const setWaitPublicCheck = (hit) => {// 公有加入待审核
+  const setWaitPublicCheck = (hit, newContent) => {// 公有加入待审核
     const client = new MeiliSearch({ host: "http://127.0.0.1:7700", apiKey: "MASTER_KEY" });
     //加入到待审核index，同时需要携带该用户的userid，以便后续限制此用户只能访问用户id是自己的数据
     // hit数据中加入userid
-    if (true) {//"location.state.hit.text" === "当前文本框中保存的值"
-      window.alert("您并没有更改内容，保存无效，（看到此内容请询问如何获取文本库编辑后的内容,修改后将前行true替换）")
+    console.log("new", newContent)
+    console.log("old", location.state.hit.text)
+    if (location.state.hit.text === newContent) { //此判断内容有格式问题，还需修改
+      window.alert("您并没有更改内容，保存无效")
     }
-    else if (window.confirm('您已经修改此内容，点击确认则将修改后内容作为一条新数据发布，您可在待审核区查看')) {
-      // ！！！考虑一下不公开咋办
-      // 此处要根据修改后tiny内的值进行修改，例如下面text所述
-      client.index('wait_to_check').addDocuments([{
-        id: nanoid(),
-        url: hit.url,
-        title: hit.title,
-        text: "【将hit.text替换成tiny内新保存的值】",  // 将hit.text替换成tiny内新保存的值
-        级别: hit.级别,
-        genre: hit.genre,
-        public: 'false',
-        userid: this.props.userid //后续根据当前登录用户进行修改
-      }])
+    if (pblc === "0") {//选择公开
+      if (window.confirm('您已经修改此内容，点击确认则将新内容公开发布，您可在待审核区查看')) {
+        // 此处要根据修改后tiny内的值进行修改，例如下面text所述
+        client.index('wait_to_check').addDocuments([{
+          id: nanoid(),
+          url: hit.url,
+          title: hit.title,
+          text: newContent,  // 将hit.text替换成tiny内新保存的值
+          级别: hit.级别,
+          genre: hit.genre,
+          public: 'false',
+          userid: location.state.userid //后续根据当前登录用户进行修改
+        }])
+      }
     }
-    else{
-      client.index('all_private').addDocuments([{
-        id: nanoid(),
-        url: hit.url,
-        title: hit.title,
-        text: "【将hit.text替换成tiny内新保存的值】",  // 将hit.text替换成tiny内新保存的值
-        级别: hit.级别,
-        genre: hit.genre,
-        public: 'false',
-        userid: this.props.userid //后续根据当前登录用户进行修改
-      }])
+    else {//选择私有
+      if (window.confirm('您已经修改此内容，点击确认则保存入私有文本库')) {
+        client.index('all_private').addDocuments([{
+          id: nanoid(),
+          url: hit.url,
+          title: hit.title,
+          text: newContent,  // 将hit.text替换成tiny内新保存的值
+          级别: hit.级别,
+          genre: hit.genre,
+          public: 'false',
+          userid: location.state.userid //后续根据当前登录用户进行修改
+        }])
+      }
     }
+
   }
   // const download = () => {
   //   let content = editorValue.current.startContent;
@@ -147,8 +159,9 @@ function Result() {
                   content_style:
                     "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
                   save_onsavecallback: function () {
-                    console.log("编辑页的Save");
-                    setWaitPublicCheck(location.state.hit)
+                    var newContent = editorValue.current.getContent().slice(3, -4)
+                    console.log("编辑页的Save", newContent);
+                    setWaitPublicCheck(location.state.hit,newContent)
                   },
                   file_picker_callback: function (callback, value, meta) {
                     //文件分类
@@ -183,6 +196,8 @@ function Result() {
               />
               <Button onClick={log}>下载当前文本doc</Button>
               {/* <Button onClick={download}>下载当前文本pdf</Button> */}
+              <p>下方选择保存后是否公开</p>
+              <CheckBox handlePublic={handlePublic} />
               <FlavorForm hit={location.state.hit} selectedIndex={location.state.selectedIndex} userid={location.state.userid} />
             </form>
           </div>
