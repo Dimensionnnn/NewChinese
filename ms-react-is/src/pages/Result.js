@@ -6,7 +6,9 @@ import ReactHTMLTableToExcel from "react-html-table-to-excel"; //导表
 // import DataToTable from "../component/result/DataToTable";
 import FlavorForm from "../component/result/FlavorForm";
 import { useLocation } from "react-router-dom";
+import { MeiliSearch } from "meilisearch";
 import FileSaver from "file-saver";
+import {nanoid} from 'nanoid';
 // import { jsPDF } from "jspdf";
 import {
   Button,
@@ -54,6 +56,40 @@ function Result() {
     });
     FileSaver.saveAs(blob, "文档名称.doc");
   };
+  const setWaitPublicCheck = (hit) => {// 公有加入待审核
+    const client = new MeiliSearch({ host: "http://127.0.0.1:7700", apiKey: "MASTER_KEY" });
+    //加入到待审核index，同时需要携带该用户的userid，以便后续限制此用户只能访问用户id是自己的数据
+    // hit数据中加入userid
+    if (true) {//"location.state.hit.text" === "当前文本框中保存的值"
+      window.alert("您并没有更改内容，保存无效，（看到此内容请询问如何获取文本库编辑后的内容,修改后将前行true替换）")
+    }
+    else if (window.confirm('您已经修改此内容，点击确认则将修改后内容作为一条新数据发布，您可在待审核区查看')) {
+      // ！！！考虑一下不公开咋办
+      // 此处要根据修改后tiny内的值进行修改，例如下面text所述
+      client.index('wait_to_check').addDocuments([{
+        id: nanoid(),
+        url: hit.url,
+        title: hit.title,
+        text: "【将hit.text替换成tiny内新保存的值】",  // 将hit.text替换成tiny内新保存的值
+        级别: hit.级别,
+        genre: hit.genre,
+        public: 'false',
+        userid: this.props.userid //后续根据当前登录用户进行修改
+      }])
+    }
+    else{
+      client.index('all_private').addDocuments([{
+        id: nanoid(),
+        url: hit.url,
+        title: hit.title,
+        text: "【将hit.text替换成tiny内新保存的值】",  // 将hit.text替换成tiny内新保存的值
+        级别: hit.级别,
+        genre: hit.genre,
+        public: 'false',
+        userid: this.props.userid //后续根据当前登录用户进行修改
+      }])
+    }
+  }
   // const download = () => {
   //   let content = editorValue.current.startContent;
   //   const doc = new jsPDF();
@@ -80,7 +116,7 @@ function Result() {
           border: '2px solid #900',
           padding: '10px',
           margin: 'auto'
-          }}>
+        }}>
           <Text>分析结果： 适合HSK 6级以上的学习者</Text>
         </div>
         <div>
@@ -111,7 +147,8 @@ function Result() {
                   content_style:
                     "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
                   save_onsavecallback: function () {
-                    console.log("Saved");
+                    console.log("编辑页的Save");
+                    setWaitPublicCheck(location.state.hit)
                   },
                   file_picker_callback: function (callback, value, meta) {
                     //文件分类

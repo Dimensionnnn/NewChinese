@@ -7,7 +7,7 @@ import { Snippet } from "react-instantsearch-dom";
 import PubSub from 'pubsub-js';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { v4 as uuidv4 } from 'uuid';
+
 
 import {
   InstantSearch,
@@ -78,7 +78,7 @@ export default class DocPage extends Component {
         级别: hit.级别,
         genre: hit.genre
       }])
-      //设为私有从此index删除
+      //设为公有从此待审核index删除
       client.index('wait_to_check').deleteDocument(hit.id)
       //公有后将私有index的此条记录更新为公开状态
       client.index('all_private').updateDocuments([{
