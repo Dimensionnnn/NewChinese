@@ -6,6 +6,7 @@ import { Button, Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/reac
 import Footer from "../component/footer";
 import WordPage from "../component/WordPage";
 import DocPage from "../component/DocPage";
+import AnalyzePage from "../component/AnalyzePage";
 import NavBar from "../component/navbar/NavBar";
 import { UserContext } from "../component/utils/userContext";
 
@@ -17,6 +18,7 @@ class Home extends Component {
     filterableAttributes: [],
     displayedAttributes: [],
     tab: "word",
+    userid: "admin"
   };
   updateIndexs = (apiKey) => {
     //获取现在所有的indexs
@@ -99,6 +101,16 @@ class Home extends Component {
               >
                 句子检索
               </Tab>
+              <Tab
+                _selected={{ color: "white", bg: "red.400" }}
+                onClick={
+                  this.state.tab === "analyze"
+                    ? () => this.setState({ tab: "analyze", indexs: [] })
+                    : () => this.setState({ tab: "analyze" })
+                }
+              >
+                分析文本
+              </Tab>
             </TabList>
             <TabPanels>
               <TabPanel>
@@ -110,6 +122,13 @@ class Home extends Component {
               </TabPanel>
               <TabPanel>
                 <DocPage
+                  updateIndexs={this.updateIndexs}
+                  setIndex={this.setIndex}
+                  {...this.state}
+                />
+              </TabPanel>
+              <TabPanel>
+                <AnalyzePage
                   updateIndexs={this.updateIndexs}
                   setIndex={this.setIndex}
                   {...this.state}

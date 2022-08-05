@@ -27,12 +27,11 @@ const client = new MeiliSearch({ host: "http://127.0.0.1:7700", apiKey: "MASTER_
 export default class DocPage extends Component {
   state = {
     apikey: '47b83daac247b48aa570d8fd01d7b9bac651a8416ef0c8eb6b6a1ba749bba571',
-    userid: "admin",
     tenant_token: ''
   }
 
   createToken = () => {  //应在登陆成功后调用，登录后向state传递一个userid，产生其tenant_token
-    axios.get("http://localhost:3000/newTenantToken", { params: { 'userid': this.state.userid } }).then(
+    axios.get("http://localhost:3000/newTenantToken", { params: { 'userid': this.props.userid } }).then(
       response => {
         console.log("成功了", response.data);
         this.setState({ tenant_token: response.data })
@@ -47,7 +46,7 @@ export default class DocPage extends Component {
   }
   setPrivate = (hit) => {// 通过私有化申请,改为收藏，不从原数据删除
     if (window.confirm('确定通过私有申请吗？通过后将从公有index删除，可在私有index搜索', hit.title, '查找私有后的信息')) {
-      if (this.state.userid === '') { window.alert("请先登录，才可收藏此条") }
+      if (this.props.userid === '') { window.alert("请先登录，才可收藏此条") }
       else {
         client.index('all_private').addDocuments([{
           id: hit.id,
@@ -55,7 +54,7 @@ export default class DocPage extends Component {
           title: hit.title,
           text: hit.text,
           public: "true", 
-          userid: this.state.userid, //后续根据当前登录用户进行修改
+          userid: this.props.userid, //后续根据当前登录用户进行修改
           级别: hit.级别,
           genre: hit.genre
         }])
@@ -98,7 +97,7 @@ export default class DocPage extends Component {
       let navigate = useNavigate();
       const routeChange = () => {
         let path = `/analysis`;
-        navigate(path, { state: { value: hit.text, hit: hit, selectedIndex: selectedIndex,userid:this.state.userid } });
+        navigate(path, { state: { value: hit.text, hit: hit, selectedIndex: selectedIndex,userid:this.props.userid } });
       };
       return (
         <div key={hit.id + hit.title} className="hit-description">
@@ -127,7 +126,7 @@ export default class DocPage extends Component {
             })
           }
           { //在审核页面显示
-          this.state.userid==="admin"?
+          this.props.userid==="admin"?
             this.props.selectedIndex === 'wait_to_check' ?
               hit.public === 'true' ?
                 <button onClick={() => this.setPrivate(hit)} className="btn btn-default">通过私有化申请</button> :

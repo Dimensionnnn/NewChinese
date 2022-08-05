@@ -74,8 +74,19 @@ function Result() {
     if (pblc === "0") {//选择公开
       if (window.confirm('您已经修改此内容，点击确认则将新内容公开发布，您可在待审核区查看')) {
         // 此处要根据修改后tiny内的值进行修改，例如下面text所述
+        const new_id=nanoid()
         client.index('wait_to_check').addDocuments([{
-          id: nanoid(),
+          id: new_id,
+          url: hit.url,
+          title: hit.title,
+          text: newContent,  // 将hit.text替换成tiny内新保存的值
+          级别: hit.级别,
+          genre: hit.genre,
+          public: 'false',
+          userid: location.state.userid //后续根据当前登录用户进行修改
+        }])
+        client.index('all_private').addDocuments([{
+          id: new_id,
           url: hit.url,
           title: hit.title,
           text: newContent,  // 将hit.text替换成tiny内新保存的值
