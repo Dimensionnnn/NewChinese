@@ -1,8 +1,8 @@
 import "instantsearch.css/themes/algolia-min.css";
 import React, { Component } from "react";
 import { MeiliSearch } from "meilisearch";
-import IndexList from "./IndexList";
-import IndexRefine from "./IndexRefine";
+import IndexList from "../index/IndexList";
+import IndexRefine from "../index/IndexRefine";
 import { Snippet } from "react-instantsearch-dom";
 import PubSub from 'pubsub-js';
 import { useNavigate } from "react-router-dom";
@@ -20,7 +20,7 @@ import {
   CurrentRefinements
 } from "react-instantsearch-dom";
 
-import "../App.css";
+// import "../App.css";
 import { instantMeiliSearch } from "@meilisearch/instant-meilisearch";
 
 const client = new MeiliSearch({ host: "http://127.0.0.1:7700", apiKey: "MASTER_KEY" });

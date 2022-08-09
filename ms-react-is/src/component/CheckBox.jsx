@@ -9,8 +9,8 @@ class CheckBox extends Component {
   render() { 
     return (
         <div>
-          <input type="radio" name="" value="0" checked={this.state.sex==0} onChange={(e)=>this.getValue(e)}/><label htmlFor="man">公开</label>
-          <input type="radio" name="" value="1" checked={this.state.sex==1} onChange={(e)=>this.getValue(e)}/><label htmlFor="woman">私有</label>
+          <input type="radio" name="" value="0" checked={this.state.sex===0} onChange={(e)=>this.getValue(e)}/><label htmlFor="man">公开</label>
+          <input type="radio" name="" value="1" checked={this.state.sex===1} onChange={(e)=>this.getValue(e)}/><label htmlFor="woman">私有</label>
         </div>
       );
   }

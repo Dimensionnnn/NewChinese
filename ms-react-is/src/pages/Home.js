@@ -1,11 +1,11 @@
 import "instantsearch.css/themes/algolia-min.css";
-import React, { Component, useContext } from "react";
+import React, { Component } from "react";
 import { MeiliSearch } from "meilisearch";
 
-import Footer from "../component/footer";
-import WordPage from "../component/WordPage";
-import DocPage from "../component/DocPage";
-import AnalyzePage from "../component/AnalyzePage";
+import Footer from "../component/main/footer";
+import WordPage from "../component/main/WordPage";
+import DocPage from "../component/main/DocPage";
+import AnalyzePage from "../component/main/AnalyzePage";
 import ResponsiveAppBar from "../component/navbar/navbar";
 
 import Choose from "../component/home/choose";
