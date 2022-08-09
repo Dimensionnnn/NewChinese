@@ -10,19 +10,19 @@ import { MeiliSearch } from "meilisearch";
 import FileSaver from "file-saver";
 import { nanoid } from 'nanoid';
 // import { jsPDF } from "jspdf";
-import {
-  Button,
-  Table,
-  Thead,
-  Tbody,
-  Tfoot,
-  Tr,
-  Th,
-  Td,
-  TableCaption,
-  TableContainer,
-  Text
-} from "@chakra-ui/react";
+// import {
+//   Button,
+//   Table,
+//   Thead,
+//   Tbody,
+//   Tfoot,
+//   Tr,
+//   Th,
+//   Td,
+//   TableCaption,
+//   TableContainer,
+//   Text
+// } from "@chakra-ui/react";
 import CheckBox from "../component/CheckBox";
 
 function Result() {
@@ -140,7 +140,7 @@ function Result() {
           padding: '10px',
           margin: 'auto'
         }}>
-          <Text>分析结果： 适合HSK 6级以上的学习者</Text>
+          {/* <Text>分析结果： 适合HSK 6级以上的学习者</Text> */}
         </div>
         <div>
           <div style={{ float: "left" }}>
@@ -205,17 +205,17 @@ function Result() {
                   },
                 }}
               />
-              <Button onClick={log}>下载当前文本doc</Button>
+              <button onClick={log}>下载当前文本doc</button>
               {/* <Button onClick={download}>下载当前文本pdf</Button> */}
               <p>下方选择保存后是否公开</p>
-              <CheckBox handlePublic={handlePublic} />
-              <FlavorForm hit={location.state.hit} selectedIndex={location.state.selectedIndex} userid={location.state.userid} />
+              {/* <CheckBox handlePublic={handlePublic} /> */}
+              {/* <FlavorForm hit={location.state.hit} selectedIndex={location.state.selectedIndex} userid={location.state.userid} /> */}
             </form>
           </div>
         </div>
         <>
-          <Button onClick={handler}>展示/隐藏统计信息</Button>
-          {showTable && <TableContainer>
+          <button onClick={handler}>展示/隐藏统计信息</button>
+          {/* {showTable && <TableContainer>
             <Table variant="simple" id="table-to-xls">
               <TableCaption>统计信息</TableCaption>
               <Thead>
@@ -272,7 +272,7 @@ function Result() {
               sheet="tablexls"
               buttonText="下载分析明细"
             />
-          </Button>
+          </Button> */}
         </>
       </div>
     </>

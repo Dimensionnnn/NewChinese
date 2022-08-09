@@ -1,17 +1,17 @@
 import React, { useState, useContext } from "react";
-import {
-  Flex,
-  Box,
-  Heading,
-  FormControl,
-  FormLabel,
-  Input,
-  Button,
-} from "@chakra-ui/react";
+// import {
+//   Flex,
+//   Box,
+//   Heading,
+//   FormControl,
+//   FormLabel,
+//   Input,
+//   Button,
+// } from "@chakra-ui/react";
 import ErrorMessage from "../component/login/ErrorMessage";
 import axios from "axios";
 // import useToken from "../component/utils/useToken";
-import { UserContext } from "../component/utils/userContext";
+// import { UserContext } from "../component/utils/userContext";
 import { Navigate } from "react-router-dom";
 
 const options = {
@@ -30,7 +30,7 @@ function LoginForm() {
   const [error, setError] = useState("");
   // const { token, setToken } = useToken();
   const [loggedIn, setLoggedIn] = useState(false);
-  const { user, setUser } = useContext(UserContext);
+  // const { user, setUser } = useContext(UserContext);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -46,7 +46,7 @@ function LoginForm() {
             const user = res.data.data.name;
             alert("用户" + user + "登陆成功！");
             setToken(token);
-            setUser(user);
+            // setUser(user);
             setLoggedIn(true);
           default:
             event.target.reset();
@@ -65,8 +65,8 @@ function LoginForm() {
   }
 
   return (
-    <Flex width="full" align="center" justifyContent="center">
-      <Box
+    // <Flex width="full" align="center" justifyContent="center">
+      {/* <Box
         p={8}
         maxWidth="500px"
         borderWidth={1}
@@ -107,8 +107,8 @@ function LoginForm() {
             </Button>
           </form>
         </Box>
-      </Box>
-    </Flex>
+      </Box> */}
+    // </Flex>
   );
 }
 

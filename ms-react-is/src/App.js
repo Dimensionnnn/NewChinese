@@ -1,28 +1,40 @@
-import React, { useState, useMemo } from "react";
+import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { ChakraProvider, extendTheme } from "@chakra-ui/react";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Analysis from "./pages/Analysis";
 import Result from "./pages/Result";
-import { UserContext } from "./component/utils/userContext";
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      light: "#85C1E9",
+      main: "#5DADE2",
+      dark: "#3498DB",
+      contrastText: "#fff",
+    },
+    // secondary: {
+    //   light: '#D1F2EB',
+    //   main: '#A3E4D7',
+    //   dark: '#76D7C4',
+    //   contrastText: '#000',
+    // },
+  },
+});
 
 function App() {
-  const [user, setUser] = useState(null);
-  const providerValue = useMemo(() => ({ user, setUser }), [user, setUser]);
   return (
-    <UserContext.Provider value={providerValue}>
-      <ChakraProvider>
-        <Router>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/analysis" element={<Analysis />} />
-            <Route path="/result" element={<Result />} />
-          </Routes>
-        </Router>
-      </ChakraProvider>
-    </UserContext.Provider>
+    <ThemeProvider theme={theme}>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/analysis" element={<Analysis />} />
+          <Route path="/result" element={<Result />} />
+        </Routes>
+      </Router>
+    </ThemeProvider>
   );
 }
 
