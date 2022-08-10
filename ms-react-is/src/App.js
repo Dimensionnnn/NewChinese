@@ -2,7 +2,6 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import Home from "./pages/Home";
-import Login from "./pages/Login";
 import Analysis from "./pages/Analysis";
 import Result from "./pages/Result";
 
@@ -27,7 +26,6 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
           <Route path="/analysis" element={<Analysis />} />
           <Route path="/result" element={<Result />} />
         </Routes>

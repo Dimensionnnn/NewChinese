@@ -7,6 +7,7 @@ import WordPage from "../component/main/WordPage";
 import DocPage from "../component/main/DocPage";
 import AnalyzePage from "../component/main/AnalyzePage";
 import ResponsiveAppBar from "../component/navbar/navbar";
+import Login from "../component/login/Login";
 
 import Choose from "../component/home/choose";
 import { useSelector } from "react-redux";
@@ -119,6 +120,14 @@ class Home extends Component {
             <Footer />
           </>
         );
+      case 4:
+        return (
+          <>
+            <ResponsiveAppBar />
+            <Login />
+            <Footer />
+          </>
+        );
       default:
         return (
           <>
@@ -128,71 +137,6 @@ class Home extends Component {
           </>
         );
     }
-    // return (
-    //   <>
-    //     <>
-    //     <ResponsiveAppBar />
-    //       /* <Tabs isFitted variant="enclosed">
-    //         <TabList>
-    //           <Tab
-    //             _selected={{ color: "white", bg: "blue.500" }}
-    //             onClick={
-    //               this.state.tab === "doc"
-    //                 ? () => this.setState({ tab: "word", indexs: [] })
-    //                 : () => this.setState({ tab: "word" })
-    //             }
-    //           >
-    //             生词检索
-    //           </Tab>
-    //           <Tab
-    //             _selected={{ color: "white", bg: "green.400" }}
-    //             onClick={
-    //               this.state.tab === "word"
-    //                 ? () => this.setState({ tab: "doc", indexs: [] })
-    //                 : () => this.setState({ tab: "doc" })
-    //             }
-    //           >
-    //             句子检索
-    //           </Tab>
-    //           <Tab
-    //             _selected={{ color: "white", bg: "red.400" }}
-    //             onClick={
-    //               this.state.tab === "analyze"
-    //                 ? () => this.setState({ tab: "analyze", indexs: [] })
-    //                 : () => this.setState({ tab: "analyze" })
-    //             }
-    //           >
-    //             分析文本
-    //           </Tab>
-    //         </TabList>
-    //         <TabPanels>
-    //           <TabPanel>
-    //             <WordPage
-    //               updateIndexs={this.updateIndexs}
-    //               setIndex={this.setIndex}
-    //               {...this.state}
-    //             />
-    //           </TabPanel>
-    //           <TabPanel>
-    //             <DocPage
-    //               updateIndexs={this.updateIndexs}
-    //               setIndex={this.setIndex}
-    //               {...this.state}
-    //             />
-    //           </TabPanel>
-    //           <TabPanel>
-    //             <AnalyzePage
-    //               updateIndexs={this.updateIndexs}
-    //               setIndex={this.setIndex}
-    //               {...this.state}
-    //             />
-    //           </TabPanel>
-    //         </TabPanels>
-    //       </Tabs>
-    //       <Footer />
-    //     </>
-    //   </>
-    // );
   }
 }
 
