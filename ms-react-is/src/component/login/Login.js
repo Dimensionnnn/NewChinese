@@ -1,14 +1,55 @@
-import React from "react";
+import React, { useState } from "react";
 import Button from "@mui/material/Button";
 import { Box, TextField } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 
 import { motion } from "framer-motion";
+import axios from "axios";
 
+import { Navigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "../store/user/loginState";
+
+const options = {
+  method: "POST",
+  url: "http://106.75.250.96:8888/api/open/login",
+  headers: { "content-type": "application/json", Accept: "application/json" },
+};
 
 export default function Login() {
   const theme = useTheme();
-  const handleLogin = () => {};
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const dispatch = useDispatch();
+  const loggedIn = useSelector((state) => state.loginState.value);
+  const handleLogin = (event) => {
+    event.preventDefault();
+    let info = { password: password, username: username };
+    options.data = info;
+    axios
+      .request(options)
+      .then((res) => {
+        const statusCode = res.data.code;
+        switch (statusCode) {
+          case 200:
+            const token = res.data.data.token;
+            const user = res.data.data.name;
+            alert("用户" + user + "登陆成功！");
+            dispatch(login());
+            break;
+          default:
+            event.target.reset();
+            setUsername("");
+            setPassword("");
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+  if (loggedIn) {
+    return <Navigate to="/dashboard" />;
+  }
   return (
     <>
       <motion.div
@@ -25,7 +66,7 @@ export default function Login() {
           }}
           minHeight="100vh"
         >
-          <form>
+          <form onSubmit={handleLogin}>
             <h2>登录</h2>
             <TextField
               variant="outlined"
@@ -36,6 +77,7 @@ export default function Login() {
               label="用户名"
               name="username"
               autoFocus
+              onChange={(event) => setUsername(event.currentTarget.value)}
             />
             <TextField
               rvariant="outlined"
@@ -46,8 +88,9 @@ export default function Login() {
               label="密码"
               type="password"
               id="password"
+              onChange={(event) => setPassword(event.currentTarget.value)}
             />
-            <Button fullWidth variant="contained" onClick={handleLogin}>
+            <Button fullWidth type="submit" variant="contained">
               用户登录
             </Button>
           </form>

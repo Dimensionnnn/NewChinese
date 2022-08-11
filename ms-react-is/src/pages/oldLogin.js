@@ -65,8 +65,8 @@ function LoginForm() {
   }
 
   return (
-    // <Flex width="full" align="center" justifyContent="center">
-      {/* <Box
+    <Flex width="full" align="center" justifyContent="center">
+      <Box
         p={8}
         maxWidth="500px"
         borderWidth={1}
@@ -107,8 +107,8 @@ function LoginForm() {
             </Button>
           </form>
         </Box>
-      </Box> */}
-    // </Flex>
+      </Box>
+    </Flex>
   );
 }
 

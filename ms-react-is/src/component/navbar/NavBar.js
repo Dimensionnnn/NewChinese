@@ -13,7 +13,7 @@ import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
 
 import { useDispatch, useSelector } from "react-redux";
-import { word, article, edit, login } from "../store/display/homeSet";
+import { word, article, edit, login, dashboard } from "../store/display/homeSet";
 import { logout } from "../store/user/loginState";
 
 

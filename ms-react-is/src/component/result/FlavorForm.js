@@ -1,6 +1,6 @@
 import React from 'react';
 import { MeiliSearch } from "meilisearch";
-import { Button } from "@chakra-ui/react";
+import Button from '@mui/material/Button';
 class FlavorForm extends React.Component {
     constructor(props) {
         super(props);

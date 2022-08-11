@@ -1,10 +1,9 @@
-import { Box } from "@chakra-ui/react";
-import React from 'react';
-
+import Box from "@mui/material/Box";
+import React from "react";
 
 const Footer = () => {
   return (
-    <Box align="center" opacity={0.3} fontSize="sm">
+    <Box display="flex" alignItems="center" justifyContent="center">
       &copy; 华东师范大学·国际汉语文化学院
     </Box>
   );
