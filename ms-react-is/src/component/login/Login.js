@@ -32,6 +32,7 @@ export default function Login() {
         const statusCode = res.data.code;
         switch (statusCode) {
           case 200:
+            console.log(res.data.data);
             const token = res.data.data.token;
             const user = res.data.data.name;
             alert("用户" + user + "登陆成功！");

@@ -44,7 +44,6 @@ const SearchBox = ({ currentRefinement, refine }) => {
       >
         <Box sx={{
           bgcolor: `${theme.palette.secondary.main}`,
-          // borderRadius: 2,
         }}>
         <Input
           type="search"

@@ -13,11 +13,13 @@ import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
 
 import { useDispatch, useSelector } from "react-redux";
-import { word, article, edit, login, dashboard } from "../store/display/homeSet";
+import { word, article, edit, login } from "../store/display/homeSet";
 import { logout } from "../store/user/loginState";
+import { useNavigate } from "react-router-dom";
 
 
 const ResponsiveAppBar = () => {
+  const navigate = useNavigate();
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
@@ -25,6 +27,10 @@ const ResponsiveAppBar = () => {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+  const userDashboard = () => {
+    setAnchorElUser(null);
+    navigate('/dashboard');
+  }
   const userLogout = () => {
     setAnchorElUser(null);
     dispatch(logout());
@@ -96,7 +102,7 @@ const ResponsiveAppBar = () => {
                 open={Boolean(anchorElUser)}
                 onClose={handleCloseUserMenu}
               >
-                <MenuItem onClick={handleCloseUserMenu}>
+                <MenuItem onClick={userDashboard}>
                   <Typography textAlign="center">个人主页</Typography>
                 </MenuItem>
                 <MenuItem onClick={userLogout}>
