@@ -6,6 +6,7 @@ https://github.com/meilisearch/meilisearch
 
 文本编辑器项目地址
 https://github.com/tinymce/tinymce
+事情需要一点一点做~ 循序渐进，不要着急，遇到问题一起解决。
 ## 8.18-8.25
 1. 省略跳出界面，文本统计信息一直保留，细化编辑界面
 2. 分词结果作为索引，建立文档索引，生词库直接用字符匹配，研究一下~更改倒排索引的方式
