@@ -9,6 +9,7 @@ import axios from "axios";
 import { Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../store/user/loginState";
+import { userLoggedIn } from "../store/user/userInfo";
 
 const options = {
   method: "POST",
@@ -35,8 +36,13 @@ export default function Login() {
             console.log(res.data.data);
             const token = res.data.data.token;
             const user = res.data.data.name;
+            const payload = {
+              user: user,
+              token: token
+            }
             alert("用户" + user + "登陆成功！");
             dispatch(login());
+            dispatch(userLoggedIn(payload));
             break;
           default:
             event.target.reset();

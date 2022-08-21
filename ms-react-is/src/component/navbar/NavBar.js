@@ -15,6 +15,7 @@ import AdbIcon from "@mui/icons-material/Adb";
 import { useDispatch, useSelector } from "react-redux";
 import { word, article, edit, login } from "../store/display/homeSet";
 import { logout } from "../store/user/loginState";
+import { userLoggedout } from "../store/user/userInfo";
 import { useNavigate } from "react-router-dom";
 
 
@@ -34,6 +35,7 @@ const ResponsiveAppBar = () => {
   const userLogout = () => {
     setAnchorElUser(null);
     dispatch(logout());
+    dispatch(userLoggedout());
   };
   const dispatch = useDispatch();
   const loggedIn = useSelector((state) => state.loginState.value);
