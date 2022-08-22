@@ -4,6 +4,7 @@ import { Editor } from "@tinymce/tinymce-react";
 import ReactHTMLTableToExcel from "react-html-table-to-excel"; //导表
 // import AllPostPage from "./AllPostPage";
 // import DataToTable from "../component/result/DataToTable";
+import Button from '@mui/material/Button';
 import FlavorForm from "../component/result/FlavorForm";
 import { useLocation } from "react-router-dom";
 import { MeiliSearch } from "meilisearch";
@@ -29,10 +30,12 @@ function Result() {
   const location = useLocation();
   const editorValue = useRef("");
   const [showTable, setShowTable] = useState(true);
+  const [edit, setEdit] = useState(false);
+  const [newcontent, setNewcontent] = useState("");
   var pblc = "0"
   const handlePublic = (newValue) => {
     pblc = newValue
-    console.log('111',{pblc})
+    console.log('111', { pblc })
   }
   const handler = () => {
     setShowTable(!showTable);
@@ -62,6 +65,51 @@ function Result() {
     });
     FileSaver.saveAs(blob, "文档名称.doc");
   };
+  const client = new MeiliSearch({ host: "http://127.0.0.1:7700", apiKey: "MASTER_KEY" });
+  const setPrivate = (hit) => {// 通过私有化申请,改为收藏，不从原数据删除
+    if (window.confirm('确定收藏？在all_private中搜索', hit.title, '查找收藏后的信息')) {
+      if (location.state.userid === '') { window.alert("请先登录，才可收藏此条") }
+      else {
+        client.index('all_private').addDocuments([{
+          id: hit.id,
+          url: hit.url,
+          title: hit.title,
+          text: hit.text,
+          public: "true", //收藏后仍为公有，直到修改保存后需要改为false，直到将其公开
+          userid: location.state.userid,
+          级别: hit.级别,
+          genre: hit.genre
+        }])
+      }
+    }
+  }
+  const setPublic = (hit) => {// 通过公有化申请 （未实现公开到哪个index，还需选择）
+    if (window.confirm('确定公开吗？公开后将从私有index与待审核index删除，可在公开库搜索', hit.title, '查找公开后的数据')) {
+      client.index('doc_wiki_05').addDocuments([{
+        id: hit.id,
+        url: hit.url,
+        userid: hit.userid,
+        title: hit.title,
+        text: hit.text,
+        public: "true",
+        级别: hit.级别,
+        genre: hit.genre
+      }])
+      //设为公有从此待审核index删除
+      client.index('wait_to_check').deleteDocument(hit.id)
+      //公有后将私有index的此条记录更新为公开状态
+      client.index('all_private').updateDocuments([{
+        id: hit.id,
+        public: 'true',
+      }])
+
+      // this.refreshIndex('wait_to_check')
+    }
+  }
+  const refusePublic = (hit)=>{
+    client.index('wait_to_check').deleteDocument(hit.id)
+    // this.refreshIndex('wait_to_check')
+  }
   const setWaitPublicCheck = (hit, newContent) => {// 公有加入待审核
     const client = new MeiliSearch({ host: "http://127.0.0.1:7700", apiKey: "MASTER_KEY" });
     //加入到待审核index，同时需要携带该用户的userid，以便后续限制此用户只能访问用户id是自己的数据
@@ -71,10 +119,13 @@ function Result() {
     if (location.state.hit.text === newContent) { //此判断内容有格式问题，还需修改
       window.alert("您并没有更改内容，保存无效")
     }
-    if (pblc === "0") {//选择公开
+    if (newContent===""){
+      window.alert("您还没有保存")
+    }
+    else if (pblc === "0") {//选择公开
       if (window.confirm('您已经修改此内容，点击确认则将新内容公开发布，您可在待审核区查看')) {
         // 此处要根据修改后tiny内的值进行修改，例如下面text所述
-        const new_id=nanoid()
+        const new_id = nanoid()
         client.index('wait_to_check').addDocuments([{
           id: new_id,
           url: hit.url,
@@ -170,9 +221,9 @@ function Result() {
                   content_style:
                     "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
                   save_onsavecallback: function () {
-                    var newContent = editorValue.current.getContent().slice(3, -4)
-                    console.log("编辑页的Save", newContent);
-                    setWaitPublicCheck(location.state.hit,newContent)
+                    // newContent = editorValue.current.getContent().slice(3, -4)
+                    console.log("编辑页的Save", setNewcontent(editorValue.current.getContent().slice(3, -4)));
+                    // setWaitPublicCheck(location.state.hit, newContent)
                   },
                   file_picker_callback: function (callback, value, meta) {
                     //文件分类
@@ -205,11 +256,53 @@ function Result() {
                   },
                 }}
               />
+              {
+                edit ?
+                  // 可编辑状态
+                  <div>
+                     <Button style={{ backgroundColor: "#F0F2F5" }} onClick={() => {  }} className="r-button" >
+                        分析文本（未写功能）
+                      </Button>
+                    <p>下方选择保存后是否公开</p>
+                    <CheckBox handlePublic={handlePublic} />
+                    <Button style={{ backgroundColor: "#F0F2F5" }} onClick={() => { setWaitPublicCheck(location.state.hit, newcontent) }} className="r-button" >
+                        提交
+                      </Button>
+                    <FlavorForm hit={location.state.hit} selectedIndex={location.state.selectedIndex} userid={location.state.userid} />
+                  </div>
+                  :
+                  // 不可编辑状态
+                  <div>
+                    <div style={{ textAlign: "center" }}>
+                      <Button style={{ backgroundColor: "#F0F2F5" }} onClick={() => { setEdit(true) }} className="r-button" >
+                        编辑文本
+                      </Button>
+                      {
+                        location.state.selectedIndex !== "all_private" && location.state.selectedIndex !== "wait_to_check" ?
+                          location.state.hit.public === 'true' ?
+                            <Button onClick={() => setPrivate(location.state.hit)} style={{ backgroundColor: "#F0F2F5" }}>点击收藏</Button> :
+                            <></> : <></>
+                      }
+                      {
+                      //在审核页面显示
+                      location.state.userid === "admin" ?
+                        location.state.selectedIndex === 'wait_to_check' ?
+                          location.state.hit.public === 'true' ?
+                            <button onClick={() => setPrivate(location.state.hit)} className="btn btn-default">通过私有化申请</button> :
+                            <div>
+                              <button onClick={() => setPublic(location.state.hit)} className="btn btn-default">通过公有化申请</button>
+                              <button onClick={() => refusePublic(location.state.hit)} className="btn btn-default">拒绝公有化申请</button>
+                            </div> :
+                          <></> : <></>
+
+                    }
+                    </div>
+                  </div>
+              }
               <button onClick={log}>下载当前文本doc</button>
               {/* <Button onClick={download}>下载当前文本pdf</Button> */}
-              <p>下方选择保存后是否公开</p>
-              <CheckBox handlePublic={handlePublic} />
-              <FlavorForm hit={location.state.hit} selectedIndex={location.state.selectedIndex} userid={location.state.userid} />
+
+
             </form>
           </div>
         </div>

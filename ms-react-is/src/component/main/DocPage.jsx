@@ -44,50 +44,6 @@ export default class DocPage extends Component {
   refreshIndex(indexName) {
     PubSub.publish('refreshIndex', indexName)
   }
-  setPrivate = (hit) => {// 通过私有化申请,改为收藏，不从原数据删除
-    if (window.confirm('确定通过私有申请吗？通过后将从公有index删除，可在私有index搜索', hit.title, '查找私有后的信息')) {
-      if (this.props.userid === '') { window.alert("请先登录，才可收藏此条") }
-      else {
-        client.index('all_private').addDocuments([{
-          id: hit.id,
-          url: hit.url,
-          title: hit.title,
-          text: hit.text,
-          public: "true", 
-          userid: this.props.userid, //后续根据当前登录用户进行修改
-          级别: hit.级别,
-          genre: hit.genre
-        }])
-        //设为私有从此index删除
-        // client.index('wait_to_check').deleteDocument(hit.id)
-        // client.index('doc_wiki_05').deleteDocument(hit.id)
-        // this.refreshIndex('wait_to_check')
-      }
-    }
-  }
-  setPublic = (hit) => {// 通过公有化申请 （未实现公开到哪个index，还需选择）
-    if (window.confirm('确定公开吗？公开后将从私有index与待审核index删除，可在公开库搜索', hit.title, '查找公开后的数据')) {
-      client.index('doc_wiki_05').addDocuments([{
-        id: hit.id,
-        url: hit.url,
-        userid: hit.userid,
-        title: hit.title,
-        text: hit.text,
-        public: "true",
-        级别: hit.级别,
-        genre: hit.genre
-      }])
-      //设为公有从此待审核index删除
-      client.index('wait_to_check').deleteDocument(hit.id)
-      //公有后将私有index的此条记录更新为公开状态
-      client.index('all_private').updateDocuments([{
-        id: hit.id,
-        public: 'true',
-    }])
-
-      this.refreshIndex('wait_to_check')
-    }
-  }
   updateDocIndexs = () => {
     this.props.updateIndexs(this.state.apikey);
   };
@@ -96,7 +52,7 @@ export default class DocPage extends Component {
     const Hit = ({ hit }) => {
       let navigate = useNavigate();
       const routeChange = () => {
-        let path = `/analysis`;
+        let path = `/result`;
         navigate(path, { state: { value: hit.text, hit: hit, selectedIndex: selectedIndex,userid:this.props.userid } });
       };
       return (
@@ -125,14 +81,14 @@ export default class DocPage extends Component {
               );
             })
           }
-          { //在审核页面显示
+          {/* { //在审核页面显示
           this.props.userid==="admin"?
             this.props.selectedIndex === 'wait_to_check' ?
               hit.public === 'true' ?
                 <button onClick={() => this.setPrivate(hit)} className="btn btn-default">通过私有化申请</button> :
                 <button onClick={() => this.setPublic(hit)} className="btn btn-default">通过公有化申请</button> :
               <></>:<></>
-          }
+          } */}
           <button onClick={routeChange} className="btn btn-default">浏览文本</button>
         </div>
       );
