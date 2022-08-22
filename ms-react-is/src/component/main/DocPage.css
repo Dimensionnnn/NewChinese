@@ -1,0 +1,32 @@
+.ais-InstantSearch {
+  margin-top: 3em;
+  margin-left: 2em;
+}
+
+.hit-name {
+  margin-bottom: 0.5em;
+}
+
+.hit-description {
+  color: grey;
+  margin-bottom: 0.5em;
+  overflow: hidden;
+  max-height: 300px;
+  line-height: 20px;
+  /* overflow-y: scroll; */
+  /* overflow-x: scroll; */
+}
+
+.hit-passage {
+  color: grey;
+  margin-bottom: 0.5em;
+  overflow: hidden;
+  height: 150px;
+  line-height: 20px;
+  overflow-y: scroll;
+  /* overflow-x: scroll; */
+}
+
+.hit-info {
+  font-size: 90%;
+}

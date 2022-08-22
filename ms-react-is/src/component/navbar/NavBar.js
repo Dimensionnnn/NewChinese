@@ -22,6 +22,14 @@ import { useNavigate } from "react-router-dom";
 const ResponsiveAppBar = () => {
   const navigate = useNavigate();
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const handleWordSearch = () => {
+    dispatch(word());
+    navigate('/');
+  }
+  const handleArticleSearch = () => {
+    dispatch(article());
+    navigate('/');
+  }
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
   };
@@ -64,13 +72,13 @@ const ResponsiveAppBar = () => {
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             <Button
               sx={{ my: 2, color: "white", display: "block" }}
-              onClick={() => dispatch(word())}
+              onClick={handleWordSearch}
             >
               词语检索
             </Button>
             <Button
               sx={{ my: 2, color: "white", display: "block" }}
-              onClick={() => dispatch(article())}
+              onClick={handleArticleSearch}
             >
               文章检索
             </Button>

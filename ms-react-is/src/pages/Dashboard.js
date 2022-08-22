@@ -1,5 +1,5 @@
 import React from "react";
-import ResponsiveAppBar from "../component/navbar/NavBar";
+import ResponsiveAppBar from "../component/navbar/navbar";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
@@ -14,7 +14,7 @@ function Dashboard() {
       <Box
         sx={{
           height: "100vh",
-          backgroundColor: "primary.main",
+          backgroundColor: "primary.light",
         }}
       >
         <motion.div

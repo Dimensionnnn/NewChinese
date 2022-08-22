@@ -9,9 +9,9 @@ import Result from "./pages/Result";
 const theme = createTheme({
   palette: {
     primary: {
-      light: "#6dd5ed",
+      light: "#4DA4EA",
       main: "#2193b0",
-      dark: "#2198b0",
+      dark: "#315399",
       contrastText: "#fff",
     },
     secondary: {
