@@ -1,5 +1,5 @@
 import React from "react";
-import ResponsiveAppBar from "../component/navbar/navbar";
+import ResponsiveAppBar from "../component/navbar/NavBar";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";

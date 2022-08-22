@@ -208,8 +208,8 @@ function Result() {
               <button onClick={log}>下载当前文本doc</button>
               {/* <Button onClick={download}>下载当前文本pdf</Button> */}
               <p>下方选择保存后是否公开</p>
-              {/* <CheckBox handlePublic={handlePublic} /> */}
-              {/* <FlavorForm hit={location.state.hit} selectedIndex={location.state.selectedIndex} userid={location.state.userid} /> */}
+              <CheckBox handlePublic={handlePublic} />
+              <FlavorForm hit={location.state.hit} selectedIndex={location.state.selectedIndex} userid={location.state.userid} />
             </form>
           </div>
         </div>

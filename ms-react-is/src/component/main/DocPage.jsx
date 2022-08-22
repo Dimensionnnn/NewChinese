@@ -20,7 +20,7 @@ import {
   CurrentRefinements
 } from "react-instantsearch-dom";
 
-// import "../App.css";
+import "../../App.css";
 import { instantMeiliSearch } from "@meilisearch/instant-meilisearch";
 
 const client = new MeiliSearch({ host: "http://127.0.0.1:7700", apiKey: "MASTER_KEY" });

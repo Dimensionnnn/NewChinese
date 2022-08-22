@@ -1,3 +1,4 @@
+import { Hidden } from '@mui/material';
 import React, { Component } from 'react'
 class CheckBox extends Component {
   constructor(props) {
@@ -9,18 +10,27 @@ class CheckBox extends Component {
   render() { 
     return (
         <div>
-          <input type="radio" name="" value="0" checked={this.state.sex===0} onChange={(e)=>this.getValue(e)}/><label htmlFor="man">公开</label>
-          <input type="radio" name="" value="1" checked={this.state.sex===1} onChange={(e)=>this.getValue(e)}/><label htmlFor="woman">私有</label>
+          <input type="radio" name="" value="1" checked={this.state.sex==="1"} onClick={(e)=>this.getValue(e)}/><label htmlFor="woman">私有</label>
         </div>
       );
   }
+  
   getValue=(event)=>{
+    if(this.state.sex === "0"){
+      this.setState({
+        sex:"1"
+      })
+      this.props.handlePublic("1")
+    }
+    else if(this.state.sex === "1"){
+      this.setState({
+        sex:"0"
+      })
+      this.props.handlePublic("0")
+    }
     //获取单选框选中的值
-    console.log(event.target.value);
-    this.setState({
-      sex:event.target.value
-    })
-    this.props.handlePublic(event.target.value)
+    console.log(this.state.sex);
+
   }
 }
  
