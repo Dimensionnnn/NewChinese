@@ -29,6 +29,7 @@ const Choose = () => {
               whileHover={{
                 scale: 1.1,
                 transition: { duration: 0.5 },
+                textShadow: "0px 0px 4px gray"
               }}
               whileTap={{ scale: 0.8 }}
             >
@@ -44,6 +45,7 @@ const Choose = () => {
               whileHover={{
                 scale: 1.1,
                 transition: { duration: 0.5 },
+                textShadow: "0px 0px 4px gray"
               }}
               whileTap={{ scale: 0.8 }}
             >
@@ -59,6 +61,7 @@ const Choose = () => {
               whileHover={{
                 scale: 1.1,
                 transition: { duration: 0.5 },
+                textShadow: "0px 0px 4px gray"
               }}
               whileTap={{ scale: 0.8 }}
             >

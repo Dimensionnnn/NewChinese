@@ -72,7 +72,7 @@ export default function Login() {
           alignItems="center"
           justifyContent="center"
           sx={{
-            bgcolor: `${theme.palette.primary.light}`,
+            bgcolor: `${theme.palette.secondary.main}`,
           }}
           minHeight="100vh"
         >
