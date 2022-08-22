@@ -7,6 +7,10 @@ https://github.com/meilisearch/meilisearch
 文本编辑器项目地址
 https://github.com/tinymce/tinymce
 
+项目管理文档地址
+【腾讯文档】新中文教育项目管理
+https://docs.qq.com/sheet/DWmtQY0FPQ0hMcmNk?scene=e1ec5bc58c89c2772d1d2426jxeTo1
+
 事情需要一点一点做~ 循序渐进，不要着急，遇到问题一起解决。
 
 ## 8.18-8.25
