@@ -1,46 +1,27 @@
-import React, { useState } from 'react';
-import { useNavigate } from "react-router-dom";
-import Button from '@mui/material/Button';
+import React, { useRef } from "react";
+import Button from "@mui/material/Button";
+import { Editor } from "@tinymce/tinymce-react";
 
-
-const AnalyzePage = (props) => {
-    const [text_to_analyze, setText_to_analyze] = useState('');
-    let navigate = useNavigate();
-    const routeChange = () => {
-        let path = `/result`;
-        navigate(path, {
-            state: {
-                userid: props.userid,
-                text_to_analyze: text_to_analyze,
-                value: text_to_analyze,
-                hit: { userid: "admin", title: "null", text: text_to_analyze },
-                selectedIndex: "doc_wiki_05"
-            }
-        });
-    };
-
-    return (
-        <div style={{ textAlign: "center" }}>
-            <div className="input-box">
-                <label htmlFor="" ></label><input type="text"
-                    onChange={(e) => {
-                        const val = e.target.value;
-                        setText_to_analyze(val);
-                    }}
-                    placeholder='请输入' value={text_to_analyze} />
-            </div>
-            <h1>{text_to_analyze}</h1>
-            <Button
-                style={{ backgroundColor: "#F0F2F5" }}
-                onClick={routeChange}
-                className="r-button"
-            >
-                分析文本
-            </Button>
-
-        </div>
-
-    );
-};
+function AnalyzePage() {
+  const editorRef = useRef(null);
+  const log = () => {
+    if (editorRef.current) {
+      console.log(editorRef.current.getContent());
+    }
+  };
+  return (
+    <>
+      <Editor
+        onInit={(evt, editor) => (editorRef.current = editor)}
+        initialValue="<p>This is the initial content of the editor.</p>"
+        init={{
+          height: 500,
+          menubar: false,
+        }}
+      />
+      <Button onClick={log}>Log editor content</Button>
+    </>
+  );
+}
 
 export default AnalyzePage;

@@ -13,7 +13,7 @@ import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
 
 import { useDispatch, useSelector } from "react-redux";
-import { word, article, edit, login } from "../store/display/homeSet";
+import { word, article, edit, login, reset } from "../store/display/homeSet";
 import { logout } from "../store/user/loginState";
 import { userLoggedout } from "../store/user/userInfo";
 import { useNavigate } from "react-router-dom";
@@ -22,6 +22,18 @@ import { useNavigate } from "react-router-dom";
 const ResponsiveAppBar = () => {
   const navigate = useNavigate();
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const backToHome = () => {
+    dispatch(reset());
+    navigate('/');
+  }
+  const handleWordSearch = () => {
+    dispatch(word());
+    navigate('/');
+  }
+  const handleArticleSearch = () => {
+    dispatch(article());
+    navigate('/');
+  }
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
   };
@@ -34,8 +46,10 @@ const ResponsiveAppBar = () => {
   }
   const userLogout = () => {
     setAnchorElUser(null);
+    dispatch(reset());
     dispatch(logout());
     dispatch(userLoggedout());
+    navigate('/');
   };
   const dispatch = useDispatch();
   const loggedIn = useSelector((state) => state.loginState.value);
@@ -48,7 +62,7 @@ const ResponsiveAppBar = () => {
             variant="h6"
             noWrap
             component="a"
-            href="/"
+            onClick={backToHome}
             sx={{
               mr: 2,
               display: { xs: "none", md: "flex" },
@@ -64,13 +78,13 @@ const ResponsiveAppBar = () => {
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             <Button
               sx={{ my: 2, color: "white", display: "block" }}
-              onClick={() => dispatch(word())}
+              onClick={handleWordSearch}
             >
               词语检索
             </Button>
             <Button
               sx={{ my: 2, color: "white", display: "block" }}
-              onClick={() => dispatch(article())}
+              onClick={handleArticleSearch}
             >
               文章检索
             </Button>

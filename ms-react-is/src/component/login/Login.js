@@ -10,6 +10,8 @@ import { Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../store/user/loginState";
 import { userLoggedIn } from "../store/user/userInfo";
+import { reset } from "../store/display/homeSet";
+
 
 const options = {
   method: "POST",
@@ -55,7 +57,8 @@ export default function Login() {
       });
   };
   if (loggedIn) {
-    return <Navigate to="/dashboard" />;
+    dispatch(reset());
+    return <Navigate to="/" />;
   }
   return (
     <>
@@ -69,7 +72,7 @@ export default function Login() {
           alignItems="center"
           justifyContent="center"
           sx={{
-            bgcolor: `${theme.palette.primary.light}`,
+            bgcolor: `${theme.palette.secondary.main}`,
           }}
           minHeight="100vh"
         >

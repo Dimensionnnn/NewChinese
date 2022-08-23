@@ -14,7 +14,7 @@ function Dashboard() {
       <Box
         sx={{
           height: "100vh",
-          backgroundColor: "primary.main",
+          backgroundColor: "primary.light",
         }}
       >
         <motion.div

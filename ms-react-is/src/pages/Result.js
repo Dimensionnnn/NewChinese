@@ -212,8 +212,7 @@ function Result() {
                   min_height: 540,
                   width: 590,
                   menubar: false,
-                  icons_url: "/icons/savetext/icons.js",
-                  icons: "savetext",
+                  icons: "savetext3",
                   plugins:
                     " autoresize save  searchreplace autolink fullscreen link charmap pagebreak inserTdatetime advlist lists wordcount",
                   toolbar:

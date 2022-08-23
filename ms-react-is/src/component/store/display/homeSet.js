@@ -18,9 +18,12 @@ export const homeSet = createSlice({
     login: (state) => {
       state.value = 4;
     },
+    reset: (state) => {
+      state.value = 0;
+    }
   },
 });
 
-export const { word, article, edit, login } = homeSet.actions;
+export const { word, article, edit, login, reset } = homeSet.actions;
 
 export default homeSet.reducer;
