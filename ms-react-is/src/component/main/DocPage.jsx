@@ -26,7 +26,7 @@ import { instantMeiliSearch } from "@meilisearch/instant-meilisearch";
 const client = new MeiliSearch({ host: "http://127.0.0.1:7700", apiKey: "MASTER_KEY" });
 export default class DocPage extends Component {
   state = {
-    apikey: '47b83daac247b48aa570d8fd01d7b9bac651a8416ef0c8eb6b6a1ba749bba571',
+    apikey: 'b8816e913cdcb1e2bcedcf15f4f9f0d8ef5d64ac92738a4b2d5a83648e3f8397',
     tenant_token: ''
   }
 
@@ -98,7 +98,10 @@ export default class DocPage extends Component {
         <div className="left-panel">
           <button onClick={this.updateDocIndexs} className="btn btn-default">加载文本库</button>
           <IndexList indexs={indexs} setIndex={setIndex} />
-          <IndexRefine filterableAttributes={filterableAttributes} />
+          {
+            selectedIndex === "doc_wiki_05"?<IndexRefine filterableAttributes={filterableAttributes} />:<></>
+          }
+          
           <Configure
             attributesToSnippet={["description:"]}
             snippetEllipsisText={"..."}
