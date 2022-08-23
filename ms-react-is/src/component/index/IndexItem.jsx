@@ -3,8 +3,8 @@ import PubSub from 'pubsub-js'
 
 export default class IndexItem extends Component {
 
-  handleChange = (event) => {
-    this.props.setIndex(event.target.innerHTML)
+  handleChange = (indexStr) => {
+    this.props.setIndex(indexStr)
   }
   handleRefresh = (index) => {
     this.props.setIndex(index)
@@ -20,7 +20,15 @@ export default class IndexItem extends Component {
   render() {
     const { indexStr } = this.props
     return (
-        <li class="btn btn-default" value={{ indexStr }} onClick={this.handleChange}>{indexStr}</li>
+        <li class="btn btn-default" value={{ indexStr }} onClick={() => this.handleChange(indexStr)}>{
+          indexStr === "HSK_utf8_id"?"HSK词库":
+          indexStr === "words_3d9j_space"?"三等九级词库":
+          indexStr === "doc_wiki_05"?"公开文本库":
+          indexStr === "all_private"?"私有文本库":
+          indexStr === "wait_to_check"?"待审核库":
+          indexStr === "wait_to_submit"?"待提交库":
+          indexStr
+          }</li>
     )
   }
 }

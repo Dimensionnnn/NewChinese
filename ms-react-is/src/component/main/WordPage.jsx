@@ -14,6 +14,7 @@ import {
   CurrentRefinements,
   connectSearchBox,
   Configure,
+  Highlight
 } from "react-instantsearch-dom";
 import "./WordPage.css";
 import { motion } from "framer-motion";
@@ -21,7 +22,7 @@ import { instantMeiliSearch } from "@meilisearch/instant-meilisearch";
 
 const searchClient = instantMeiliSearch(
   "http://127.0.0.1:7700/",
-  "0fd3796be6b4d2bf5b5e5c4ae1f42a21fc3b05c8ff324f7c0bbbfb44dd2b69bb"
+  "1dfeef3fea9ea20cb4f8e6e51f5516884b9abb0704e3fe8ae37c68845a2bba0f"
 );
 
 const SearchBox = ({ currentRefinement, refine }) => {
@@ -45,13 +46,13 @@ const SearchBox = ({ currentRefinement, refine }) => {
         <Box sx={{
           bgcolor: `${theme.palette.secondary.main}`,
         }}>
-        <Input
-          type="search"
-          playholder="搜索"
-          disableUnderline={true}
-          value={currentRefinement}
-          onChange={(event) => refine(event.currentTarget.value)}
-        />
+          <Input
+            type="search"
+            playholder="搜索"
+            disableUnderline={true}
+            value={currentRefinement}
+            onChange={(event) => refine(event.currentTarget.value)}
+          />
         </Box>
       </Box>
     </motion.div>
@@ -63,7 +64,7 @@ const CustomSearchBox = connectSearchBox(SearchBox);
 export default class wordPage extends Component {
   updateWordIndexs = () => {
     this.props.updateIndexs(
-      "0fd3796be6b4d2bf5b5e5c4ae1f42a21fc3b05c8ff324f7c0bbbfb44dd2b69bb"
+      "1dfeef3fea9ea20cb4f8e6e51f5516884b9abb0704e3fe8ae37c68845a2bba0f"
     );
   };
 
@@ -77,15 +78,26 @@ export default class wordPage extends Component {
     } = this.props;
     const Hit = ({ hit }) => {
       return (
-        <div key={hit.id}>
-          {displayedAttributes.map((attribute) => {
-            return (
-              <div className="hit-description">
-                {attribute}:
-                <Snippet attribute={attribute} hit={hit} />
-              </div>
-            );
-          })}
+        <div key={hit["id"]}>
+          {
+            hit["白皮书词语"] === "本结果非词库数据，展示包含的所有等级与词性" || hit["生词"] === "没搜到想搜的？点我试试" ?
+              <></> :
+              displayedAttributes.map((attribute) => {
+                return (
+                  <div className="hit-description">
+                    {attribute}:
+                    {console.log(hit["白皮书词语"])}
+                    {
+                      selectedIndex === "words_3d9j_space" ?
+                        attribute === "白皮书词语" ?
+                          <span>{hit["白皮书词语"].split(" ").join('')}</span> :
+                          <Snippet attribute={attribute} hit={hit} style="white-space;" /> :
+                        <Snippet attribute={attribute} hit={hit} style="white-space;" />
+                    }
+                  </div>
+                );
+              })
+          }
         </div>
       );
     };
