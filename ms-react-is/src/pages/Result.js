@@ -57,7 +57,7 @@ function Result() {
   };
   const log = () => {
     // console.log(editorValue.current.startContent);
-    let content = editorValue.current.startContent;
+    let content = editorValue.current.getContent();
     let style = ".title-span{ font-size:16px; color:red }";
     let html = creatHtmlTree(content, style);
     let blob = new Blob([html], {
