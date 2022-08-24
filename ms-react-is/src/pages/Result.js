@@ -63,7 +63,7 @@ function Result() {
     let blob = new Blob([html], {
       type: "application/vnd.ms-word;charset=UTF-8",
     });
-    FileSaver.saveAs(blob, "文档名称.doc");
+    FileSaver.saveAs(blob, "文档名称.docx");
   };
   const client = new MeiliSearch({ host: "http://127.0.0.1:7700", apiKey: "MASTER_KEY" });
   const setPrivate = (hit) => {// 通过私有化申请,改为收藏，不从原数据删除
@@ -310,7 +310,7 @@ function Result() {
                     </div>
                   </div>
               }
-              <button onClick={log}>下载当前文本doc</button>
+              <button onClick={log}>下载当前文本docx</button>
               {/* <Button onClick={download}>下载当前文本pdf</Button> */}
 
 

@@ -1,0 +1,12 @@
+  .editableStyle {
+    position: relative;
+        left: 0;
+        top: 0;
+        opacity: .5;
+        width: 100%;
+        height: 300rpx;
+        background: #000;
+        z-index: 998;
+        /*pointer-events: none; 是可以点击下面的事件，但是因为div是包着tinymac的，所以无效 */
+        pointer-events: none;
+  }
