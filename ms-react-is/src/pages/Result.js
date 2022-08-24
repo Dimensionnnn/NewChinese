@@ -33,6 +33,7 @@ function Result() {
   const [edit, setEdit] = useState(false);
   const [newcontent, setNewcontent] = useState("");
   var pblc = "0"
+  var editable = false //标记可编辑状态
   const handlePublic = (newValue) => {
     pblc = newValue
     console.log('111', { pblc })
@@ -173,6 +174,9 @@ function Result() {
   //   doc.text(content, 10, 10);
   //   doc.save("test.pdf");
   // };
+  const enableEdit = () => { //使不可编辑变为可编辑
+    editable = true
+  }
   useEffect(() => {
     const script = document.createElement("script");
     script.src =
@@ -201,72 +205,76 @@ function Result() {
                 event.preventDefault();
               }}
             >
-              <Editor
-                tinymceScriptSrc={
-                  process.env.PUBLIC_URL + "/tinymce/tinymce.min.js"
-                }
-                onInit={(evt, editor) => (editorValue.current = editor)}
-                initialValue={location.state.value}
-                init={{
-                  id: "tiny2",
-                  language: "zh-Hans",
-                  min_height: 540,
-                  width: 590,
-                  menubar: false,
-                  icons: "savetext3",
-                  plugins:
-                    " autoresize save  searchreplace autolink fullscreen link charmap pagebreak inserTdatetime advlist lists wordcount",
-                  toolbar:
-                    " link  newdocument save print searchreplace undo redo cut copy paste blockquote removeformat forecolor backcolor bold italic underline strikethrough charmap blocks fontsize alignleft aligncenter alignright alignjustify ouTdent indent pagebreak inserTdatetime  fullscreen",
-                  content_style:
-                    "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
-                  save_onsavecallback: function () {
-                    // newcontent = editorValue.current.getContent().slice(3, -4)
-                    console.log("编辑页的Save", setNewcontent(editorValue.current.getContent().slice(3, -4)));
-                    const client = new MeiliSearch({ host: "http://127.0.0.1:7700", apiKey: "MASTER_KEY" });
-                    const new_id = nanoid()
-                    client.index('wait_to_submit').addDocuments([{
-                      id: new_id,
-                      url: location.state.hit.url,
-                      title: location.state.hit.title,
-                      text: editorValue.current.getContent().slice(3, -4),  // 将hit.text替换成tiny内新保存的值
-                      级别: location.state.hit.级别,
-                      genre: location.state.hit.genre,
-                      public: 'false',
-                      userid: location.state.userid //后续根据当前登录用户进行修改
-                    }])
-                  },
-                  file_picker_callback: function (callback, value, meta) {
-                    //文件分类
-                    var filetype =
-                      ".pdf, .txt, .zip, .rar, .7z, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .mp3, .mp4";
-                    var upurl = "/api/controller/";
-                    //为不同插件指定文件类型及后端地址
-                    switch (meta.filetype) {
-                      case "image":
-                        filetype = ".jpg, .jpeg, .png, .gif";
-                        upurl += "action1";
-                        break;
-                      case "media":
-                        filetype = ".mp3, .mp4";
-                        upurl += "action2";
-                        break;
-                      case "file":
-                        break;
-                    }
-                    // //模拟出一个input用于添加本地文件
-                    // var input = document.createElement("input");
-                    // input.setAttribute("type", "file");
-                    // input.setAttribute("accept", filetype);
-                    // input.click();
-                    // input.onchange = function () {
-                    //   var file = this.files[0];
-                    //   var xhr, formData;
-                    //   console.log(file.name);
-                    // };
-                  },
-                }}
-              />
+              {/* 使用失去焦点的遮罩层达到不可编辑 */}
+              <div style={edit? {opacity: 60,position: 'relative',width: '100%',height: '100%',} : {opacity: 60,position: 'relative',width: '100%',height: '100%',pointerEvents: 'none',}}>
+                <Editor
+                  tinymceScriptSrc={
+                    process.env.PUBLIC_URL + "/tinymce/tinymce.min.js"
+                  }
+                  onInit={(evt, editor) => (editorValue.current = editor)}
+                  initialValue={location.state.value}
+                  init={{
+                    id: "tiny2",
+                    language: "zh-Hans",
+                    min_height: 540,
+                    width: 590,
+                    menubar: false,
+                    icons: "savetext3",
+                    plugins:
+                      " autoresize save  searchreplace autolink fullscreen link charmap pagebreak inserTdatetime advlist lists wordcount",
+                    toolbar:
+                      " link  newdocument save print searchreplace undo redo cut copy paste blockquote removeformat forecolor backcolor bold italic underline strikethrough charmap blocks fontsize alignleft aligncenter alignright alignjustify ouTdent indent pagebreak inserTdatetime  fullscreen",
+                    content_style:
+                      "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
+                    save_onsavecallback: function () {
+                      // newcontent = editorValue.current.getContent().slice(3, -4)
+                      console.log("编辑页的Save", setNewcontent(editorValue.current.getContent().slice(3, -4)));
+                      const client = new MeiliSearch({ host: "http://127.0.0.1:7700", apiKey: "MASTER_KEY" });
+                      const new_id = nanoid()
+                      client.index('wait_to_submit').addDocuments([{
+                        id: new_id,
+                        url: location.state.hit.url,
+                        title: location.state.hit.title,
+                        text: editorValue.current.getContent().slice(3, -4),  // 将hit.text替换成tiny内新保存的值
+                        级别: location.state.hit.级别,
+                        genre: location.state.hit.genre,
+                        public: 'false',
+                        userid: location.state.userid //后续根据当前登录用户进行修改
+                      }])
+                    },
+                    file_picker_callback: function (callback, value, meta) {
+                      //文件分类
+                      var filetype =
+                        ".pdf, .txt, .zip, .rar, .7z, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .mp3, .mp4";
+                      var upurl = "/api/controller/";
+                      //为不同插件指定文件类型及后端地址
+                      switch (meta.filetype) {
+                        case "image":
+                          filetype = ".jpg, .jpeg, .png, .gif";
+                          upurl += "action1";
+                          break;
+                        case "media":
+                          filetype = ".mp3, .mp4";
+                          upurl += "action2";
+                          break;
+                        case "file":
+                          break;
+                      }
+                      // //模拟出一个input用于添加本地文件
+                      // var input = document.createElement("input");
+                      // input.setAttribute("type", "file");
+                      // input.setAttribute("accept", filetype);
+                      // input.click();
+                      // input.onchange = function () {
+                      //   var file = this.files[0];
+                      //   var xhr, formData;
+                      //   console.log(file.name);
+                      // };
+                    },
+                  }}
+                />
+              </div>
+              
               {
                 edit ?
                   // 可编辑状态
@@ -285,7 +293,7 @@ function Result() {
                   // 不可编辑状态
                   <div>
                     <div style={{ textAlign: "center" }}>
-                      <Button style={{ backgroundColor: "#F0F2F5" }} onClick={() => { setEdit(true) }} className="r-button" >
+                      <Button style={{ backgroundColor: "#F0F2F5" }} onClick={() => { setEdit(true);enableEdit() }} className="r-button" >
                         编辑文本
                       </Button>
                       {
