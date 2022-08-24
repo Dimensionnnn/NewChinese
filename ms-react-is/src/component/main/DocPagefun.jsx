@@ -131,7 +131,7 @@ function DocPage(props) {
                     value: hit.text,
                     hit: hit,
                     selectedIndex: props.selectedIndex,
-                    userid: props.userid.slice(0, 7),
+                    userid: token.slice(0, 7),
                 },
             });
         };
