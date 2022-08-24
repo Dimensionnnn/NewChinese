@@ -33,7 +33,6 @@ function Result() {
   const [edit, setEdit] = useState(false);
   const [newcontent, setNewcontent] = useState("");
   var pblc = "0"
-  var editable = false //标记可编辑状态
   const handlePublic = (newValue) => {
     pblc = newValue
     console.log('111', { pblc })
@@ -174,9 +173,6 @@ function Result() {
   //   doc.text(content, 10, 10);
   //   doc.save("test.pdf");
   // };
-  const enableEdit = () => { //使不可编辑变为可编辑
-    editable = true
-  }
   useEffect(() => {
     const script = document.createElement("script");
     script.src =
@@ -293,7 +289,7 @@ function Result() {
                   // 不可编辑状态
                   <div>
                     <div style={{ textAlign: "center" }}>
-                      <Button style={{ backgroundColor: "#F0F2F5" }} onClick={() => { setEdit(true);enableEdit() }} className="r-button" >
+                      <Button style={{ backgroundColor: "#F0F2F5" }} onClick={() => { setEdit(true); }} className="r-button" >
                         编辑文本
                       </Button>
                       {
