@@ -22,7 +22,7 @@ import { instantMeiliSearch } from "@meilisearch/instant-meilisearch";
 
 const searchClient = instantMeiliSearch(
   "http://127.0.0.1:7700/",
-  "1dfeef3fea9ea20cb4f8e6e51f5516884b9abb0704e3fe8ae37c68845a2bba0f"
+  "1854f0d8befc8abed938cc18ecf327582f1b1eb3625fbd0a689e8c9edc0c4c94"
 );
 
 const SearchBox = ({ currentRefinement, refine }) => {
@@ -60,14 +60,25 @@ const SearchBox = ({ currentRefinement, refine }) => {
 };
 
 const CustomSearchBox = connectSearchBox(SearchBox);
-
+var displayedAttributes = []
 export default class wordPage extends Component {
   updateWordIndexs = () => {
     this.props.updateIndexs(
-      "1dfeef3fea9ea20cb4f8e6e51f5516884b9abb0704e3fe8ae37c68845a2bba0f"
+      "1854f0d8befc8abed938cc18ecf327582f1b1eb3625fbd0a689e8c9edc0c4c94"
     );
   };
-
+  // updateDisplayedAttributes = (selectedIndex) =>{
+  //   this.props.getDisplayedAttributes(selectedIndex)
+  // }
+  // updateFilterableAttributes  = (selectedIndex) =>{
+  //   this.props.getFilterableAttributes (selectedIndex)
+  // }
+  // refreshAttr(selectedIndex) {
+  //   PubSub.publish("refreshattr", selectedIndex);
+  // }
+  // componentWillReceiveProps(){
+  //   displayedAttributes = this.props.displayedAttributes
+  // }
   render() {
     const {
       filterableAttributes,
@@ -78,21 +89,27 @@ export default class wordPage extends Component {
     } = this.props;
     const Hit = ({ hit }) => {
       return (
-        <div key={hit["id"]}>
+        <div>
           {
-            hit["白皮书词语"] === "本结果非词库数据，展示包含的所有等级与词性" || hit["生词"] === "没搜到想搜的？点我试试" ?
+            hit["生词"] === "本结果非词库数据，展示包含的所有等级与词性" || hit["生词"] === "没搜到想搜的？点我试试" ?
               <></> :
               displayedAttributes.map((attribute) => {
                 return (
                   <div className="hit-description">
                     {attribute}:
-                    {console.log(hit["白皮书词语"])}
+                    {console.log("selectedIndex",selectedIndex)}
+                    {console.log("attribute",attribute)}
+                    {/* {console.log(hit["白皮书词语"])} */}
                     {
-                      selectedIndex === "words_3d9j_space" ?
-                        attribute === "白皮书词语" ?
-                          <span>{hit["白皮书词语"].split(" ").join('')}</span> :
+                      selectedIndex === "words_3d9j_space0" ?
+                        attribute === "生词" ?
+                          <span>{hit[attribute].split(" ").join('')}</span> :
                           <Snippet attribute={attribute} hit={hit} style="white-space;" /> :
-                        <Snippet attribute={attribute} hit={hit} style="white-space;" />
+                        selectedIndex === "HSK_utf8_id_space" ?
+                          attribute === "生词" ?
+                            <span>{hit[attribute].split(" ").join('')}</span> :
+                            <Snippet attribute={attribute} hit={hit} style="white-space;" /> :
+                          <Snippet attribute={attribute} hit={hit} style="white-space;" />
                     }
                   </div>
                 );

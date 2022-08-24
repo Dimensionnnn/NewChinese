@@ -9,6 +9,7 @@ export default class IndexItem extends Component {
   handleRefresh = (index) => {
     this.props.setIndex(index)
   }
+
   componentDidMount(){
     this.token = PubSub.subscribe('refreshIndex', (_, indexName) => {
       this.handleRefresh(indexName)
@@ -21,8 +22,8 @@ export default class IndexItem extends Component {
     const { indexStr } = this.props
     return (
         <li class="btn btn-default" value={{ indexStr }} onClick={() => this.handleChange(indexStr)}>{
-          indexStr === "HSK_utf8_id"?"HSK词库":
-          indexStr === "words_3d9j_space"?"三等九级词库":
+          indexStr === "HSK_utf8_id_space"?"HSK词库":
+          indexStr === "words_3d9j_space0"?"三等九级词库":
           indexStr === "doc_wiki_05"?"公开文本库":
           indexStr === "all_private"?"私有文本库":
           indexStr === "wait_to_check"?"待审核库":
