@@ -30,3 +30,7 @@
 .hit-info {
   font-size: 90%;
 }
+.ais-Hits-item {
+  margin-bottom: 1em;
+  width: calc(20% - 1rem);
+}

@@ -6,22 +6,28 @@ app.use((request, response, next) => {
 	console.log('有人请求服务器1了');
 	console.log('请求来自于', request.get('Host'));
 	console.log('请求的地址', request.url);
+	console.log("userid",request.query.userid)
 	next()
 })
 
 app.get('/newTenantToken', (request, response) => {
-	console.log(request.query.userid)
+	console.log("userid",request.query.userid)
 	let searchRules = ''
-	if(request.query.userid === "admin"){
+	if(request.query.userid === "MTcwXzI"){
+		console.log(11111)
 		searchRules = {
 			all_private: {
-				filter: `userid = ${request.query.userid}`
+				filter: `userid = ${request.query.userid} OR userid = admin`
+			},
+			wait_to_submit: {
+				filter: `userid = ${request.query.userid} OR userid = admin`
 			},
 			"*":{
 	
 			}
 		}
 	}else{
+		console.log(22222)
 		searchRules = {
 			all_private: {
 				filter: `userid = ${request.query.userid}`

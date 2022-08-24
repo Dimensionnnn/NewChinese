@@ -11,3 +11,9 @@
 .right-panel {
   margin-left: 210px;
 }
+
+.ais-Hits-item {
+  margin-bottom: 1em;
+  width: calc(10% - 1rem);
+}
+

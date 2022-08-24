@@ -6,6 +6,7 @@ import IndexRefine from "../index/IndexRefine";
 import { Snippet } from "react-instantsearch-dom";
 import PubSub from "pubsub-js";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 
 import {
@@ -53,13 +54,13 @@ const SearchBox = ({ currentRefinement, refine }) => {
         <Box sx={{
           bgcolor: `${theme.palette.secondary.main}`,
         }}>
-        <Input
-          type="search"
-          playholder="搜索"
-          disableUnderline={true}
-          value={currentRefinement}
-          onChange={(event) => refine(event.currentTarget.value)}
-        />
+          <Input
+            type="search"
+            playholder="搜索"
+            disableUnderline={true}
+            value={currentRefinement}
+            onChange={(event) => refine(event.currentTarget.value)}
+          />
         </Box>
       </Box>
     </motion.div>
@@ -68,17 +69,22 @@ const SearchBox = ({ currentRefinement, refine }) => {
 
 const CustomSearchBox = connectSearchBox(SearchBox);
 
-export default class DocPage extends Component {
+class DocPage1 extends Component {
   state = {
     apikey: "b8816e913cdcb1e2bcedcf15f4f9f0d8ef5d64ac92738a4b2d5a83648e3f8397",
     tenant_token: "",
   };
 
-  createToken = () => {
+  createToken = (userid) => {
+    console.log("usertoken:", userid.slice(0, 7))
+    var usertoken = userid.slice(0, 7)
+    // if(usertoken === "MTcwXzI"){
+    //   usertoken = "admin"
+    // }
     //应在登陆成功后调用，登录后向state传递一个userid，产生其tenant_token
     axios
       .get("http://localhost:3000/newTenantToken", {
-        params: { userid: this.props.userid },
+        params: { userid: usertoken },
       })
       .then((response) => {
         console.log("成功了", response.data);
@@ -86,7 +92,23 @@ export default class DocPage extends Component {
       });
   };
   componentDidMount() {
-    this.createToken();
+    if (this.props.token === "") {
+      console.log(3333)
+      // this.token = PubSub.subscribe('sendtoken', (_, usertoken) => {
+      // var newusertoken = usertoken
+      // const num=useSelector(state=>state.num)
+      // console.log("usertoken",newusertoken)
+      // this.createToken(newusertoken)
+      // })
+      console.log("useSelector",this.props.token)
+      // this.createToken(useSelector(state=>state.userInfo.token)); 
+    }
+    else { 
+      console.log(2222)
+      // console.log("useSelector",useSelector(state=>state.userInfo.token))
+      this.createToken(this.props.token); 
+    }
+
   }
   refreshIndex(indexName) {
     PubSub.publish("refreshIndex", indexName);
@@ -111,7 +133,7 @@ export default class DocPage extends Component {
             value: hit.text,
             hit: hit,
             selectedIndex: selectedIndex,
-            userid: this.props.userid,
+            userid: this.props.userid.slice(0, 7),
           },
         });
       };
@@ -162,37 +184,63 @@ export default class DocPage extends Component {
         )}
       >
         <div className="ais-InstantSearch">
-        <div className="left-panel">
-          <button onClick={this.updateDocIndexs} className="btn btn-default">
-            加载文本库
-          </button>
-          <IndexList indexs={indexs} setIndex={setIndex} />
-          {
-            selectedIndex === "doc_wiki_05"?<IndexRefine filterableAttributes={filterableAttributes} />:<></>
-          }
-          
-          <Configure
-            attributesToSnippet={["description:"]}
-            snippetEllipsisText={"..."}
-          />
-        </div>
-        <div className="right-panel">
-          <CurrentRefinements />
-          <CustomSearchBox />
-          <Stats />
-          <HitsPerPage
-            defaultRefinement={20}
-            items={[
-              { value: 10, label: "显示 10 条每页" },
-              { value: 20, label: "显示 20 条每页" },
-              { value: 40, label: "显示 40 条每页" },
-            ]}
-          />
-          <Hits hitComponent={Hit} />
-          <Pagination showLast={true} />
-        </div>
+          <div className="left-panel">
+            <button onClick={this.updateDocIndexs} className="btn btn-default">
+              加载文本库
+            </button>
+            <IndexList indexs={indexs} setIndex={setIndex} />
+            {
+              selectedIndex === "doc_wiki_05" ? <IndexRefine filterableAttributes={filterableAttributes} /> : <></>
+            }
+
+            <Configure
+              attributesToSnippet={["description:"]}
+              snippetEllipsisText={"..."}
+            />
+          </div>
+          <div className="right-panel">
+            <CurrentRefinements />
+            <CustomSearchBox />
+            <Stats />
+            <HitsPerPage
+              defaultRefinement={20}
+              items={[
+                { value: 10, label: "显示 10 条每页" },
+                { value: 20, label: "显示 20 条每页" },
+                { value: 40, label: "显示 40 条每页" },
+              ]}
+            />
+            <Hits hitComponent={Hit} />
+            <Pagination showLast={true} />
+          </div>
         </div>
       </InstantSearch>
     );
   }
 }
+export default function DocPage22() {
+  const token = useSelector(state=>state.userInfo.token)
+  console.log("1111",token)
+  return (
+      <DocPage1 token={token}/>
+  )
+}
+
+// export default function App() {
+//   const [number, setNumber] = useState(100);
+//   return (
+//     <div className="App">
+//       <Header hookValue={number}></Header>
+//     </div>
+//   );
+// }
+
+// import "./styles.css";
+// import React, { useState } from "react";
+
+// class Header extends React.Component {
+//   render() {
+//     const someHookValue = this.props.hookValue;
+//     return <h1>{someHookValue}</h1>;
+//   }
+// }

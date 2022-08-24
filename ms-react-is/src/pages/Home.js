@@ -4,10 +4,11 @@ import { MeiliSearch } from "meilisearch";
 
 import Footer from "../component/main/footer";
 import WordPage from "../component/main/WordPage";
-import DocPage from "../component/main/DocPage";
+import DocPage from "../component/main/DocPagefun";
 import AnalyzePage from "../component/main/AnalyzePage";
 import ResponsiveAppBar from "../component/navbar/NavBar";
 import Login from "../component/login/Login";
+import PubSub from "pubsub-js";
 
 import Choose from "../component/home/choose";
 import { useSelector } from "react-redux";
@@ -18,9 +19,17 @@ class Home extends Component {
     selectedIndex: "",
     filterableAttributes: [],
     displayedAttributes: [],
-    tab: "word",
-    userid: "admin",
+    tab: "doc",
+    userid: "",
   };
+  // componentDidMount(){
+  //   this.token = PubSub.subscribe('sendtoken', (_, usertoken) => {
+  //     this.setState({userid:usertoken})
+  //   })
+  // }
+  componentWillUnmount() {
+    PubSub.unsubscribe(this.token)
+  }
   updateIndexs = (apiKey) => {
     //获取现在所有的indexs
     const client = new MeiliSearch({

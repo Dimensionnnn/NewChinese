@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { login } from "../store/user/loginState";
 import { userLoggedIn } from "../store/user/userInfo";
 import { reset } from "../store/display/homeSet";
+import PubSub from "pubsub-js";
 
 
 const options = {
@@ -18,7 +19,9 @@ const options = {
   url: "http://106.75.250.96:8888/api/open/login",
   headers: { "content-type": "application/json", Accept: "application/json" },
 };
-
+const sendToken =(usertoken) =>{
+  PubSub.publish("sendtoken", usertoken);
+}
 export default function Login() {
   const theme = useTheme();
   const [username, setUsername] = useState("");
@@ -37,6 +40,7 @@ export default function Login() {
           case 200:
             console.log(res.data.data);
             const token = res.data.data.token;
+            sendToken(token)
             const user = res.data.data.name;
             const payload = {
               user: user,

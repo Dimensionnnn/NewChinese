@@ -13,8 +13,6 @@ import {
   HitsPerPage,
   CurrentRefinements,
   connectSearchBox,
-  Configure,
-  Highlight
 } from "react-instantsearch-dom";
 import "./WordPage.css";
 import { motion } from "framer-motion";
@@ -67,18 +65,6 @@ export default class wordPage extends Component {
       "1854f0d8befc8abed938cc18ecf327582f1b1eb3625fbd0a689e8c9edc0c4c94"
     );
   };
-  // updateDisplayedAttributes = (selectedIndex) =>{
-  //   this.props.getDisplayedAttributes(selectedIndex)
-  // }
-  // updateFilterableAttributes  = (selectedIndex) =>{
-  //   this.props.getFilterableAttributes (selectedIndex)
-  // }
-  // refreshAttr(selectedIndex) {
-  //   PubSub.publish("refreshattr", selectedIndex);
-  // }
-  // componentWillReceiveProps(){
-  //   displayedAttributes = this.props.displayedAttributes
-  // }
   render() {
     const {
       filterableAttributes,
@@ -97,9 +83,6 @@ export default class wordPage extends Component {
                 return (
                   <div className="hit-description">
                     {attribute}:
-                    {console.log("selectedIndex",selectedIndex)}
-                    {console.log("attribute",attribute)}
-                    {/* {console.log(hit["白皮书词语"])} */}
                     {
                       selectedIndex === "words_3d9j_space0" ?
                         attribute === "生词" ?

@@ -296,7 +296,7 @@ function Result() {
                       }
                       {
                         //在审核页面显示
-                        location.state.userid === "admin" ?
+                        location.state.userid === "MTcwXzI" ?
                           location.state.selectedIndex === 'wait_to_check' ?
                             location.state.hit.public === 'true' ?
                               <Button onClick={() => setPrivate(location.state.hit)} style={{ backgroundColor: "#F0F2F5" }}>通过私有化申请</Button> :
