@@ -6,6 +6,7 @@ import ReactHTMLTableToExcel from "react-html-table-to-excel"; //导表
 // import DataToTable from "../component/result/DataToTable";
 import Button from '@mui/material/Button';
 import FlavorForm from "../component/result/FlavorForm";
+import TabSetup from "../component/result/TabSetup";
 import { useLocation } from "react-router-dom";
 import { MeiliSearch } from "meilisearch";
 import FileSaver from "file-saver";
@@ -185,15 +186,12 @@ function Result() {
   }, []);
   return (
     <>
-      <div>
-        <div style={{
-          height: '100 %',
-          border: '2px solid #900',
-          padding: '10px',
-          margin: 'auto'
-        }}>
-          {/* <Text>分析结果： 适合HSK 6级以上的学习者</Text> */}
-        </div>
+      <div style={{
+        width: '1200px',
+        padding: '10px',
+        margin: 'auto'
+      }}>
+        
         <div>
           <div style={{ float: "left" }}>
             <form
@@ -320,9 +318,19 @@ function Result() {
 
             </form>
           </div>
+          <div style={{
+            float: 'right',
+            height: '550px',
+            width: '590px',
+            textAlign: 'center',
+            border: '1px solid #900' }}>
+            <TabSetup />
+          </div>
+          
         </div>
         <>
-          <Button onClick={handler}>展示/隐藏统计信息</Button>
+          
+          {/* <Button onClick={handler}>展示/隐藏统计信息</Button> */}
           {/* {showTable && <TableContainer>
             <Table variant="simple" id="table-to-xls">
               <TableCaption>统计信息</TableCaption>
