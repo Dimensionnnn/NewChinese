@@ -314,7 +314,7 @@ function Result() {
                     </div>
                   </div>
               }
-              <button onClick={log}>下载当前文本docx</button>
+              <Button onClick={log}>下载当前文本docx</Button>
               {/* <Button onClick={download}>下载当前文本pdf</Button> */}
 
 
@@ -322,7 +322,7 @@ function Result() {
           </div>
         </div>
         <>
-          <button onClick={handler}>展示/隐藏统计信息</button>
+          <Button onClick={handler}>展示/隐藏统计信息</Button>
           {/* {showTable && <TableContainer>
             <Table variant="simple" id="table-to-xls">
               <TableCaption>统计信息</TableCaption>

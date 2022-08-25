@@ -6,7 +6,7 @@ import Footer from "../component/main/footer";
 import WordPage from "../component/main/WordPage";
 import DocPage from "../component/main/DocPagefun";
 import AnalyzePage from "../component/main/AnalyzePage";
-import ResponsiveAppBar from "../component/navbar/NavBar";
+import ResponsiveAppBar from "../component/navbar/Navbar";
 import Login from "../component/login/Login";
 import PubSub from "pubsub-js";
 
