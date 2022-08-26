@@ -179,7 +179,7 @@ class DocPage1 extends Component {
       <InstantSearch
         indexName={selectedIndex}
         searchClient={instantMeiliSearch(
-          "localhost:7700/",
+          "http://localhost:7700/",
           this.state.tenant_token
         )}
       >

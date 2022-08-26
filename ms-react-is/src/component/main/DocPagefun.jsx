@@ -169,7 +169,7 @@ function DocPage(props) {
         <InstantSearch
             indexName={props.selectedIndex}
             searchClient={instantMeiliSearch(
-                "localhost:7700/",
+                "http://localhost:7700/",
                 tenant_token
             )}
         >
