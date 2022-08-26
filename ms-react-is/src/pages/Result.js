@@ -33,7 +33,7 @@ function Result() {
   const [showTable, setShowTable] = useState(true);
   const [edit, setEdit] = useState(false);
   const [newcontent, setNewcontent] = useState("");
-  var pblc = "0"
+  var pblc = "0";
   const handlePublic = (newValue) => {
     pblc = newValue
     console.log('111', { pblc })
@@ -324,7 +324,7 @@ function Result() {
             width: '590px',
             textAlign: 'center',
             border: '1px solid #900' }}>
-            <TabSetup />
+            {/* <TabSetup /> */}
           </div>
           
         </div>
