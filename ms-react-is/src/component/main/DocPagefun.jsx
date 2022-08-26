@@ -29,7 +29,7 @@ import { useTheme } from "@mui/material/styles";
 
 
 const client = new MeiliSearch({
-    host: "http://127.0.0.1:7700/",
+    host: "http://localhost:3001/api2",
     apiKey: "MASTER_KEY",
 });
 
@@ -106,7 +106,7 @@ function DocPage(props) {
         // }
         //应在登陆成功后调用，登录后向state传递一个userid，产生其tenant_token
         axios
-            .get("http://localhost:3000/api1/newTenantToken", {
+            .get("http://localhost:3001/api1/newTenantToken", {
                 params: { userid: usertoken },
             })
             .then((response) => {
@@ -169,7 +169,7 @@ function DocPage(props) {
         <InstantSearch
             indexName={props.selectedIndex}
             searchClient={instantMeiliSearch(
-                "http://127.0.0.1:7700/",
+                "http://localhost:3001/api2",
                 tenant_token
             )}
         >
