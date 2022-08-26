@@ -29,7 +29,7 @@ import { useTheme } from "@mui/material/styles";
 
 
 const client = new MeiliSearch({
-    host: "127.0.0.1:7700",
+    host: "localhost:7700",
     apiKey: "MASTER_KEY",
 });
 
@@ -169,7 +169,7 @@ function DocPage(props) {
         <InstantSearch
             indexName={props.selectedIndex}
             searchClient={instantMeiliSearch(
-                "127.0.0.1:7700",
+                "localhost:7700",
                 tenant_token
             )}
         >

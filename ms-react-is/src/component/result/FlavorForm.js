@@ -15,7 +15,7 @@ class FlavorForm extends React.Component {
         this.setState({ value: event.target.value });
     }
     setWaitPublicCheck = (hit) => {// 公有加入待审核
-        const client = new MeiliSearch({ host: "http://127.0.0.1:7700", apiKey: "MASTER_KEY" });
+        const client = new MeiliSearch({ host: "localhost:7700", apiKey: "MASTER_KEY" });
         //加入到待审核index，同时需要携带该用户的userid，以便后续限制此用户只能访问用户id是自己的数据
         // hit数据中加入userid
         if (window.confirm('确定公开该条吗？管理员通过后将从私有index删除，可在公有库搜索', hit.title, '，若存在则为审核通过')) {
