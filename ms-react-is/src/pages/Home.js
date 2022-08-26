@@ -60,7 +60,7 @@ class Home extends Component {
   };
   getDisplayedAttributes = (selectedIndex) => {
     const client = new MeiliSearch({
-      host: "localhost:7700",
+      host: "http://localhost:7700/",
       apiKey: "MASTER_KEY",
     });
     const displayedAttributes = client

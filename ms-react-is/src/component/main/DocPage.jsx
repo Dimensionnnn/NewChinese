@@ -29,7 +29,7 @@ import { useTheme } from "@mui/material/styles";
 
 
 const client = new MeiliSearch({
-  host: "localhost:7700",
+  host: "http://localhost:7700/",
   apiKey: "MASTER_KEY",
 });
 
