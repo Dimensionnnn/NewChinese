@@ -106,7 +106,7 @@ function DocPage(props) {
         // }
         //应在登陆成功后调用，登录后向state传递一个userid，产生其tenant_token
         axios
-            .get("http://localhost:3001/api1/newTenantToken", {
+            .get("http://localhost:3000/newTenantToken", {
                 params: { userid: usertoken },
             })
             .then((response) => {
