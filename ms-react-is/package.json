@@ -51,13 +51,5 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ],
-  "proxy": {
-    "/api1": {
-      "target": "http://localhost:5001/"
-      },
-    "/api2": {
-      "target": "http://localhost:7700/"
-    }
-  }
+  ]
 }

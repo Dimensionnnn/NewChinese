@@ -19,7 +19,7 @@ const Analysis = () => {
       }
     });
   };
-  const client = new MeiliSearch({ host: "/api2", apiKey: "MASTER_KEY" });
+  const client = new MeiliSearch({ host: "http://127.0.0.1:7700/", apiKey: "MASTER_KEY" });
 
   const setPrivate = (hit) => {// 通过私有化申请,改为收藏，不从原数据删除
     if (window.confirm('确定收藏？在all_private中搜索', hit.title, '查找收藏后的信息')) {
