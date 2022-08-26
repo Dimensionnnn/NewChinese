@@ -324,7 +324,7 @@ function Result() {
             width: '590px',
             textAlign: 'center',
             border: '1px solid #900' }}>
-            <TabSetup />
+            {/* <TabSetup /> */}
           </div>
           
         </div>
