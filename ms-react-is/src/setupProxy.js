@@ -1,6 +1,6 @@
 // const proxy = require('http-proxy-middleware')
-// const {createProxyMiddleware} = require('http-proxy-middleware')
-const createProxyMiddleware = require('http-proxy-middleware');
+const {createProxyMiddleware} = require('http-proxy-middleware')
+// const createProxyMiddleware = require('http-proxy-middleware');
 module.exports = function (app) {
   app.use(
     createProxyMiddleware('/api1', {  //api1是需要转发的请求(所有带有/api1前缀的请求都会转发给5000)
