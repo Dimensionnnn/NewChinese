@@ -19,7 +19,7 @@ import { motion } from "framer-motion";
 import { instantMeiliSearch } from "@meilisearch/instant-meilisearch";
 
 const searchClient = instantMeiliSearch(
-  "http://127.0.0.1:3001/api2",
+  "http://0.0.0.0:3001/api2",
   "1854f0d8befc8abed938cc18ecf327582f1b1eb3625fbd0a689e8c9edc0c4c94"
 );
 

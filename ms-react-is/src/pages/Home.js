@@ -33,7 +33,7 @@ class Home extends Component {
   updateIndexs = (apiKey) => {
     //获取现在所有的indexs
     const client = new MeiliSearch({
-      host: "http://127.0.0.1:3001/api2",
+      host: "http://0.0.0.0:3001/api2",
       apiKey: apiKey,
     });
     const curIndex = client.getIndexes();
@@ -48,7 +48,7 @@ class Home extends Component {
   };
   getFilterableAttributes = (selectedIndex) => {
     const client = new MeiliSearch({
-      host: "http://127.0.0.1:3001/api2",
+      host: "http://0.0.0.0:3001/api2",
       apiKey: "MASTER_KEY",
     });
     //获取所有filterableAttributes
@@ -60,7 +60,7 @@ class Home extends Component {
   };
   getDisplayedAttributes = (selectedIndex) => {
     const client = new MeiliSearch({
-      host: "http://127.0.0.1:3001/api2",
+      host: "http://0.0.0.0:3001/api2",
       apiKey: "MASTER_KEY",
     });
     const displayedAttributes = client
