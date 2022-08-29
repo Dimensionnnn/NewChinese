@@ -57,6 +57,6 @@ app.get('/newTenantToken', (request, response) => {
 	response.send(token)
 })
 
-app.listen(5001, (err) => {
+app.listen(5001, "localhost", (err) => {
 	if (!err) console.log('服务器1启动成功了,请求tenantToken地址为：http://localhost:5001/newTenantToken');
 })

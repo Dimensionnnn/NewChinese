@@ -17,6 +17,7 @@
     "file-saver": "^2.0.5",
     "framer-motion": "^4.1.17",
     "fs-extra": "^10.1.0",
+    "http-proxy-middleware": "^2.0.6",
     "instantsearch.css": "7.4.2",
     "jsonwebtoken": "^8.5.1",
     "meilisearch": "^0.28.0-pagination-beta.0",
