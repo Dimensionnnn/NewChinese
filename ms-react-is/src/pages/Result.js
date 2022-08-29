@@ -66,7 +66,7 @@ function Result() {
     });
     FileSaver.saveAs(blob, "文档名称.docx");
   };
-  const client = new MeiliSearch({ host: "http://127.0.0.1:7700/api2/", apiKey: "MASTER_KEY" });
+  const client = new MeiliSearch({ host: "http://106.75.250.96:3001/api2/", apiKey: "MASTER_KEY" });
   const setPrivate = (hit) => {// 通过私有化申请,改为收藏，不从原数据删除
     if (window.confirm('确定收藏？在all_private中搜索', hit.title, '查找收藏后的信息')) {
       if (location.state.userid === '') { window.alert("请先登录，才可收藏此条") }
@@ -113,7 +113,7 @@ function Result() {
     // this.refreshIndex('wait_to_check')
   }
   const setWaitPublicCheck = (hit, newContent) => {// 公有加入待审核
-    const client = new MeiliSearch({ host: "http://127.0.0.1:7700/api2/", apiKey: "MASTER_KEY" });
+    const client = new MeiliSearch({ host: "http://106.75.250.96:3001/api2/", apiKey: "MASTER_KEY" });
     //加入到待审核index，同时需要携带该用户的userid，以便后续限制此用户只能访问用户id是自己的数据
     // hit数据中加入userid
     console.log("new", newContent)
@@ -223,7 +223,7 @@ function Result() {
                     save_onsavecallback: function () {
                       // newcontent = editorValue.current.getContent().slice(3, -4)
                       console.log("编辑页的Save", setNewcontent(editorValue.current.getContent().slice(3, -4)));
-                      const client = new MeiliSearch({ host: "http://127.0.0.1:7700/api2/", apiKey: "MASTER_KEY" });
+                      const client = new MeiliSearch({ host: "http://106.75.250.96:3001/api2/", apiKey: "MASTER_KEY" });
                       const new_id = nanoid()
                       client.index('wait_to_submit').addDocuments([{
                         id: new_id,
