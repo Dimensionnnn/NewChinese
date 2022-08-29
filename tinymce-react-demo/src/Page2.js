@@ -1,14 +1,20 @@
 import React, { useRef } from 'react';
 import './App.css';
 import { Editor } from '@tinymce/tinymce-react';
+// import '../public/tinymce/icons/savetext/icons';
 import ReactHTMLTableToExcel from 'react-html-table-to-excel'; //导表
 import AllPostPage from './AllPostPage';
 import DataToTable from './DataToTable'
 import FlavorForm from './FlavorForm';
 import FileSaver from 'file-saver';
+import { exportPDF } from './exportPDF';
 import {wordExport} from './jquery.wordexport';
 import $ from 'jquery';
-
+import './asset/editableStyle.css'
+import htmlDocx from 'html-docx-js/dist/html-docx';
+import { findAllByRole } from '@testing-library/react';
+import PtopTypes from "prop-types";
+import TabSetup from './TabSetup';
 
 class Page2 extends React.Component {
     constructor(props) {
@@ -28,6 +34,8 @@ class Page2 extends React.Component {
         //     textAlign: 'center'
         // }
         this._downloadWord=this._downloadWord.bind(this);
+        this.enableEdit=this.enableEdit.bind(this);
+        this.editable = false
         this.fontStlye = {
             fontSize: '18px',
             color: 'red'
@@ -181,6 +189,21 @@ class Page2 extends React.Component {
 
         // ];
     }
+    static proptype = {
+        itemClick: PtopTypes.func.isRequired,
+    };
+    title = ["玄幻", "武侠", "校园"];
+    state = {
+        currentTitle: "玄幻",
+    };
+
+    // 子组件向父组件(app)传递函数
+    itemClick = (idx) => {
+        // console.log("父组件idx", idx);
+        this.setState({
+            currentTitle: this.title[idx],
+        });
+    };
     
     /**
   * 下载word
@@ -193,7 +216,10 @@ class Page2 extends React.Component {
         let style = ".title-span{ font-size:16px; color:red }";
         let html = this._creatHtmlTree(node, style);
         let blob = new Blob([html], { type: "application/vnd.ms-word;charset=UTF-8" });
-        FileSaver.saveAs(blob, "文档名称.doc");
+        FileSaver.saveAs(blob, "文档名称.docx");
+        // var converted = htmlDocx.asBlob(html);
+
+        // FileSaver.saveAs(converted, 'test.docx');
     }
     /**
      * 生成HTML
@@ -216,6 +242,9 @@ class Page2 extends React.Component {
                     </html>`
     }
   //直接调用   _downloadWord方法即可。
+    onExportPDF = () => {
+        exportPDF('测试导出PDF', this.myRef.current.getContent())
+    }
     reAnalyze = () =>{
         this.setState({
             array1: [
@@ -250,7 +279,13 @@ class Page2 extends React.Component {
         evt.preventDefault();
         //console.log(this.array1);
     };
+    enableEdit = () => { //使不可编辑变为可编辑
+        this.editable = true;
+        this.forceUpdate();
+    }
     render () {
+        const title = this.title;
+        const { currentTitle } = this.state;
         return (
             <>
                 <div style={this.upStyle} >
@@ -259,57 +294,80 @@ class Page2 extends React.Component {
                 <div style={this.downStyle}>
                     <div style={{ float: 'left' }}>
                         <form onSubmit={this.onFormSubmit}>
-                            <Editor
-                                tinymceScriptSrc={process.env.PUBLIC_URL + '/tinymce/tinymce.min.js'}
-                                onInit={(evt, editor) => this.myRef.current = editor}
-                                initialValue='<p>一级文本,</p><p>二级文本.</p>'
-                                init={{
-                                    id: 'tiny2',
-                                    language: 'zh-Hans',
-                                    min_height: 540,
-                                    width: 590,
-                                    menubar: false,
-                                    // icons_url: '/icons/savetext/icons.js',
-                                    // icons: 'savetext',
-                                    plugins: ' autoresize save  searchreplace autolink fullscreen link charmap pagebreak insertdatetime advlist lists wordcount',
-                                    toolbar: ' link  newdocument save print searchreplace undo redo cut copy paste blockquote removeformat forecolor backcolor bold italic underline strikethrough charmap blocks fontsize alignleft aligncenter alignright alignjustify outdent indent pagebreak insertdatetime  fullscreen',
-                                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
-                                    save_onsavecallback: function () { console.log('Saved'); },
-                                    file_picker_callback: function (callback, value, meta) {
-                                        //文件分类
-                                        var filetype = '.pdf, .txt, .zip, .rar, .7z, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .mp3, .mp4';
-                                        var upurl = '/api/controller/';
-                                        //为不同插件指定文件类型及后端地址
-                                        switch (meta.filetype) {
-                                            case 'image':
-                                                filetype = '.jpg, .jpeg, .png, .gif';
-                                                upurl += 'action1';
-                                                break;
-                                            case 'media':
-                                                filetype = '.mp3, .mp4';
-                                                upurl += 'action2';
-                                                break;
-                                            case 'file':
-                                                break;
-                                        };
-                                        //模拟出一个input用于添加本地文件
-                                        var input = document.createElement('input');
-                                        input.setAttribute('type', 'file');
-                                        input.setAttribute('accept', filetype);
-                                        input.click();
-                                        input.onchange = function () {
-                                            var file = this.files[0];
-                                            var xhr, formData;
-                                            console.log(file.name);
-                                            //TODO:这里写请求
-                                        };
-                                    },
+                            <div style={this.editable? {
+                                opacity: 60,
+                                position: 'relative',
+                                // top: '50px',
+                                // left: '50px',
+                                width:'100%',
+                                height: '100%',
+                                // pointerEvents: 'none',
+                            } : {
+                                opacity: 60,
+                                position: 'relative',
+                                // top: '50px',
+                                // left: '50px',
+                                width: '100%',
+                                height: '100%',
+                                pointerEvents: 'none',
+                            }
+                            }>
+                                <Editor
+                                    tinymceScriptSrc={process.env.PUBLIC_URL + '/tinymce/tinymce.min.js'}
+                                    onInit={(evt, editor) => this.myRef.current = editor}
+                                    initialValue='<p>一级文本,</p><p>二级文本.</p>'
+                                    init={{
+                                        id: 'tiny2',
+                                        language: 'zh-Hans',
+                                        min_height: 540,
+                                        width: 590,
+                                        // mode:'readonly',
+                                        // readonly: this.readonly,
+                                        // readonly: true,
+                                        // contenteditable:false,
+                                        menubar: false,
+                                        // icons_url: '/icons/default/icons.js',
+                                        icons: 'savetext3',
+                                        plugins: ' autoresize save  searchreplace autolink fullscreen link charmap pagebreak insertdatetime advlist lists wordcount',
+                                        toolbar: ' link  newdocument save print searchreplace undo redo cut copy paste blockquote removeformat forecolor backcolor bold italic underline strikethrough charmap blocks fontsize alignleft aligncenter alignright alignjustify outdent indent pagebreak insertdatetime  fullscreen',
+                                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+                                        save_onsavecallback: function () { console.log('Saved'); },
+                                        file_picker_callback: function (callback, value, meta) {
+                                            //文件分类
+                                            var filetype = '.pdf, .txt, .zip, .rar, .7z, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .mp3, .mp4';
+                                            var upurl = '/api/controller/';
+                                            //为不同插件指定文件类型及后端地址
+                                            switch (meta.filetype) {
+                                                case 'image':
+                                                    filetype = '.jpg, .jpeg, .png, .gif';
+                                                    upurl += 'action1';
+                                                    break;
+                                                case 'media':
+                                                    filetype = '.mp3, .mp4';
+                                                    upurl += 'action2';
+                                                    break;
+                                                case 'file':
+                                                    break;
+                                            };
+                                            //模拟出一个input用于添加本地文件
+                                            var input = document.createElement('input');
+                                            input.setAttribute('type', 'file');
+                                            input.setAttribute('accept', filetype);
+                                            input.click();
+                                            input.onchange = function () {
+                                                var file = this.files[0];
+                                                var xhr, formData;
+                                                console.log(file.name);
+                                                //TODO:这里写请求
+                                            };
+                                        },
 
-                                }}
-                            />
-
+                                    }}
+                                />
+                            </div>
                             <div style={{ display: 'inline-block' }}>
                                 <button style={this.buttonStyle} id="text_download" onClick={this._downloadWord}>下载当前文本</button>
+                                <button style={this.buttonStyle} id="text_download_pdf" onClick={this.enableEdit()}>编辑文本</button>
                                 <button id='btn_analyze2' style={this.buttonStyle} onClick={this.reAnalyze}>再次分析</button>
                                 <button  style={this.buttonStyle} onClick={this.log}>获取当前文本</button>
                             </div>
@@ -322,8 +380,13 @@ class Page2 extends React.Component {
                         </form>
                     </div>
                     <div style={this.rightStyle}>
-                        <strong style={this.fontStlye}>统计信息：</strong>
-                        <DataToTable key={this.state.array1} tableID="table-to-xls" arr1={this.state.array1} arr2={this.state.array2} setone={this.setOne} settwo={this.setTwo}/>
+                        <TabSetup/>
+                        {/* <div>
+                            <TabControl key={this.state.array1} title={title} itemClick={(idx) => this.itemClick(idx)} />
+                            <h2>{currentTitle} </h2>
+                        </div> */}
+                        {/* <strong style={this.fontStlye}>统计信息：</strong>
+                        <DataToTable key={this.state.array1} tableID="table-to-xls" arr1={this.state.array1} arr2={this.state.array2} setone={this.setOne} settwo={this.setTwo}/> */}
 
                         {/* <table border="1" style={{ margin: '0 auto', width: '500px', height: ' 100px' }}>
                             <thead>
@@ -372,13 +435,13 @@ class Page2 extends React.Component {
                             </tbody>
 
                         </table> */}
-                        <ReactHTMLTableToExcel
+                        {/* <ReactHTMLTableToExcel
                             id="test-table-xls-button"
                             className="download-table-xls-button"
                             table="table-to-xls"
                             filename="tablexls"
                             sheet="tablexls"
-                            buttonText="下载分析明细" />
+                            buttonText="下载分析明细" /> */}
 
                         {/* <AllPostPage tableData1={dataToDisplay1} csvData1={dataToDownload1}
                     tableData2={dataToDisplay2} csvData2={dataToDownload2}/> */}

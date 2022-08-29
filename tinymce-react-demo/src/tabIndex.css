@@ -1,7 +1,7 @@
 .m-sys-wrap {
     position: relative;
     top: 2px;
-    /* left: 0; */
+    /* left: 20%; */
     right: 0;
     bottom: 0;
 }
@@ -14,11 +14,7 @@
 }
 
 .m-sys-header {
-    margin: 5px 0 0 0;
-}
-
-.m-sys-content {
-    margin: 15px 0 0 0;
+    margin: 2px 0 0 0;
 }
 
 .m-sys-set-icon {
@@ -77,7 +73,7 @@
 
 .m-sys-view {
     display: none;
-    color: #090a0a;
+    color: #080808;
     font-size: 32px;
 }
 
