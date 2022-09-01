@@ -29,7 +29,7 @@ import { useTheme } from "@mui/material/styles";
 
 
 const client = new MeiliSearch({
-    host: "http://106.75.250.96:3001/api2/",
+    host: "http://106.75.250.96:3000/api2/",
     apiKey: "MASTER_KEY",
 });
 
@@ -46,13 +46,14 @@ const SearchBox = ({ currentRefinement, refine }) => {
                 alignItems="center"
                 justifyContent="center"
                 sx={{
-                    bgcolor: `${theme.palette.primary.main}`,
+                    bgcolor: "#C7D8DF",
                     borderRadius: 2,
+                    boxShadow: 2
                 }}
                 minHeight="10vh"
             >
                 <Box sx={{
-                    bgcolor: `${theme.palette.secondary.main}`,
+                    bgcolor: "white",
                 }}>
                     <Input
                         type="search"
@@ -74,28 +75,25 @@ function DocPage(props) {
     const [apikey, setApikey] = useState('b8816e913cdcb1e2bcedcf15f4f9f0d8ef5d64ac92738a4b2d5a83648e3f8397');
     const [tenant_token, setTenant_token] = useState('');
     const token = useSelector(state => state.userInfo.token);
+    // const token = "user1"
     useEffect(() => {
-        if (token === "") {
-            console.log(3333)
-            // this.token = PubSub.subscribe('sendtoken', (_, usertoken) => {
-            // var newusertoken = usertoken
-            // const num=useSelector(state=>state.num)
-            // console.log("usertoken",newusertoken)
-            // this.createToken(newusertoken)
-            // })
-            console.log("useSelector", token)
-            // this.createToken(useSelector(state=>state.userInfo.token)); 
-        }
-        else {
 
-            // console.log("useSelector",useSelector(state=>state.userInfo.token))
+        if (token === "") {
+            setApikey('')
+            props.updateIndexs("b6e3b7cd9101803436177d75b9dd58076bb40ec3b078326af4ddd1381c263a7c");
+            console.log("useSelector", token)
+        }
+        else if ((token.slice(0, 7) === "MTcwXzI")) {
+            // props.updateIndexs("8608eb83e984fa046ef83824e9418ee670471e2a95203b67c47345924c57aa09");
+            props.updateIndexs("b8816e913cdcb1e2bcedcf15f4f9f0d8ef5d64ac92738a4b2d5a83648e3f8397");
             createToken(token);
             console.log(2222, tenant_token)
         }
-        // const newheader = document.querySelectorAll('#header')[0];
-        // setTimeout(() => {
-        //   newheader.innerHTML = header;
-        // }, 3000);
+        else {
+            props.updateIndexs("b8816e913cdcb1e2bcedcf15f4f9f0d8ef5d64ac92738a4b2d5a83648e3f8397");
+            createToken(token);
+        }
+
     }, []);
 
     const createToken = (userid) => {
@@ -106,14 +104,14 @@ function DocPage(props) {
         // }
         //应在登陆成功后调用，登录后向state传递一个userid，产生其tenant_token
         axios
-            .get("http://106.75.250.96:3001/api1/newTenantToken/", {
+            .get("http://106.75.250.96:3000/api1/newTenantToken/", {
                 params: { userid: usertoken },
             })
             .then((response) => {
                 console.log("成功了", response.data);
                 setTenant_token(response.data)
             });
-        
+
     };
 
     const refreshIndex = (indexName) => {
@@ -152,6 +150,12 @@ function DocPage(props) {
                             {"文章"}：
                             <Snippet attribute={attribute} hit={hit} />
                         </div>
+                    ) : attribute === "审核状态" ? (
+                        <div key={hit.id + attribute}>
+                            审核状态：
+                            {hit.审核状态}
+                            {/* {hit.checkState === "0" ? "待审核" : hit.checkState === "1" ? "审核通过" : hit.checkState === "2" ? "审核未通过" : "尚未公开"} */}
+                        </div>
                     ) : (
                         <div key={hit.id + attribute}>
                             {attribute === "title" ? "标题" : attribute}：
@@ -162,6 +166,9 @@ function DocPage(props) {
                 <button onClick={routeChange} className="btn btn-default">
                     浏览文本
                 </button>
+                {/* <button onClick={() => client.index(props.selectedIndex).deleteDocument(hit.id)} className="btn btn-default">
+                    删除数据（发布后去除）
+                </button> */}
             </div>
         );
     };
@@ -169,18 +176,18 @@ function DocPage(props) {
         <InstantSearch
             indexName={props.selectedIndex}
             searchClient={instantMeiliSearch(
-                "http://106.75.250.96:3001/api2/",
+                "http://106.75.250.96:3000/api2/",
                 tenant_token
             )}
         >
             <div className="ais-InstantSearch">
                 <div className="left-panel">
-                    <button onClick={updateDocIndexs} className="btn btn-default">
-                        加载文本库
-                    </button>
-                    <IndexList indexs={props.indexs} setIndex={props.setIndex} />
                     {
-                        props.selectedIndex === "doc_wiki_05" ? <IndexRefine filterableAttributes={props.filterableAttributes} /> : <></>
+                        props.selectedIndex === "doc_wiki_05"
+                    }
+                    <IndexList indexs={props.indexs} setIndex={props.setIndex} userid={token.slice(0, 7)}/>
+                    {
+                        props.selectedIndex === "doc_wiki_05" ?  <IndexRefine filterableAttributes={props.filterableAttributes} /> : props.selectedIndex === "wait_to_check" ?<IndexRefine filterableAttributes={props.filterableAttributes} />:<></>
                     }
 
                     <Configure
@@ -191,17 +198,19 @@ function DocPage(props) {
                 <div className="right-panel">
                     <CurrentRefinements />
                     <CustomSearchBox />
-                    <Stats />
-                    <HitsPerPage
-                        defaultRefinement={20}
-                        items={[
-                            { value: 10, label: "显示 10 条每页" },
-                            { value: 20, label: "显示 20 条每页" },
-                            { value: 40, label: "显示 40 条每页" },
-                        ]}
-                    />
-                    <Hits hitComponent={Hit} />
-                    <Pagination showLast={true} />
+                    <div className="stats">
+                        <Stats />
+                        <HitsPerPage
+                            defaultRefinement={20}
+                            items={[
+                                { value: 10, label: "显示 10 条每页" },
+                                { value: 20, label: "显示 20 条每页" },
+                                { value: 40, label: "显示 40 条每页" },
+                            ]}
+                        />
+                        <Hits hitComponent={Hit} />
+                        <Pagination showLast={true} />
+                    </div>
                 </div>
             </div>
         </InstantSearch>

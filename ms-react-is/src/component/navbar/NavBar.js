@@ -14,13 +14,31 @@ import AdbIcon from "@mui/icons-material/Adb";
 
 import { useDispatch, useSelector } from "react-redux";
 import { word, article, edit, login, reset } from "../store/display/homeSet";
-import { logout } from "../store/user/loginState";
+import { loggedin, loggedout } from "../store/user/loginState";
 import { userLoggedout } from "../store/user/userInfo";
 import { useNavigate } from "react-router-dom";
+
+const calculateColor = (value) => {
+  let bgColor;
+  switch (value) {
+    case 1:
+      bgColor = "#4DA4EA";
+      break;
+    case 2:
+      bgColor = "#2193b0";
+      break;
+    case 3:
+      bgColor = "#315399";
+      break;
+  }
+  return bgColor;
+}
 
 
 const ResponsiveAppBar = () => {
   const navigate = useNavigate();
+  const token = useSelector(state => state.userInfo.token);
+  const userLoggedIn = useSelector(state => state.loginState.value);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const backToHome = () => {
     dispatch(reset());
@@ -33,6 +51,20 @@ const ResponsiveAppBar = () => {
   const handleArticleSearch = () => {
     dispatch(article());
     navigate('/');
+  }
+  const handleArticleAnalysis = () => {
+    if (userLoggedIn) {
+      // navigate(`/result`, {
+      //   state: {
+      //     value: '',
+      //     selectedIndex: 'doc_wiki_05',
+      //     userid: token.slice(0, 7),
+      //   }
+      // })
+      dispatch(edit());
+    } else {
+      dispatch(login());
+    }
   }
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
@@ -47,14 +79,22 @@ const ResponsiveAppBar = () => {
   const userLogout = () => {
     setAnchorElUser(null);
     dispatch(reset());
-    dispatch(logout());
-    dispatch(userLoggedout());
+    dispatch(loggedout());
+    const user = '';
+    const token = '';
+    const payload = {
+      user: user,
+      token: token
+    }
+    dispatch(userLoggedout(payload));
     navigate('/');
   };
   const dispatch = useDispatch();
   const loggedIn = useSelector((state) => state.loginState.value);
+  const homeSetValue = useSelector((state) => state.homeSet.value);
+  const backgroundColor = calculateColor(homeSetValue);
   return (
-    <AppBar position="static">
+    <AppBar position="static" sx={{ bgcolor: backgroundColor}}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
@@ -90,7 +130,7 @@ const ResponsiveAppBar = () => {
             </Button>
             <Button
               sx={{ my: 2, color: "white", display: "block" }}
-              onClick={() => dispatch(edit())}
+              onClick={handleArticleAnalysis}
             >
               分析文章
             </Button>

@@ -19,7 +19,7 @@ import { motion } from "framer-motion";
 import { instantMeiliSearch } from "@meilisearch/instant-meilisearch";
 
 const searchClient = instantMeiliSearch(
-  "http://106.75.250.96:3001/api2",
+  "http://106.75.250.96:3000/api2",
   "1854f0d8befc8abed938cc18ecf327582f1b1eb3625fbd0a689e8c9edc0c4c94"
 );
 
@@ -36,13 +36,14 @@ const SearchBox = ({ currentRefinement, refine }) => {
         alignItems="center"
         justifyContent="center"
         sx={{
-          bgcolor: `${theme.palette.primary.light}`,
+          bgcolor: "#C7D8DF",
           borderRadius: 2,
+          boxShadow: 2
         }}
         minHeight="10vh"
       >
         <Box sx={{
-          bgcolor: `${theme.palette.secondary.main}`,
+          bgcolor: "white",
         }}>
           <Input
             type="search"
@@ -65,6 +66,9 @@ export default class wordPage extends Component {
       "1854f0d8befc8abed938cc18ecf327582f1b1eb3625fbd0a689e8c9edc0c4c94"
     );
   };
+  componentDidMount(){
+    this.updateWordIndexs()
+  }
   render() {
     const {
       filterableAttributes,
@@ -105,15 +109,13 @@ export default class wordPage extends Component {
       <InstantSearch indexName={selectedIndex} searchClient={searchClient}>
         <div className="ais-InstantSearch">
           <div className="left-panel">
-            <button onClick={this.updateWordIndexs} className="btn btn-default">
-              加载单词库
-            </button>
             <IndexList indexs={indexs} setIndex={setIndex} />
             <IndexRefine filterableAttributes={filterableAttributes} />
           </div>
           <div className="right-panel">
             <CurrentRefinements />
             <CustomSearchBox />
+            <div className="stats">
             <Stats />
             <HitsPerPage
               defaultRefinement={40}
@@ -125,6 +127,7 @@ export default class wordPage extends Component {
             />
             <Hits hitComponent={Hit} />
             <Pagination showLast={true} />
+            </div>
           </div>
         </div>
       </InstantSearch>

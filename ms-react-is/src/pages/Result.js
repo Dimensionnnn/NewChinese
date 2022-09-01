@@ -66,7 +66,7 @@ function Result() {
     });
     FileSaver.saveAs(blob, "文档名称.docx");
   };
-  const client = new MeiliSearch({ host: "http://106.75.250.96:3001/api2/", apiKey: "MASTER_KEY" });
+  const client = new MeiliSearch({ host: "http://106.75.250.96:3000/api2/", apiKey: "MASTER_KEY" });
   const setPrivate = (hit) => {// 通过私有化申请,改为收藏，不从原数据删除
     if (window.confirm('确定收藏？在all_private中搜索', hit.title, '查找收藏后的信息')) {
       if (location.state.userid === '') { window.alert("请先登录，才可收藏此条") }
@@ -98,22 +98,41 @@ function Result() {
         genre: hit.genre
       }])
       //设为公有从此待审核index删除
-      client.index('wait_to_check').deleteDocument(hit.id)
+      // client.index('wait_to_check').deleteDocument(hit.id)
+      //不从待审核删除了，将状态更改为审核通过
+      client.index('wait_to_check').updateDocuments([{
+        id: hit.id,
+        public: 'true',
+        审核状态: "通过" //0 待审核，1：通过，2：不通过
+      }])
       //公有后将私有index的此条记录更新为公开状态
       client.index('all_private').updateDocuments([{
         id: hit.id,
         public: 'true',
+        审核状态: "通过" //0 待审核，1：通过，2：不通过
       }])
 
       // this.refreshIndex('wait_to_check')
     }
   }
-  const refusePublic = (hit) => {
-    client.index('wait_to_check').deleteDocument(hit.id)
-    // this.refreshIndex('wait_to_check')
+  const refusePublic = (hit) => { //拒绝公开申请
+    if (window.confirm('确定拒绝申请？')) {
+      client.index('all_private').updateDocuments([{
+        id: hit.id,
+        public: 'false',
+        审核状态: "不通过" //0 待审核，1：通过，2：不通过
+      }])
+      client.index('wait_to_check').updateDocuments([{
+        id: hit.id,
+        public: 'false',
+        审核状态: "不通过" //0 待审核，1：通过，2：不通过
+      }])
+      // client.index('wait_to_check').deleteDocument(hit.id)
+      // this.refreshIndex('wait_to_check')
+    }
   }
   const setWaitPublicCheck = (hit, newContent) => {// 公有加入待审核
-    const client = new MeiliSearch({ host: "http://106.75.250.96:3001/api2/", apiKey: "MASTER_KEY" });
+    const client = new MeiliSearch({ host: "http://106.75.250.96:3000/api2/", apiKey: "MASTER_KEY" });
     //加入到待审核index，同时需要携带该用户的userid，以便后续限制此用户只能访问用户id是自己的数据
     // hit数据中加入userid
     console.log("new", newContent)
@@ -135,6 +154,7 @@ function Result() {
           text: newContent,  // 将hit.text替换成tiny内新保存的值
           级别: hit.级别,
           genre: hit.genre,
+          审核状态: "待审核", //0 待审核，1：通过，2：不通过
           public: 'false',
           userid: location.state.userid //后续根据当前登录用户进行修改
         }])
@@ -145,6 +165,7 @@ function Result() {
           text: newContent,  // 将hit.text替换成tiny内新保存的值
           级别: hit.级别,
           genre: hit.genre,
+          审核状态: "待审核", //0 待审核，1：通过，2：不通过
           public: 'false',
           userid: location.state.userid //后续根据当前登录用户进行修改
         }])
@@ -191,7 +212,7 @@ function Result() {
         padding: '10px',
         margin: 'auto'
       }}>
-        
+
         <div>
           <div style={{ float: "left" }}>
             <form
@@ -200,7 +221,7 @@ function Result() {
               }}
             >
               {/* 使用失去焦点的遮罩层达到不可编辑 */}
-              <div style={edit? {opacity: 60,position: 'relative',width: '100%',height: '100%',} : {opacity: 60,position: 'relative',width: '100%',height: '100%',pointerEvents: 'none',}}>
+              <div style={edit ? { opacity: 60, position: 'relative', width: '100%', height: '100%', } : { opacity: 60, position: 'relative', width: '100%', height: '100%', pointerEvents: 'none', }}>
                 <Editor
                   tinymceScriptSrc={
                     process.env.PUBLIC_URL + "/tinymce/tinymce.min.js"
@@ -223,7 +244,7 @@ function Result() {
                     save_onsavecallback: function () {
                       // newcontent = editorValue.current.getContent().slice(3, -4)
                       console.log("编辑页的Save", setNewcontent(editorValue.current.getContent().slice(3, -4)));
-                      const client = new MeiliSearch({ host: "http://106.75.250.96:3001/api2/", apiKey: "MASTER_KEY" });
+                      const client = new MeiliSearch({ host: "http://106.75.250.96:3000/api2/", apiKey: "MASTER_KEY" });
                       const new_id = nanoid()
                       client.index('wait_to_submit').addDocuments([{
                         id: new_id,
@@ -268,7 +289,7 @@ function Result() {
                   }}
                 />
               </div>
-              
+
               {
                 edit ?
                   // 可编辑状态
@@ -276,7 +297,7 @@ function Result() {
                     <Button style={{ backgroundColor: "#F0F2F5" }} onClick={() => { }} className="r-button" >
                       分析文本（未写功能）
                     </Button>
-                    <p>下方选择保存后是否公开</p>
+                    <p>下方选择提交后是否公开</p>
                     <CheckBox handlePublic={handlePublic} />
                     <Button style={{ backgroundColor: "#F0F2F5" }} onClick={() => { setWaitPublicCheck(location.state.hit, newcontent) }} className="r-button" >
                       提交
@@ -287,9 +308,14 @@ function Result() {
                   // 不可编辑状态
                   <div>
                     <div style={{ textAlign: "center" }}>
-                      <Button style={{ backgroundColor: "#F0F2F5" }} onClick={() => { setEdit(true); }} className="r-button" >
-                        编辑文本
-                      </Button>
+                      {
+                        location.state.selectedIndex !== "wait_to_check" ?
+                          <Button style={{ backgroundColor: "#F0F2F5" }} onClick={() => { setEdit(true); }} className="r-button" >
+                            编辑文本
+                          </Button>
+                          : <></>
+                      }
+
                       {
                         location.state.selectedIndex !== "all_private" && location.state.selectedIndex !== "wait_to_check" ?
                           location.state.hit.public === 'true' ?
@@ -303,8 +329,8 @@ function Result() {
                             location.state.hit.public === 'true' ?
                               <Button onClick={() => setPrivate(location.state.hit)} style={{ backgroundColor: "#F0F2F5" }}>通过私有化申请</Button> :
                               <div>
-                                <Button onClick={() => setPublic(location.state.hit)} style={{ backgroundColor: "#F0F2F5" }}>通过公有化申请</Button>
-                                <Button onClick={() => refusePublic(location.state.hit)} style={{ backgroundColor: "#F0F2F5" }}>拒绝公有化申请</Button>
+                                <Button onClick={() => setPublic(location.state.hit)} style={{ backgroundColor: "#F0F2F5" }}>通过</Button>
+                                <Button onClick={() => refusePublic(location.state.hit)} style={{ backgroundColor: "#F0F2F5" }}>拒绝</Button>
                               </div> :
                             <></> : <></>
 
@@ -323,13 +349,14 @@ function Result() {
             height: '550px',
             width: '590px',
             textAlign: 'center',
-            border: '1px solid #900' }}>
+            border: '1px solid #900'
+          }}>
             <TabSetup />
           </div>
-          
+
         </div>
         <>
-          
+
           {/* <Button onClick={handler}>展示/隐藏统计信息</Button> */}
           {/* {showTable && <TableContainer>
             <Table variant="simple" id="table-to-xls">

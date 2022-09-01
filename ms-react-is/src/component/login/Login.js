@@ -8,7 +8,7 @@ import axios from "axios";
 
 import { Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { login } from "../store/user/loginState";
+import { loggedin } from "../store/user/loginState";
 import { userLoggedIn } from "../store/user/userInfo";
 import { reset } from "../store/display/homeSet";
 import PubSub from "pubsub-js";
@@ -47,7 +47,7 @@ export default function Login() {
               token: token
             }
             alert("用户" + user + "登陆成功！");
-            dispatch(login());
+            dispatch(loggedin());
             dispatch(userLoggedIn(payload));
             break;
           default:

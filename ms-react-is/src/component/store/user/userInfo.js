@@ -15,7 +15,9 @@ export const userInfo = createSlice({
             state.token = token;
         },
         userLoggedout: (state, action) => {
-            state = initialState;
+            const {user, token} = action.payload;
+            state.user = user;
+            state.token = token;
         }
     }
 })

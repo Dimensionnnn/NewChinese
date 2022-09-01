@@ -46,7 +46,7 @@ const SearchBox = ({ currentRefinement, refine }) => {
         alignItems="center"
         justifyContent="center"
         sx={{
-          bgcolor: `${theme.palette.primary.main}`,
+          borderColor: `${theme.palette.primary.main}`,
           borderRadius: 2,
         }}
         minHeight="10vh"
@@ -83,7 +83,7 @@ class DocPage1 extends Component {
     // }
     //应在登陆成功后调用，登录后向state传递一个userid，产生其tenant_token
     axios
-      .get("http://localhost:3001/api1/newTenantToken", {
+      .get("http://localhost:3000/api1/newTenantToken", {
         params: { userid: usertoken },
       })
       .then((response) => {

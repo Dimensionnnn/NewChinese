@@ -34,3 +34,7 @@
   margin-bottom: 1em;
   width: calc(20% - 1rem);
 }
+
+.stats {
+  margin-top: 2em;
+}
