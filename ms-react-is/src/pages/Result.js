@@ -462,7 +462,7 @@ function Result() {
     if (oldValue === newContent) {
       // if (true) {
       //此判断内容有格式问题，还需修改
-      window.alert("您并没有更改内容，无法提交");
+      window.alert("修改后请保存后提交");
     } else if (newContent === "") {
       window.alert("您还没有保存");
     } else if (pblc === "0") {
@@ -521,7 +521,36 @@ function Result() {
       }
     }
   };
-
+  const saveCur = () => {
+    setNewcontent(editorValue.current.getContent().slice(3, -4));
+    const client = new MeiliSearch({
+      host: "http://106.75.250.96:3000/api2/",
+      apiKey: "MASTER_KEY",
+    });
+    console.log("now", editorValue.current.getContent().slice(3, -4));
+    console.log("old", editorValue.current.startContent.slice(3, -4));
+    if (
+      editorValue.current.getContent().slice(3, -4) ===
+      editorValue.current.startContent.slice(3, -4)
+    ) {
+      alert("您没有更改");
+    } else {
+      if (window.confirm("保存后将存入待提交")) {
+        client.index("wait_to_submit").addDocuments([
+          {
+            id: location.state.hit.id,
+            url: location.state.hit.url,
+            title: location.state.hit.title,
+            text: editorValue.current.getContent().slice(3, -4), // 将hit.text替换成tiny内新保存的值
+            级别: location.state.hit.级别,
+            genre: location.state.hit.genre,
+            public: "false",
+            userid: location.state.userid, //后续根据当前登录用户进行修改
+          },
+        ]);
+      }
+    }
+  };
   const getText = (str) => {
     if (!str) {
       return;
@@ -684,44 +713,7 @@ function Result() {
                     content_style:
                       "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
                     save_onsavecallback: function () {
-                      setNewcontent(
-                        editorValue.current.getContent().slice(3, -4)
-                      );
-                      const client = new MeiliSearch({
-                        host: "http://106.75.250.96:3000/api2/",
-                        apiKey: "MASTER_KEY",
-                      });
-                      console.log(
-                        "now",
-                        editorValue.current.getContent().slice(3, -4)
-                      );
-                      console.log(
-                        "old",
-                        editorValue.current.startContent.slice(3, -4)
-                      );
-                      if (
-                        editorValue.current.getContent().slice(3, -4) ===
-                        editorValue.current.startContent.slice(3, -4)
-                      ) {
-                        alert("您没有更改");
-                      } else {
-                        if (window.confirm("保存后将存入待提交")) {
-                          client.index("wait_to_submit").addDocuments([
-                            {
-                              id: location.state.hit.id,
-                              url: location.state.hit.url,
-                              title: location.state.hit.title,
-                              text: editorValue.current
-                                .getContent()
-                                .slice(3, -4), // 将hit.text替换成tiny内新保存的值
-                              级别: location.state.hit.级别,
-                              genre: location.state.hit.genre,
-                              public: "false",
-                              userid: location.state.userid, //后续根据当前登录用户进行修改
-                            },
-                          ]);
-                        }
-                      }
+                      saveCur(); //用于判断保存是否合法，并存入待提交（scx）
                     },
                     file_picker_types: "file",
                     file_picker_callback: function (callback, value, meta) {
