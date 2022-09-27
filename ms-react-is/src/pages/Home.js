@@ -22,19 +22,14 @@ class Home extends Component {
     tab: "doc",
     userid: "",
   };
-  // componentDidMount(){
-  //   this.token = PubSub.subscribe('sendtoken', (_, usertoken) => {
-  //     this.setState({userid:usertoken})
-  //   })
-  // }
   componentWillUnmount() {
-    PubSub.unsubscribe(this.token)
+    PubSub.unsubscribe(this.token);
   }
   updateIndexs = (apiKey) => {
     //获取现在所有的indexs
     const client = new MeiliSearch({
       host: "http://106.75.250.96:3000/api2",
-      apiKey: apiKey
+      apiKey: apiKey,
     });
     const curIndex = client.getIndexes();
     var newIndex = [];

@@ -8,7 +8,7 @@ export default class IndexRefineItem extends Component {
     const { attribute } = this.props
     return (
       <div>
-        <h2>{attribute}</h2>
+        <h2>{attribute === "genre" ? "体裁" : attribute}</h2>
         <RefinementList attribute={attribute} limit={20}/>
       </div>
     )

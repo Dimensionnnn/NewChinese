@@ -25,47 +25,41 @@ const calculateColor = (value) => {
       bgColor = "#4DA4EA";
       break;
     case 2:
-      bgColor = "#2193b0";
+      bgColor = "#bc2439";
       break;
     case 3:
-      bgColor = "#315399";
+      bgColor = "#26A080";
       break;
   }
   return bgColor;
-}
-
+};
 
 const ResponsiveAppBar = () => {
   const navigate = useNavigate();
-  const token = useSelector(state => state.userInfo.token);
-  const userLoggedIn = useSelector(state => state.loginState.value);
+  const user = useSelector((state) => state.userInfo.user);
+  const userLoggedIn = useSelector((state) => state.loginState.value);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const backToHome = () => {
     dispatch(reset());
-    navigate('/');
-  }
+    navigate("/");
+  };
   const handleWordSearch = () => {
     dispatch(word());
-    navigate('/');
-  }
+    navigate("/");
+  };
   const handleArticleSearch = () => {
     dispatch(article());
-    navigate('/');
-  }
+    navigate("/");
+  };
   const handleArticleAnalysis = () => {
     if (userLoggedIn) {
-      // navigate(`/result`, {
-      //   state: {
-      //     value: '',
-      //     selectedIndex: 'doc_wiki_05',
-      //     userid: token.slice(0, 7),
-      //   }
-      // })
+      navigate("/");
       dispatch(edit());
     } else {
+      navigate("/");
       dispatch(login());
     }
-  }
+  };
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
   };
@@ -74,27 +68,27 @@ const ResponsiveAppBar = () => {
   };
   const userDashboard = () => {
     setAnchorElUser(null);
-    navigate('/dashboard');
-  }
+    navigate("/dashboard");
+  };
   const userLogout = () => {
     setAnchorElUser(null);
     dispatch(reset());
     dispatch(loggedout());
-    const user = '';
-    const token = '';
+    const user = "";
+    const token = "";
     const payload = {
       user: user,
-      token: token
-    }
+      token: token,
+    };
     dispatch(userLoggedout(payload));
-    navigate('/');
+    navigate("/");
   };
   const dispatch = useDispatch();
   const loggedIn = useSelector((state) => state.loginState.value);
   const homeSetValue = useSelector((state) => state.homeSet.value);
   const backgroundColor = calculateColor(homeSetValue);
   return (
-    <AppBar position="static" sx={{ bgcolor: backgroundColor}}>
+    <AppBar position="static" sx={{ bgcolor: backgroundColor }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
@@ -139,7 +133,9 @@ const ResponsiveAppBar = () => {
             <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="用户设置">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                  <Avatar sx={{ bgcolor: "#0A7DA5" }}>
+                    {user.charAt(0).toUpperCase()}
+                  </Avatar>
                 </IconButton>
               </Tooltip>
               <Menu
@@ -170,7 +166,10 @@ const ResponsiveAppBar = () => {
             <Box sx={{ flexGrow: 0 }}>
               <Button
                 sx={{ my: 2, color: "white", display: "block" }}
-                onClick={() => dispatch(login())}
+                onClick={() => {
+                  dispatch(login());
+                  navigate("/");
+                }}
               >
                 用户登录
               </Button>

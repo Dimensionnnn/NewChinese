@@ -13,17 +13,16 @@ import { userLoggedIn } from "../store/user/userInfo";
 import { reset } from "../store/display/homeSet";
 import PubSub from "pubsub-js";
 
-
 const options = {
   method: "POST",
   url: "http://106.75.250.96:8888/api/open/login",
   headers: { "content-type": "application/json", Accept: "application/json" },
 };
-const sendToken =(usertoken) =>{
+const sendToken = (usertoken) => {
   PubSub.publish("sendtoken", usertoken);
-}
+};
 export default function Login() {
-  const theme = useTheme();
+  // const theme = useTheme();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const dispatch = useDispatch();
@@ -38,14 +37,13 @@ export default function Login() {
         const statusCode = res.data.code;
         switch (statusCode) {
           case 200:
-            console.log(res.data.data);
             const token = res.data.data.token;
-            sendToken(token)
+            sendToken(token);
             const user = res.data.data.name;
             const payload = {
               user: user,
-              token: token
-            }
+              token: token,
+            };
             alert("用户" + user + "登陆成功！");
             dispatch(loggedin());
             dispatch(userLoggedIn(payload));
@@ -76,7 +74,7 @@ export default function Login() {
           alignItems="center"
           justifyContent="center"
           sx={{
-            bgcolor: `${theme.palette.secondary.main}`,
+            bgcolor: "white",
           }}
           minHeight="100vh"
         >

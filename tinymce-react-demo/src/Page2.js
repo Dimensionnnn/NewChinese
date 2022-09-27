@@ -8,9 +8,10 @@ import DataToTable from './DataToTable'
 import FlavorForm from './FlavorForm';
 import FileSaver from 'file-saver';
 import { exportPDF } from './exportPDF';
-import {wordExport} from './jquery.wordexport';
+import { wordExport } from './jquery.wordexport';
 import $ from 'jquery';
 import './asset/editableStyle.css'
+import { MeiliSearch } from "meilisearch";
 import htmlDocx from 'html-docx-js/dist/html-docx';
 import { findAllByRole } from '@testing-library/react';
 import PtopTypes from "prop-types";
@@ -28,13 +29,14 @@ class Page2 extends React.Component {
                 ['词数', '11', '22', '33', '44', '55', '65', '75', '85', '9', '23',],
                 ['占比', '9%', '9%', '9%', '9%', '9%', '9%', '20%', '23%', '18%', '55%'],
 
-            ] }
+            ]
+        }
         this.myRef = React.createRef();
         // const centerStyle = {
         //     textAlign: 'center'
         // }
-        this._downloadWord=this._downloadWord.bind(this);
-        this.enableEdit=this.enableEdit.bind(this);
+        this._downloadWord = this._downloadWord.bind(this);
+        this.enableEdit = this.enableEdit.bind(this);
         this.editable = false
         this.fontStlye = {
             fontSize: '18px',
@@ -71,8 +73,8 @@ class Page2 extends React.Component {
 
         }
 
-        
-        
+
+
         this.dataToDisplay1 = [{
             rank: '字数',
             rank_1: '55',
@@ -204,7 +206,7 @@ class Page2 extends React.Component {
             currentTitle: this.title[idx],
         });
     };
-    
+
     /**
   * 下载word
   */
@@ -212,7 +214,7 @@ class Page2 extends React.Component {
         let tinyContent = this.myRef.current.getContent();
         let node = tinyContent;
 
-        
+
         let style = ".title-span{ font-size:16px; color:red }";
         let html = this._creatHtmlTree(node, style);
         let blob = new Blob([html], { type: "application/vnd.ms-word;charset=UTF-8" });
@@ -241,11 +243,11 @@ class Page2 extends React.Component {
                     </body>
                     </html>`
     }
-  //直接调用   _downloadWord方法即可。
+    //直接调用   _downloadWord方法即可。
     onExportPDF = () => {
         exportPDF('测试导出PDF', this.myRef.current.getContent())
     }
-    reAnalyze = () =>{
+    reAnalyze = () => {
         this.setState({
             array1: [
                 ['字数', '9', '5', '77', '54', '8', '73', '33', '22', '75', '3',],
@@ -256,7 +258,15 @@ class Page2 extends React.Component {
                 ['占比', '21%', '4%', '6%', '14%', '9%', '24%', '22%', '6%', '11%', '4%'],
             ]
         })
-        console.log(this);      
+        console.log(this);
+    }
+    addAnalyze = (curIndex, hit) => {
+        const client = new MeiliSearch({ host: "http://106.75.250.96:3000/api2/", apiKey: "MASTER_KEY" });
+        client.index(curIndex).updateDocuments([{
+            id: hit.id,
+            array1: this.state.array1,
+            array2: this.state.array2
+        }])
     }
     log = () => {
         alert(this.myRef.current.getContent());
@@ -283,7 +293,7 @@ class Page2 extends React.Component {
         this.editable = true;
         this.forceUpdate();
     }
-    render () {
+    render() {
         const title = this.title;
         const { currentTitle } = this.state;
         return (
@@ -294,12 +304,12 @@ class Page2 extends React.Component {
                 <div style={this.downStyle}>
                     <div style={{ float: 'left' }}>
                         <form onSubmit={this.onFormSubmit}>
-                            <div style={this.editable? {
+                            <div style={this.editable ? {
                                 opacity: 60,
                                 position: 'relative',
                                 // top: '50px',
                                 // left: '50px',
-                                width:'100%',
+                                width: '100%',
                                 height: '100%',
                                 // pointerEvents: 'none',
                             } : {
@@ -369,18 +379,18 @@ class Page2 extends React.Component {
                                 <button style={this.buttonStyle} id="text_download" onClick={this._downloadWord}>下载当前文本</button>
                                 <button style={this.buttonStyle} id="text_download_pdf" onClick={this.enableEdit()}>编辑文本</button>
                                 <button id='btn_analyze2' style={this.buttonStyle} onClick={this.reAnalyze}>再次分析</button>
-                                <button  style={this.buttonStyle} onClick={this.log}>获取当前文本</button>
+                                <button style={this.buttonStyle} onClick={this.log}>获取当前文本</button>
                             </div>
-                            
-                            
+
+
                             <FlavorForm />
-                            
-                                
-                            
+
+
+
                         </form>
                     </div>
                     <div style={this.rightStyle}>
-                        <TabSetup/>
+                        <TabSetup />
                         {/* <div>
                             <TabControl key={this.state.array1} title={title} itemClick={(idx) => this.itemClick(idx)} />
                             <h2>{currentTitle} </h2>
@@ -450,7 +460,7 @@ class Page2 extends React.Component {
             </>
         );
     }
-    
+
 }
 
 export default Page2

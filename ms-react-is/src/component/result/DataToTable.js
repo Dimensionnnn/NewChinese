@@ -1,125 +1,301 @@
-import React from 'react';
+import React from "react";
+import Button from "@mui/material/Button";
+
 class DataToTable extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state={
-            str1: this.writeToTable1(),
-            str2: this.writeToTable2()
-        }
-    const fontStlye = {
-        border: '1px solid blueviolet'
-    }
+  constructor(props) {
+    super(props);
+    this.state = {
+      zishu_num: this.props.zishu_num,
+      ci_num: this.props.ci_num,
+      rate_zi_hsk: 0,
+      rate_zi_369: 0,
+      rate_ci_hsk: 0,
+      rate_ci_369: 0,
+      //zishu_hsk: this.props.zishu_hsk,
+      str1: "",
+      str369: "",
+      str_ci: "",
+      str369_ci: "",
+    };
+
     this.writeToTable1 = this.writeToTable1.bind(this);
+    this.writeToTable = this.writeToTable.bind(this);
     this.writeToTable2 = this.writeToTable2.bind(this);
-}
-    writeToTable1 = () => {
-        var arr = [
-            ['字数', '10', '20', '30', '40', '50', '60', '70', '80', '90','未录入',],
-            ['占比', '8%', '8%', '8%', '8%', '8%', '8%', '8%', '8%', '8%','9%'],
-            
-        ];
-        // 定义变量,存储生成的字符串内容,使用 += 拼接字符串形式
-        var strr = '';
-        //外层循环,生成tr
-        for (var i = 0; i <= arr.length - 1; i++) {
-            // 外层循环生成tr标签,循环几次,就生成几个tr标签
-            // 因为tr标签中还要有td内容,要将两个tr标签,分开,写成拼接的形式
-            strr += '<tr>';
+    this.writeToTable3 = this.writeToTable3.bind(this);
+  }
 
-            // 第一个单元格是单独生成的,不参与内层循环,是 当前 外层循环 索引下标+1
-            // strr += `<td>${i + 1}</td>`;
-
-            //当前行,对应的二维数组，循环的对象是 arr[i] , 
-            //生成 arr[i] 的所有的索引下标，通过索引下标,获取对应的数据。
-            // 起始数值是0 终止数值是 arr[i]的最大索引下标，arr[i]的length-1
-            for (var j = 0; j <= arr[i].length - 1; j++) {
-                // 每一个单元的内容,就是当前二维数组单元的数据内容
-                // 获取二维数组, 数组变量[一维索引][二维索引] 一维索引是i 二维索引是j
-                strr += `<td>${arr[i][j]}</td>`;
-            }
-            strr += '</tr>';
-        }
-        // 将定义好的内容,写入到taody标签中
-        // contain.innerHTML = str;
-        return strr
+  writeToTable1 = (arr) => {
+    let strr = "";
+    strr += "<tr><td>字数</td>";
+    for (let ele in arr["0"]) {
+      strr += `<td>${arr["0"][ele]}</td>`;
+      //console.log(ele, arr["0"][ele]);
     }
-    writeToTable2 = () => {
-        var arr = [
-            ['词数', '11', '22', '33', '44', '55', '65', '75', '85', '9', '未录入',],
-            ['占比', '9%', '9%', '9%', '9%', '9%', '9%', '20%', '23%', '18%', '55%'],
-
-        ];
-        // 定义变量,存储生成的字符串内容,使用 += 拼接字符串形式
-        var strr = '';
-        //外层循环,生成tr
-        for (var i = 0; i <= arr.length - 1; i++) {
-            // 外层循环生成tr标签,循环几次,就生成几个tr标签
-            // 因为tr标签中还要有td内容,要将两个tr标签,分开,写成拼接的形式
-            strr += '<tr>';
-
-            // 第一个单元格是单独生成的,不参与内层循环,是 当前 外层循环 索引下标+1
-            // strr += `<td>${i + 1}</td>`;
-
-            //当前行,对应的二维数组，循环的对象是 arr[i] , 
-            //生成 arr[i] 的所有的索引下标，通过索引下标,获取对应的数据。
-            // 起始数值是0 终止数值是 arr[i]的最大索引下标，arr[i]的length-1
-            for (var j = 0; j <= arr[i].length - 1; j++) {
-                // 每一个单元的内容,就是当前二维数组单元的数据内容
-                // 获取二维数组, 数组变量[一维索引][二维索引] 一维索引是i 二维索引是j
-                strr += `<td>${arr[i][j]}</td>`;
-            }
-            strr += '</tr>';
-        }
-        // 将定义好的内容,写入到taody标签中
-        // contain.innerHTML = str;
-        return strr
+    strr += "<tr><tr><td>占比</td>";
+    for (let ele in arr["1"]) {
+      strr += `<td>${arr["1"][ele]}</td>`;
+      // console.log(ele, arr["1"][ele]);
     }
-    render() {
-        return <div>
-            <p>总字数：300；
-                等级大纲字数/%:50%</p>
-            <table id={this.props.tableID} border="1" style={{ margin: '0 auto', width: '500px', height: ' 100px' }}>
-                <thead>
-                    <tr>
-                        <th>级别</th>
-                        <th onClick={this.props.setone}>1</th>
-                        <th onClick={this.props.settwo}>2</th>
-                        <th>3</th>
-                        <th>4</th>
-                        <th>5</th>
-                        <th>6</th>
-                        <th>7</th>
-                        <th>8</th>
-                        <th>9</th>
-                        <th>未录入</th>
-                    </tr>
-                </thead>
-                <tbody dangerouslySetInnerHTML={{ __html: `<div>${this.state.str1}</div>` }} />
-                
-            </table>
-            <p>总词数：300；
-                等级大纲词数/%:50%</p>
-            <table  border="1" style={{ margin: '0 auto', width: '500px', height: ' 100px' }}>
-                <thead>
-                    <tr>
-                        <th>级别</th>
-                        <th onClick={this.props.setone}>1</th>
-                        <th onClick={this.props.settwo}>2</th>
-                        <th>3</th>
-                        <th>4</th>
-                        <th>5</th>
-                        <th>6</th>
-                        <th>7</th>
-                        <th>8</th>
-                        <th>9</th>
-                        <th>未录入</th>
-                    </tr>
-                </thead>
-                <tbody dangerouslySetInnerHTML={{ __html: `<div>${this.state.str2}</div>` }} />
-
-            </table>
-        </div>
-        
+    strr += "</tr>";
+    this.setState({
+      str1: strr,
+      zishu_num: this.props.zishu_num,
+      rate_zi_hsk: (1 - arr["1"]["未录入"]).toFixed(2),
+    });
+  };
+  writeToTable = (arr) => {
+    let strr = "";
+    strr += "<tr><td>字数</td>";
+    for (let ele in arr["0"]) {
+      strr += `<td>${arr["0"][ele]}</td>`;
+      //console.log(ele, arr["0"][ele]);
     }
+    strr += "<tr><tr><td>占比</td>";
+    for (let ele in arr["1"]) {
+      strr += `<td>${arr["1"][ele]}</td>`;
+      //console.log(ele, arr["1"][ele]);
+    }
+    strr += "</tr>";
+
+    this.setState({
+      str369: strr,
+      rate_zi_369: (1 - arr["1"]["未录入"]).toFixed(2),
+    });
+  };
+  writeToTable2 = (arr) => {
+    let strr = "";
+    strr += "<tr><td>词数</td>";
+    for (let ele in arr["0"]) {
+      strr += `<td>${arr["0"][ele]}</td>`;
+      //console.log(ele, arr["0"][ele]);
+    }
+    strr += "<tr><tr><td>占比</td>";
+    for (let ele in arr["1"]) {
+      strr += `<td>${arr["1"][ele]}</td>`;
+      //console.log(ele, arr["1"][ele]);
+    }
+    strr += "</tr>";
+
+    this.setState({
+      str_ci: strr,
+      ci_num: this.props.ci_num, //重要
+      rate_ci_hsk: (1 - arr["1"]["未录入"]).toFixed(2),
+    });
+  };
+  writeToTable3 = (arr) => {
+    let strr = "";
+    strr += "<tr><td>词数</td>";
+    for (let ele in arr["0"]) {
+      strr += `<td>${arr["0"][ele]}</td>`;
+      //console.log(ele, arr["0"][ele]);
+    }
+    strr += "<tr><tr><td>占比</td>";
+    for (let ele in arr["1"]) {
+      strr += `<td>${arr["1"][ele]}</td>`;
+      // console.log(ele, arr["1"][ele]);
+    }
+    strr += "</tr>";
+
+    this.setState({
+      str369_ci: strr,
+      rate_ci_369: (1 - arr["1"]["未录入"]).toFixed(2),
+    });
+  };
+
+  render() {
+    return (
+      <div style={{ fontSize: "16px" }}>
+        <p>
+          总字数：
+          {this.state.zishu_num}; HSK等级大纲字数/%:{this.state.rate_zi_hsk}
+        </p>
+        <table
+          id={this.props.tableID}
+          border="1"
+          style={{
+            margin: "0 auto",
+            width: "500px",
+            height: " 70px",
+            fontSize: "16px",
+          }}
+        >
+          <thead>
+            <tr>
+              <th>级别</th>
+              <th
+                onClick={() => {
+                  this.props.setOne1();
+                }}
+              >
+                1
+              </th>
+              <th
+                onClick={() => {
+                  this.props.setTwo();
+                }}
+              >
+                2
+              </th>
+              <th>3</th>
+              <th>4</th>
+              <th>5</th>
+              <th>6</th>
+              <th>高等</th>
+              <th>未录入</th>
+            </tr>
+          </thead>
+          <tbody
+            dangerouslySetInnerHTML={{
+              __html: `<div>${this.state.str1}</div>`,
+            }}
+          />
+        </table>
+        <p>
+          总字数：
+          {this.state.zishu_num}; 369级大纲字数/%:{this.state.rate_zi_369}
+        </p>
+        <table
+          border="1"
+          style={{
+            margin: "0 auto",
+            width: "500px",
+            height: " 70px",
+            fontSize: "16px",
+          }}
+        >
+          <thead>
+            <tr>
+              <th>级别</th>
+              <th
+                onClick={() => {
+                  this.props.setOne2();
+                }}
+              >
+                1
+              </th>
+              <th
+                onClick={() => {
+                  this.props.setTwo();
+                }}
+              >
+                2
+              </th>
+              <th>3</th>
+              <th>4</th>
+              <th>5</th>
+              <th>6</th>
+              <th>高等</th>
+              <th>未录入</th>
+            </tr>
+          </thead>
+          <tbody
+            dangerouslySetInnerHTML={{
+              __html: `<div>${this.state.str369}</div>`,
+            }}
+          />
+        </table>
+        <p>
+          总词数：
+          {this.state.ci_num}; HSK等级大纲词数/%:{this.state.rate_ci_hsk}
+        </p>
+        <table
+          border="1"
+          style={{
+            margin: "0 auto",
+            width: "500px",
+            height: " 70px",
+            fontSize: "16px",
+          }}
+        >
+          <thead>
+            <tr>
+              <th>级别</th>
+              <th
+                onClick={() => {
+                  this.props.setOne3();
+                }}
+              >
+                1
+              </th>
+              <th
+                onClick={() => {
+                  this.props.setTwo();
+                }}
+              >
+                2
+              </th>
+              <th>3</th>
+              <th>4</th>
+              <th>5</th>
+              <th>6</th>
+              <th>高等</th>
+              <th>未录入</th>
+            </tr>
+          </thead>
+          <tbody
+            dangerouslySetInnerHTML={{
+              __html: `<div>${this.state.str_ci}</div>`,
+            }}
+          />
+        </table>
+        <p>
+          总词数：
+          {this.state.ci_num}; 369级大纲词数/%:{this.state.rate_ci_369}
+        </p>
+        <table
+          border="1"
+          style={{
+            margin: "0 auto",
+            width: "500px",
+            height: " 70px",
+            fontSize: "16px",
+          }}
+        >
+          <thead>
+            <tr>
+              <th>级别</th>
+              <th
+                onClick={() => {
+                  this.props.setOne4();
+                }}
+              >
+                1
+              </th>
+              <th
+                onClick={() => {
+                  this.props.setTwo();
+                }}
+              >
+                2
+              </th>
+              <th>3</th>
+              <th>4</th>
+              <th>5</th>
+              <th>6</th>
+              <th>高等</th>
+              <th>未录入</th>
+            </tr>
+          </thead>
+          <tbody
+            dangerouslySetInnerHTML={{
+              __html: `<div>${this.state.str369_ci}</div>`,
+            }}
+          />
+        </table>
+        <Button
+          style={{ backgroundColor: "#F0F2F5" }}
+          onClick={() => {
+            this.writeToTable1(this.props.zishu_hsk);
+            this.writeToTable(this.props.zishu_369);
+            this.writeToTable2(this.props.ci_hsk);
+            this.writeToTable3(this.props.ci_369);
+            this.props.searchLevel();
+          }}
+        >
+          刷新
+        </Button>
+      </div>
+    );
+  }
 }
 export default DataToTable;

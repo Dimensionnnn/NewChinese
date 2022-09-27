@@ -12,7 +12,8 @@ export default class IndexRefine extends Component {
         <ClearRefinements />
         {
           filterableAttributes && filterableAttributes.map((attribute) => {
-            return <IndexRefineItem key={attribute} attribute={attribute} />
+            return attribute === "userid" ? <></> :
+              <IndexRefineItem key={attribute} attribute={attribute} />
           })
         }
       </div>

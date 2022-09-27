@@ -27,7 +27,6 @@ import Box from "@mui/material/Box";
 import Input from "@mui/material/Input";
 import { useTheme } from "@mui/material/styles";
 
-
 const client = new MeiliSearch({
   host: "127.0.0.1:7700",
   apiKey: "MASTER_KEY",
@@ -51,9 +50,11 @@ const SearchBox = ({ currentRefinement, refine }) => {
         }}
         minHeight="10vh"
       >
-        <Box sx={{
-          bgcolor: `${theme.palette.secondary.main}`,
-        }}>
+        <Box
+          sx={{
+            bgcolor: `${theme.palette.secondary.main}`,
+          }}
+        >
           <Input
             type="search"
             playholder="搜索"
@@ -76,8 +77,8 @@ class DocPage1 extends Component {
   };
 
   createToken = (userid) => {
-    console.log("usertoken:", userid.slice(0, 7))
-    var usertoken = userid.slice(0, 7)
+    console.log("usertoken:", userid.slice(0, 7));
+    var usertoken = userid.slice(0, 7);
     // if(usertoken === "MTcwXzI"){
     //   usertoken = "admin"
     // }
@@ -93,22 +94,20 @@ class DocPage1 extends Component {
   };
   componentDidMount() {
     if (this.props.token === "") {
-      console.log(3333)
+      console.log(3333);
       // this.token = PubSub.subscribe('sendtoken', (_, usertoken) => {
       // var newusertoken = usertoken
       // const num=useSelector(state=>state.num)
       // console.log("usertoken",newusertoken)
       // this.createToken(newusertoken)
       // })
-      console.log("useSelector",this.props.token)
-      // this.createToken(useSelector(state=>state.userInfo.token)); 
-    }
-    else { 
-      console.log(2222)
+      console.log("useSelector", this.props.token);
+      // this.createToken(useSelector(state=>state.userInfo.token));
+    } else {
+      console.log(2222);
       // console.log("useSelector",useSelector(state=>state.userInfo.token))
-      this.createToken(this.props.token); 
+      this.createToken(this.props.token);
     }
-
   }
   refreshIndex(indexName) {
     PubSub.publish("refreshIndex", indexName);
@@ -189,9 +188,11 @@ class DocPage1 extends Component {
               加载文本库
             </button>
             <IndexList indexs={indexs} setIndex={setIndex} />
-            {
-              selectedIndex === "doc_wiki_05" ? <IndexRefine filterableAttributes={filterableAttributes} /> : <></>
-            }
+            {selectedIndex === "doc_wiki_05" ? (
+              <IndexRefine filterableAttributes={filterableAttributes} />
+            ) : (
+              <></>
+            )}
 
             <Configure
               attributesToSnippet={["description:"]}
@@ -219,11 +220,9 @@ class DocPage1 extends Component {
   }
 }
 export default function DocPage22() {
-  const token = useSelector(state=>state.userInfo.token)
-  console.log("1111",token)
-  return (
-      <DocPage1 token={token}/>
-  )
+  const token = useSelector((state) => state.userInfo.token);
+  console.log("1111", token);
+  return <DocPage1 token={token} />;
 }
 
 // export default function App() {

@@ -3,18 +3,19 @@ import ResponsiveAppBar from "../component/navbar/NavBar";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
-import Divider from '@mui/material/Divider';
+import Divider from "@mui/material/Divider";
 import { motion } from "framer-motion";
-
+import { useSelector } from "react-redux";
 
 function Dashboard() {
+  const user = useSelector((state) => state.userInfo.user);
   return (
     <>
       <ResponsiveAppBar />
       <Box
         sx={{
           height: "100vh",
-          backgroundColor: "primary.light",
+          backgroundColor: "white",
         }}
       >
         <motion.div
@@ -40,10 +41,10 @@ function Dashboard() {
                 sx={{
                   height: "95vh",
                   borderRadius: 3,
-                  backgroundColor: "primary.light",
+                  backgroundColor: "white",
                 }}
               >
-                <Box sx={{height: "42vh"}}>user: root</Box>
+                <Box sx={{ height: "42vh" }}>user: {user}</Box>
                 <Divider />
                 <Box></Box>
               </Paper>
@@ -55,10 +56,9 @@ function Dashboard() {
                 sx={{
                   height: "95vh",
                   borderRadius: 3,
-                  backgroundColor: "primary.light",
+                  backgroundColor: "white",
                 }}
-              >
-              </Paper>
+              ></Paper>
             </Grid>
           </Grid>
         </motion.div>

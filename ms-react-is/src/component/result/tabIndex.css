@@ -76,6 +76,7 @@
 }
 
 .m-sys-view {
+    left: '5px';
     display: none;
     color: #090a0a;
     font-size: 32px;

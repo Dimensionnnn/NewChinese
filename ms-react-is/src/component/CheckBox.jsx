@@ -10,7 +10,7 @@ class CheckBox extends Component {
   render() { 
     return (
         <div>
-          <input type="radio" name="" value="1" checked={this.state.sex==="1"} onClick={(e)=>this.getValue(e)}/><label htmlFor="woman">私有</label>
+          <input type="radio" name="" value="1" checked={this.state.sex==="1"} onClick={(e)=>this.getValue(e)}/><label htmlFor="woman">私有（若不点击，提交后将公开）</label>
         </div>
       );
   }
