@@ -125,13 +125,12 @@ function DocPage(props) {
   const refreshIndex = (indexName) => {
     PubSub.publish("refreshIndex", indexName);
   };
-  const deleteItem = (props,hit) => {
+  const deleteItem = (props, hit) => {
     if (window.confirm("确认删除？")) {
-            client.index(props.selectedIndex).deleteDocument(hit.id);
-    refreshIndex(props.selectedIndex);
-      }
-
-  }
+      client.index(props.selectedIndex).deleteDocument(hit.id);
+      refreshIndex(props.selectedIndex);
+    }
+  };
   const updateDocIndexs = () => {
     props.updateIndexs(apikey);
   };
@@ -184,28 +183,43 @@ function DocPage(props) {
         <button onClick={routeChange} className="btn btn-default">
           浏览文本
         </button>
-        {
-          token.slice(0, 7) === "" ? 
-          <></> 
-          : token.slice(0, 7) === "MTcwXzI" ?
-          props.selectedIndex === "doc_wiki_05" ? 
-          <button onClick={() => deleteItem(props, hit)} className="btn btn-default">
-                    删除数据
-                </button> 
-                : props.selectedIndex === "wait_to_check" ? 
-                <button onClick={() => deleteItem(props, hit)} className="btn btn-default">
-                    删除数据
-                </button>  : <></> :
-          props.selectedIndex === "all_private" ? 
-          <button onClick={() => deleteItem(props, hit)} className="btn btn-default">
-                    删除数据
-                </button> 
-                : props.selectedIndex === "wait_to_submit" ? 
-                <button onClick={() => deleteItem(props, hit)} className="btn btn-default">
-                    删除数据
-                </button>  : <></>
-        }
-        
+        {token.slice(0, 7) === "" ? (
+          <></>
+        ) : token.slice(0, 7) === "MTcwXzI" ? (
+          props.selectedIndex === "doc_wiki_05" ? (
+            <button
+              onClick={() => deleteItem(props, hit)}
+              className="btn btn-default"
+            >
+              删除数据
+            </button>
+          ) : props.selectedIndex === "wait_to_check" ? (
+            <button
+              onClick={() => deleteItem(props, hit)}
+              className="btn btn-default"
+            >
+              删除数据
+            </button>
+          ) : (
+            <></>
+          )
+        ) : props.selectedIndex === "all_private" ? (
+          <button
+            onClick={() => deleteItem(props, hit)}
+            className="btn btn-default"
+          >
+            删除数据
+          </button>
+        ) : props.selectedIndex === "wait_to_submit" ? (
+          <button
+            onClick={() => deleteItem(props, hit)}
+            className="btn btn-default"
+          >
+            删除数据
+          </button>
+        ) : (
+          <></>
+        )}
       </div>
     );
   };
@@ -235,7 +249,7 @@ function DocPage(props) {
           )}
 
           <Configure
-            attributesToSnippet={["description:"]}
+            attributesToSnippet={["description"]}
             snippetEllipsisText={"..."}
           />
         </div>
