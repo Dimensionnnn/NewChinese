@@ -27,10 +27,11 @@ import FileSaver from "file-saver";
 import "../../pages/tinyInline.css";
 
 function AnalyzePage() {
+  let titleInput = useRef(null);
   const [value, setValue] = useState("");
   const editorValue = useRef("");
   const [totalWordNumber, setTotalWordNumber] = useState(0);
-  const [edit, setEdit] = useState(false);
+  const [editWord, setEditWord] = useState(false);
   const [editPhrase, setEditPhrase] = useState(false);
   const [totalPhraseNumber, setTotalPhraseNumber] = useState(0);
   const [wordCount, setWordCount] = useState({
@@ -113,7 +114,7 @@ function AnalyzePage() {
       ).toFixed(2);
     }
     let data3 = [copiedPhraseCount, doubleCopy3];
-
+    console.log(data3);
     let copiedPhraseLevelCount = { ...phraseLevelCount };
     let doubleCopy4 = { ...copiedPhraseLevelCount };
     for (const key in doubleCopy4) {
@@ -182,6 +183,7 @@ function AnalyzePage() {
         let arr = [];
         for (let i in e) {
           arr.push(e[i]);
+          console.log("e[i]", e[i]);
         }
         return arr;
       }),
@@ -441,6 +443,8 @@ function AnalyzePage() {
     host: "http://106.75.250.96:3000/api2/",
     apiKey: "MASTER_KEY",
   });
+
+  const myDate = new Date();
   const saveCur = () => {
     console.log("token", token);
     const new_id = nanoid();
@@ -450,6 +454,8 @@ function AnalyzePage() {
       client.index("wait_to_submit").addDocuments([
         {
           id: new_id,
+          // title: titleInput.value,
+          上次修改时间: myDate.toLocaleString(),
           text: editorValue.current.getContent().slice(3, -4), // 将hit.text替换成tiny内新保存的值
           userid: token, //后续根据当前登录用户进行修改
         },
@@ -463,12 +469,15 @@ function AnalyzePage() {
       window.alert("请输入文字后提交");
     } else if (pblc === "0") {
       //选择公开
-      if (window.confirm("请注意保存最后的修改！保存后在待提交查看")) {
+      if (window.confirm("请注意保存最后的修改！保存后在已提交查看")) {
         // 此处要根据修改后tiny内的值进行修改，例如下面text所述
         const new_id = nanoid();
         client.index("wait_to_check").addDocuments([
           {
             id: new_id,
+            // title: titleInput.value,
+            提交时间: myDate.toLocaleString(),
+            审核状态: "待审核",
             text: newContent, // 将hit.text替换成tiny内新保存的值
             userid: token, //后续根据当前登录用户进行修改
           },
@@ -476,6 +485,8 @@ function AnalyzePage() {
         client.index("all_private").addDocuments([
           {
             id: new_id,
+            // title: titleInput.value,
+            创建时间: myDate.toLocaleString(),
             text: newContent, // 将hit.text替换成tiny内新保存的值
             userid: token, //后续根据当前登录用户进行修改
           },
@@ -488,6 +499,8 @@ function AnalyzePage() {
         client.index("all_private").addDocuments([
           {
             id: new_id,
+            // title: titleInput.value,
+            创建时间: myDate.toLocaleString(),
             text: newContent, // 将hit.text替换成tiny内新保存的值
             userid: token, //后续根据当前登录用户进行修改
           },
@@ -548,7 +561,7 @@ function AnalyzePage() {
       setOpenAlert(true);
       return;
     }
-    setEdit(true);
+    setEditWord(true);
     let numberOfWords =
       editorValue.current.plugins.wordcount.body.getWordCount();
     setTotalWordNumber(numberOfWords);
@@ -719,7 +732,13 @@ function AnalyzePage() {
             <div className="toolbar"></div>
             <div className="box">
               <div className="tit">
-                <input type="text" placeholder="标题"></input>
+                <input
+                  type="text"
+                  placeholder="标题"
+                  ref={(input) => {
+                    titleInput = input;
+                  }}
+                ></input>
               </div>
               <div className="doc-cnt">
                 <Editor
@@ -828,7 +847,7 @@ function AnalyzePage() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6 }}
           >
-            <Paper sx={{ height: 860 }} elevation={3}>
+            <Paper sx={{ height: 860, width: 600 }} elevation={3}>
               <Container sx={{ display: "flex", justifyContent: "center" }}>
                 <Stack
                   direction="row"
@@ -849,7 +868,7 @@ function AnalyzePage() {
                   <p>
                     <strong>HSK字表</strong> 总字数： {totalWordNumber}，{" "}
                     HSK大纲字数： {inHSKTableCount}，{" "}
-                    {edit
+                    {editWord
                       ? ((100.0 * inHSKTableCount) / totalWordNumber).toFixed(
                           2
                         ) + "%"
@@ -873,7 +892,7 @@ function AnalyzePage() {
                         {Object.entries(wordCount).map(([key, value]) => {
                           return (
                             <TableCell key={key}>
-                              {edit
+                              {editWord
                                 ? ((100.0 * value) / totalWordNumber).toFixed(
                                     2
                                   ) + "%"
@@ -888,7 +907,7 @@ function AnalyzePage() {
                   <p>
                     <strong>等级大纲字表</strong> 总字数： {totalWordNumber}，{" "}
                     369级大纲字数： {inLevelTableCount}，{" "}
-                    {edit
+                    {editWord
                       ? ((100.0 * inLevelTableCount) / totalWordNumber).toFixed(
                           2
                         ) + "%"
@@ -912,7 +931,7 @@ function AnalyzePage() {
                         {Object.entries(wordLevelCount).map(([key, value]) => {
                           return (
                             <TableCell key={key}>
-                              {edit
+                              {editWord
                                 ? ((100.0 * value) / totalWordNumber).toFixed(
                                     2
                                   ) + "%"

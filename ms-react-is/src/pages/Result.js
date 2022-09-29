@@ -38,6 +38,7 @@ function Result() {
   const editorValue = useRef("");
   const [totalWordNumber, setTotalWordNumber] = useState(0);
   const [edit, setEdit] = useState(false);
+  const [editWord, setEditWord] = useState(false);
   const [editPhrase, setEditPhrase] = useState(false);
   const [totalPhraseNumber, setTotalPhraseNumber] = useState(0);
   const [wordCount, setWordCount] = useState({
@@ -555,7 +556,7 @@ function Result() {
   //   console.log("ci_hsk", ciArr);
   //   console.log("ci_369", ciArr369);
   // };
-
+  const myDate = new Date();
   const setPrivate = (hit) => {
     // 通过私有化申请,改为收藏，不从原数据删除
     if (userLoggedIn) {
@@ -575,6 +576,7 @@ function Result() {
               url: hit.url,
               title: hit.title,
               text: hit.text,
+              创建时间: myDate.toLocaleString(),
               public: "true", //收藏后仍为公有，直到修改保存后需要改为false，直到将其公开
               userid: location.state.userid,
               级别: hit.级别,
@@ -606,6 +608,7 @@ function Result() {
           userid: hit.userid,
           title: hit.title,
           text: hit.text,
+          发布时间: myDate.toLocaleString(),
           public: "true",
           级别: hit.级别,
           genre: hit.genre,
@@ -663,8 +666,7 @@ function Result() {
     });
     //加入到待审核index，同时需要携带该用户的userid，以便后续限制此用户只能访问用户id是自己的数据
     // hit数据中加入userid
-    console.log("new", newContent);
-    console.log("old", oldValue);
+
     if (oldValue === newContent) {
       // if (true) {
       //此判断内容有格式问题，还需修改
@@ -688,6 +690,7 @@ function Result() {
             text: newContent, // 将hit.text替换成tiny内新保存的值
             级别: hit.级别,
             genre: hit.genre,
+            提交时间: myDate.toLocaleString(),
             审核状态: "待审核", //0 待审核，1：通过，2：不通过
             public: "false",
             userid: location.state.userid, //后续根据当前登录用户进行修改
@@ -702,6 +705,7 @@ function Result() {
             text: newContent, // 将hit.text替换成tiny内新保存的值
             级别: hit.级别,
             genre: hit.genre,
+            创建时间: myDate.toLocaleString(),
             审核状态: "待审核", //0 待审核，1：通过，2：不通过
             public: "false",
             userid: location.state.userid, //后续根据当前登录用户进行修改
@@ -717,6 +721,7 @@ function Result() {
             url: hit.url,
             title: hit.title,
             text: newcontent, // 将hit.text替换成tiny内新保存的值
+            创建时间: myDate.toLocaleString(),
             级别: hit.级别,
             genre: hit.genre,
             public: "false",
@@ -733,8 +738,7 @@ function Result() {
       host: "http://106.75.250.96:3000/api2/",
       apiKey: "MASTER_KEY",
     });
-    console.log("now", editorValue.current.getContent().slice(3, -4));
-    console.log("old", startValue);
+
     if (editorValue.current.getContent().slice(3, -4) === startValue) {
       alert("您没有更改");
     } else {
@@ -746,6 +750,7 @@ function Result() {
             title: location.state.hit.title,
             text: editorValue.current.getContent().slice(3, -4), // 将hit.text替换成tiny内新保存的值
             级别: location.state.hit.级别,
+            上次修改时间: myDate.toLocaleString(),
             genre: location.state.hit.genre,
             public: "false",
             userid: location.state.userid, //后续根据当前登录用户进行修改
@@ -768,6 +773,7 @@ function Result() {
           id: new_id,
           url: location.state.hit.url,
           title: location.state.hit.title,
+          创建时间: myDate.toLocaleString(),
           text: editorValue.current.getContent().slice(3, -4), // 将hit.text替换成tiny内新保存的值
           级别: location.state.hit.级别,
           genre: location.state.hit.genre,
@@ -930,7 +936,7 @@ function Result() {
       setOpenAlert(true);
       return;
     }
-    setEdit(true);
+    setEditWord(true);
     let numberOfWords =
       editorValue.current.plugins.wordcount.body.getWordCount();
     setTotalWordNumber(numberOfWords);
@@ -1156,11 +1162,9 @@ function Result() {
                           editor.ui.registry.addButton("saveas", {
                             text: "另存为",
                             tooltip: "另存为",
-                            onAction: (_) =>
-                              // editor.windowManager.open(dialogConfig),
-                              {
-                                saveAs();
-                              },
+                            onAction: (_) => {
+                              saveAs();
+                            },
                           });
                         },
                         content_style:
@@ -1343,7 +1347,7 @@ function Result() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6 }}
             >
-              <Paper sx={{ height: 860 }} elevation={3}>
+              <Paper sx={{ height: 860, width: 600 }} elevation={3}>
                 <Container sx={{ display: "flex", justifyContent: "center" }}>
                   <Stack
                     direction="row"
@@ -1364,7 +1368,7 @@ function Result() {
                     <p>
                       <strong>HSK字表</strong> 总字数： {totalWordNumber}，{" "}
                       HSK大纲字数： {inHSKTableCount}，{" "}
-                      {edit
+                      {editWord
                         ? ((100.0 * inHSKTableCount) / totalWordNumber).toFixed(
                             2
                           ) + "%"
@@ -1388,7 +1392,7 @@ function Result() {
                           {Object.entries(wordCount).map(([key, value]) => {
                             return (
                               <TableCell key={key}>
-                                {edit
+                                {editWord
                                   ? ((100.0 * value) / totalWordNumber).toFixed(
                                       2
                                     ) + "%"
@@ -1403,7 +1407,7 @@ function Result() {
                     <p>
                       <strong>等级大纲字表</strong> 总字数： {totalWordNumber}，{" "}
                       369级大纲字数： {inLevelTableCount}，{" "}
-                      {edit
+                      {editWord
                         ? (
                             (100.0 * inLevelTableCount) /
                             totalWordNumber
@@ -1431,7 +1435,7 @@ function Result() {
                             ([key, value]) => {
                               return (
                                 <TableCell key={key}>
-                                  {edit
+                                  {editWord
                                     ? (
                                         (100.0 * value) /
                                         totalWordNumber
