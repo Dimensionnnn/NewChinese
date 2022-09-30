@@ -88,14 +88,10 @@ function Result() {
   });
   const [inLevelTablePhraseCount, setInLevelTablePhraseCount] = useState(0);
   const [displayBasic, setDisplayBasic] = useState(true);
-  const [openAlert, setOpenAlert] = useState(false);
   const dispatch = useDispatch();
   const [showTable, setShowTable] = useState(true);
   const [newcontent, setNewcontent] = useState("");
-  const [zishunum, setZishuNum] = useState(0);
   const [oldValue, setOldvalue] = useState("");
-  const [fenci, setFenci] = useState([]);
-  const [cinum, setCiNum] = useState(0);
   const userLoggedIn = useSelector((state) => state.loginState.value);
   const navigate = useNavigate();
   const [contentOne, setContentOne] = useState("<p>");
@@ -434,7 +430,7 @@ function Result() {
   const creatHtmlTree = (htmlTree, style = "") => {
     return `
             <!DOCTYPE html>
-                <html lang="en">
+                <html lang="en">startContentsetOpenAlert
                 <head>
                 <meta charset="UTF-8">
                 <style>
@@ -732,14 +728,22 @@ function Result() {
       }
     }
   };
-  let startValue = "";
+
   const saveCur = () => {
     const client = new MeiliSearch({
       host: "http://106.75.250.96:3000/api2/",
       apiKey: "MASTER_KEY",
     });
-
-    if (editorValue.current.getContent().slice(3, -4) === startValue) {
+    console.log(
+      "getContent()",
+      editorValue.current.getContent({ format: "text" }).slice(3, -4)
+    );
+    console.log("startContent", editorValue.current.startContent.slice(3, -4));
+    console.log("oldValue", oldValue);
+    if (
+      editorValue.current.getContent({ format: "text" }) ===
+      editorValue.current.startContent.slice(3, -4)
+    ) {
       alert("您没有更改");
     } else {
       if (window.confirm("保存后将存入待提交")) {
@@ -801,18 +805,9 @@ function Result() {
     return name;
   };
 
-  const getfenci = async (str) => {
-    axios
-      .get("http://106.75.250.96:3000/api1/fenci/", {
-        params: { fenci_str: str },
-      })
-      .then((response) => {
-        setFenci(response.data);
-      });
-  };
   useEffect(() => {
     let tmp = editorValue.current.startContent;
-    console.log(tmp);
+    // console.log("tmp", tmp);
   });
   const setOne1 = () => {
     let i = 0;
@@ -870,9 +865,7 @@ function Result() {
     );
     if (flag == 1) editorValue.current.setContent(contentOne);
   };
-  // useEffect(() => {
-  //   editorValue.current.setContent(contentOne);
-  // }, [flag]);
+
   useEffect(() => {
     const script = document.createElement("script");
     script.src =
@@ -924,7 +917,7 @@ function Result() {
   }
   const handleEditorChange = () => {
     if (!value) {
-      setOpenAlert(true);
+      // setOpenAlert(true);
       return;
     }
     if (
@@ -933,7 +926,7 @@ function Result() {
         .replace(/&nbsp;/gi, "")
         .match(/[\u4e00-\u9fa5]/g)
     ) {
-      setOpenAlert(true);
+      // setOpenAlert(true);
       return;
     }
     setEditWord(true);
@@ -1019,6 +1012,162 @@ function Result() {
       setGroupOfPhrases(Object.values(val));
     });
   };
+  useEffect(() => {
+    if (!value) {
+      // setOpenAlert(true);
+      return;
+    }
+    if (
+      !value
+        .replace(/(<([^>]+)>)/gi, "")
+        .replace(/&nbsp;/gi, "")
+        .match(/[\u4e00-\u9fa5]/g)
+    ) {
+      // setOpenAlert(true);
+      return;
+    }
+    setEditWord(true);
+    let numberOfWords =
+      editorValue.current.plugins.wordcount.body.getWordCount();
+    setTotalWordNumber(numberOfWords);
+    // Single word HSK count
+    let copiedWordCount = {
+      一级: 0,
+      二级: 0,
+      三级: 0,
+      四级: 0,
+      五级: 0,
+      六级: 0,
+      高等: 0,
+      未录入: 0,
+    };
+    let tmpInHSKTableCount = 0;
+    Promise.all(
+      [
+        ...value
+          .replace(/(<([^>]+)>)/gi, "")
+          .replace(/&nbsp;/gi, "")
+          .match(/[\u4e00-\u9fa5]/g)
+          .join(""),
+      ].map((word) => searchForWords(word))
+    ).then((values) => {
+      values.forEach((value) => {
+        copiedWordCount[value]
+          ? copiedWordCount[value]++
+          : (copiedWordCount[value] = 1);
+      });
+      for (let key in copiedWordCount) {
+        if (key !== "未录入") {
+          tmpInHSKTableCount += copiedWordCount[key];
+        }
+      }
+      setInHSKTableCount(tmpInHSKTableCount);
+      setWordCount(copiedWordCount);
+    });
+    // Single word level count
+    let copiedWordLevelCount = {
+      一级: 0,
+      二级: 0,
+      三级: 0,
+      四级: 0,
+      五级: 0,
+      六级: 0,
+      高等: 0,
+      未录入: 0,
+    };
+    let tmpInLevelTableCount = 0;
+    Promise.all(
+      [
+        ...value
+          .replace(/(<([^>]+)>)/gi, "")
+          .replace(/&nbsp;/gi, "")
+          .match(/[\u4e00-\u9fa5]/g)
+          .join(""),
+      ].map((word) => searchForWordsLevel(word))
+    ).then((values) => {
+      values.forEach((value) => {
+        copiedWordLevelCount[value]
+          ? copiedWordLevelCount[value]++
+          : (copiedWordLevelCount[value] = 1);
+      });
+      for (let key in copiedWordLevelCount) {
+        if (key !== "未录入") {
+          tmpInLevelTableCount += copiedWordLevelCount[key];
+        }
+      }
+      setInLevelTableCount(tmpInLevelTableCount);
+      setWordLevelCount(copiedWordLevelCount);
+    });
+
+    getSplitWord(
+      value
+        .replace(/(<([^>]+)>)/gi, "")
+        .replace(/&nbsp;/gi, "")
+        .match(/[\u4e00-\u9fa5]/g)
+        .join("")
+    ).then((val) => {
+      setGroupOfPhrases(Object.values(val));
+    });
+  }, [value]);
+  useEffect(() => {
+    setTotalPhraseNumber(groupOfPhrases.length);
+    // Phrase count
+    let copiedPhraseCount = {
+      一级: 0,
+      二级: 0,
+      三级: 0,
+      四级: 0,
+      五级: 0,
+      六级: 0,
+      高等: 0,
+      未录入: 0,
+    };
+    let tmpInHSKTablePhraseCount = 0;
+    Promise.all(groupOfPhrases.map((phrase) => searchForPhrases(phrase))).then(
+      (values) => {
+        values.forEach((value) => {
+          copiedPhraseCount[value]
+            ? copiedPhraseCount[value]++
+            : (copiedPhraseCount[value] = 1);
+        });
+        for (const key in copiedPhraseCount) {
+          if (key !== "未录入") {
+            tmpInHSKTablePhraseCount += copiedPhraseCount[key];
+          }
+        }
+        setInHSKTablePhraseCount(tmpInHSKTablePhraseCount);
+        setPhraseCount(copiedPhraseCount);
+      }
+    );
+    // Phrase level count
+    let copiedPhraseLevelCount = {
+      一级: 0,
+      二级: 0,
+      三级: 0,
+      四级: 0,
+      五级: 0,
+      六级: 0,
+      高等: 0,
+      未录入: 0,
+    };
+    let tmpInLevelTablePhraseCount = 0;
+    Promise.all(
+      groupOfPhrases.map((phrase) => searchForPhrasesLevel(phrase))
+    ).then((values) => {
+      values.forEach((value) => {
+        copiedPhraseLevelCount[value]
+          ? copiedPhraseLevelCount[value]++
+          : (copiedPhraseLevelCount[value] = 1);
+      });
+      for (const key in copiedPhraseLevelCount) {
+        if (key !== "未录入") {
+          tmpInLevelTablePhraseCount += copiedPhraseLevelCount[key];
+        }
+      }
+      setInLevelTablePhraseCount(tmpInLevelTablePhraseCount);
+      setPhraseLevelCount(copiedPhraseLevelCount);
+    });
+  }, [groupOfPhrases]);
   const getPhrase = () => {
     setTotalPhraseNumber(groupOfPhrases.length);
     // Phrase count
@@ -1086,27 +1235,7 @@ function Result() {
     <>
       <div>
         <ResponsiveAppBar />
-        <Collapse in={openAlert}>
-          <Alert
-            severity="error"
-            action={
-              <IconButton
-                aria-label="close"
-                color="inherit"
-                size="small"
-                onClick={() => {
-                  setOpenAlert(false);
-                }}
-              >
-                <CloseIcon fontSize="inherit" />
-              </IconButton>
-            }
-            sx={{ mb: 2 }}
-          >
-            <AlertTitle>错误</AlertTitle>
-            请输入中文字符
-          </Alert>
-        </Collapse>
+
         <Container sx={{ display: "flex", mt: 3 }}>
           <Container sx={{ alignSelf: "flex-start" }}>
             {/* 使用失去焦点的遮罩层达到不可编辑 */}
@@ -1160,12 +1289,13 @@ function Result() {
                         menubar: false,
                         icons: "savetext3",
                         plugins:
-                          " autoresize save  searchreplace autolink fullscreen link charmap pagebreak advlist lists wordcount",
+                          " image autoresize save  searchreplace autolink fullscreen link charmap pagebreak advlist lists wordcount",
                         toolbar:
                           " link  newdocument save  saveas print searchreplace undo redo cut copy paste blockquote removeformat forecolor backcolor bold italic underline strikethrough charmap blocks fontsize alignleft aligncenter alignright alignjustify ouTdent indent pagebreak fullscreen",
                         setup: (editor) => {
                           editor.ui.registry.addButton("saveas", {
-                            text: "另存为",
+                            // text: "另存为",
+                            icon: "saveas",
                             tooltip: "另存为",
                             onAction: (_) => {
                               saveAs();
@@ -1273,13 +1403,9 @@ function Result() {
                         setOldvalue(
                           editorValue.current.getContent().slice(3, -4)
                         );
-                        startValue = editorValue.current
-                          .getContent()
-                          .slice(3, -4);
                         if (userLoggedIn) {
                           setEdit(true);
                         } else {
-                          console.log("xxxxx");
                           navigate("/");
                           dispatch(login());
                         }

@@ -150,7 +150,7 @@ function AnalyzePage() {
       tempObj.name = i;
       columnArr.push(tempObj);
     }
-
+    console.log(columnArr);
     // 设置表格的头部信息，可以用来设置标题，说明或者注意事项
     sheet.addTable({
       name: `Header`,
@@ -183,6 +183,7 @@ function AnalyzePage() {
         let arr = [];
         for (let i in e) {
           arr.push(e[i]);
+          console.log("e[i]", e[i]);
         }
         return arr;
       }),
@@ -273,9 +274,8 @@ function AnalyzePage() {
     for (let i in data3[0]) {
       let tempObj = { name: "" };
       tempObj.name = i;
-      columnArr3.push(tempObj);
+      columnArr2.push(tempObj);
     }
-
     // 设置表格的头部信息，可以用来设置标题，说明或者注意事项
     sheet3.addTable({
       name: `Header`,
@@ -336,7 +336,7 @@ function AnalyzePage() {
     for (let i in data4[0]) {
       let tempObj = { name: "" };
       tempObj.name = i;
-      columnArr4.push(tempObj);
+      columnArr2.push(tempObj);
     }
     // 设置表格的头部信息，可以用来设置标题，说明或者注意事项
     sheet4.addTable({
