@@ -114,7 +114,7 @@ function AnalyzePage() {
       ).toFixed(2);
     }
     let data3 = [copiedPhraseCount, doubleCopy3];
-    console.log(data3);
+
     let copiedPhraseLevelCount = { ...phraseLevelCount };
     let doubleCopy4 = { ...copiedPhraseLevelCount };
     for (const key in doubleCopy4) {
@@ -183,7 +183,6 @@ function AnalyzePage() {
         let arr = [];
         for (let i in e) {
           arr.push(e[i]);
-          console.log("e[i]", e[i]);
         }
         return arr;
       }),
@@ -274,8 +273,9 @@ function AnalyzePage() {
     for (let i in data3[0]) {
       let tempObj = { name: "" };
       tempObj.name = i;
-      columnArr2.push(tempObj);
+      columnArr3.push(tempObj);
     }
+
     // 设置表格的头部信息，可以用来设置标题，说明或者注意事项
     sheet3.addTable({
       name: `Header`,
@@ -336,7 +336,7 @@ function AnalyzePage() {
     for (let i in data4[0]) {
       let tempObj = { name: "" };
       tempObj.name = i;
-      columnArr2.push(tempObj);
+      columnArr4.push(tempObj);
     }
     // 设置表格的头部信息，可以用来设置标题，说明或者注意事项
     sheet4.addTable({

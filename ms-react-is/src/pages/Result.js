@@ -289,7 +289,7 @@ function Result() {
     for (let i in data3[0]) {
       let tempObj = { name: "" };
       tempObj.name = i;
-      columnArr2.push(tempObj);
+      columnArr3.push(tempObj);
     }
     // 设置表格的头部信息，可以用来设置标题，说明或者注意事项
     sheet3.addTable({
@@ -351,7 +351,7 @@ function Result() {
     for (let i in data4[0]) {
       let tempObj = { name: "" };
       tempObj.name = i;
-      columnArr2.push(tempObj);
+      columnArr4.push(tempObj);
     }
     // 设置表格的头部信息，可以用来设置标题，说明或者注意事项
     sheet4.addTable({
@@ -1078,6 +1078,10 @@ function Result() {
       setPhraseLevelCount(copiedPhraseLevelCount);
     });
   };
+  const changeTitle = (event) => {
+    console.log(event.target.value);
+  };
+
   return (
     <>
       <div>
@@ -1131,7 +1135,8 @@ function Result() {
                     <input
                       type="text"
                       placeholder="标题"
-                      value={"标题：" + location.state.hit.title}
+                      defaultValue={"标题：" + location.state.hit.title}
+                      onBlur={changeTitle}
                     ></input>
                   </div>
                   <div className="doc-cnt">
