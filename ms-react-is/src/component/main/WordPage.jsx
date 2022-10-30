@@ -141,15 +141,14 @@ export default class wordPage extends Component {
       >
         <div className="ais-InstantSearch">
           <div className="left-panel">
-            <IndexList indexs={indexs} setIndex={setIndex} />
+            <IndexList indexs={indexs} setIndex={setIndex} {...this.props} />
             <IndexRefine filterableAttributes={filterableAttributes} />
           </div>
           <div className="right-panel">
             <CurrentRefinements />
             <SearchBox
               translations={{
-                placeholder:
-                  "可使用 【级别/词性...+关键字】 搜索，如：高等 安定",
+                placeholder: "请输入要搜索的关键字，可在左侧进行过滤",
               }}
             />
             <div className="stats">

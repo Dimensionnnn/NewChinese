@@ -702,7 +702,7 @@ function Result() {
                       ) {
                         alert("您没有更改");
                       } else {
-                        if (window.confirm("保存后将存入待提交")) {
+                        if (window.confirm("保存后将存入草稿箱")) {
                           client.index("wait_to_submit").addDocuments([
                             {
                               id: location.state.hit.id,

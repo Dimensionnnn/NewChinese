@@ -10,11 +10,6 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import Alert from "@mui/material/Alert";
-import AlertTitle from "@mui/material/AlertTitle";
-import Collapse from "@mui/material/Collapse";
-import IconButton from "@mui/material/IconButton";
-import CloseIcon from "@mui/icons-material/Close";
 import CheckBox from "../component/CheckBox";
 import { motion } from "framer-motion";
 import { MeiliSearch } from "meilisearch";
@@ -24,8 +19,8 @@ import ExcelJs from "exceljs";
 import FileSaver from "file-saver";
 import FlavorForm from "../component/result/FlavorForm";
 import { useDispatch, useSelector } from "react-redux";
-import TabSetup from "../component/result/TabSetup";
 import ResponsiveAppBar from "../component/navbar/NavBar";
+import { reloadArticle } from "../component/store/article/articleSet";
 import { useLocation } from "react-router-dom";
 import { login } from "../component/store/display/homeSet";
 
@@ -34,11 +29,13 @@ import "./tinyInline.css";
 
 function Result() {
   const location = useLocation();
+  const firstRender = useRef(false);
   const [value, setValue] = useState("");
   const editorValue = useRef("");
   const [totalWordNumber, setTotalWordNumber] = useState(0);
   const [edit, setEdit] = useState(false);
   const [editWord, setEditWord] = useState(false);
+  const _userid = useSelector((state) => state.userInfo.userid);
   const [editPhrase, setEditPhrase] = useState(false);
   const [totalPhraseNumber, setTotalPhraseNumber] = useState(0);
   const [wordCount, setWordCount] = useState({
@@ -62,9 +59,9 @@ function Result() {
     高等: 0,
     未录入: 0,
   });
+
   const [inLevelTableCount, setInLevelTableCount] = useState(0);
 
-  const [groupOfPhrases, setGroupOfPhrases] = useState([]);
   const [phraseCount, setPhraseCount] = useState({
     一级: 0,
     二级: 0,
@@ -86,6 +83,16 @@ function Result() {
     高等: 0,
     未录入: 0,
   });
+  const indexArr = [
+    "一级",
+    "二级",
+    "三级",
+    "四级",
+    "五级",
+    "六级",
+    "高等",
+    "未录入",
+  ];
   const [inLevelTablePhraseCount, setInLevelTablePhraseCount] = useState(0);
   const [displayBasic, setDisplayBasic] = useState(true);
   const dispatch = useDispatch();
@@ -94,8 +101,207 @@ function Result() {
   const [oldValue, setOldvalue] = useState("");
   const userLoggedIn = useSelector((state) => state.loginState.value);
   const navigate = useNavigate();
-  const [contentOne, setContentOne] = useState("<p>");
-  const [flag, setFlag] = useState(0);
+  const [resultData, setResult] = useState({});
+  const [intervalArr, setInterval] = useState([]);
+  const [newInterval, setNewInterval] = useState([]);
+  const [newContentValue, setNewContentValue] = useState("");
+  const selectedIndex = useSelector((state) => state.docpageSet.value);
+  const noRepeat = (arr) => {
+    let newArr = [];
+    for (let i = 0; i < arr.length; i++) {
+      if (!newArr.includes(arr[i])) {
+        newArr.push(arr[i]);
+      }
+    }
+    return newArr;
+  };
+  const highlight = (rank, characters, criteria) => {
+    let valueNow = editorValue.current.getContent({ format: "text" });
+    let wordHSKPart = noRepeat(
+      resultData[characters][criteria][indexArr[rank]]
+    );
+    let intervalArr0 = intervalArr;
+    for (let ind in wordHSKPart) {
+      let word = wordHSKPart[ind];
+      let pos = 0;
+      let len = word.length;
+      let nx_pos = 0;
+      while ((nx_pos = valueNow.indexOf(word, pos)) !== -1) {
+        let itv = {};
+        itv.left = nx_pos;
+        itv.right = nx_pos + len;
+        intervalArr0.push(itv);
+        // setInterval([...intervalArr, itv]);
+        pos = nx_pos + 1;
+      }
+    }
+    setInterval([...intervalArr0]);
+    if (intervalArr.length == 0) {
+      editorValue.current.setContent(valueNow);
+    } else {
+      mergeInterval();
+      // console.log(wordHSKPart);
+      // console.log(resultData);
+      // console.log(intervalArr);
+      // console.log(newInterval);
+      let newContentValue1 = valueNow.substring(0, newInterval[0].left);
+      for (let i = 0; i < newInterval.length - 1; i++) {
+        newContentValue1 =
+          newContentValue1 +
+          '<span style="background-color: rgb(252, 249, 4);">' +
+          valueNow.substring(newInterval[i].left, newInterval[i].right) +
+          "</span>" +
+          valueNow.substring(newInterval[i].right, newInterval[i + 1].left);
+      }
+      newContentValue1 =
+        newContentValue1 +
+        '<span style="background-color: rgb(252, 249, 4);">' +
+        valueNow.substring(
+          newInterval[newInterval.length - 1].left,
+          newInterval[newInterval.length - 1].right
+        ) +
+        "</span>" +
+        valueNow.substring(
+          newInterval[newInterval.length - 1].right,
+          valueNow.length
+        );
+      editorValue.current.setContent(newContentValue1);
+    }
+
+    setInterval([]);
+    setNewInterval([]);
+  };
+  const sortByLeft = (arr, rev) => {
+    if (rev === undefined) {
+      rev = 1;
+    } else {
+      rev = rev ? 1 : -1;
+    }
+    return (a, b) => {
+      if (a[arr[0]] != b[arr[0]]) return rev * (a[arr[0]] < b[arr[0]] ? 1 : -1);
+      else return rev * (a[arr[1]] < b[arr[1]] ? 1 : -1);
+    };
+  };
+  const mergeInterval = () => {
+    intervalArr.sort(sortByLeft(["left", "right"], false));
+    let intervalArr1 = newInterval;
+    for (let i = 0; i < intervalArr.length - 1; i++) {
+      if (intervalArr[i].right < intervalArr[i + 1].left) {
+        intervalArr1.push(intervalArr[i]);
+      } else {
+        intervalArr[i].right = intervalArr[i + 1].right;
+
+        // setNewInterval([...newInterval, intervalArr[i]]);
+        intervalArr[i + 1] = intervalArr[i];
+      }
+    }
+    intervalArr1.push(intervalArr[intervalArr.length - 1]);
+    setNewInterval([...intervalArr1]);
+  };
+
+  const analyze = async () => {
+    if (!value) {
+      return;
+    }
+    if (
+      !value
+        .replace(/(<([^>]+)>)/gi, "")
+        .replace(/&nbsp;/gi, "")
+        .match(/[\u4e00-\u9fa5]/g)
+    ) {
+      return;
+    }
+    let res = await axios.post("http://106.75.250.96:3000/api1/analyze", {
+      article: value,
+    });
+    setResult(res.data);
+    let numberOfWords = 0;
+    let copiedWordCount = {
+      一级: 0,
+      二级: 0,
+      三级: 0,
+      四级: 0,
+      五级: 0,
+      六级: 0,
+      高等: 0,
+      未录入: 0,
+    };
+    let wordHSKPart = res.data.characters._HSK;
+    for (let a in wordHSKPart) {
+      if (a in copiedWordCount) {
+        copiedWordCount[a] = wordHSKPart[a].length;
+        numberOfWords += wordHSKPart[a].length;
+      }
+    }
+    setWordCount(copiedWordCount);
+    setTotalWordNumber(numberOfWords);
+    setInHSKTableCount(numberOfWords - copiedWordCount["未录入"]);
+    let copiedWordLevelCount = {
+      一级: 0,
+      二级: 0,
+      三级: 0,
+      四级: 0,
+      五级: 0,
+      六级: 0,
+      高等: 0,
+      未录入: 0,
+    };
+    let word369Part = res.data.characters._369;
+    for (let a in word369Part) {
+      if (a in copiedWordLevelCount) {
+        copiedWordLevelCount[a] = word369Part[a].length;
+      }
+    }
+    setWordLevelCount(copiedWordLevelCount);
+    setInLevelTableCount(numberOfWords - copiedWordLevelCount["未录入"]);
+    setEditWord(true);
+
+    // phrases
+    let numberOfPhrases = 0;
+    let copiedPhraseCount = {
+      一级: 0,
+      二级: 0,
+      三级: 0,
+      四级: 0,
+      五级: 0,
+      六级: 0,
+      高等: 0,
+      未录入: 0,
+    };
+    let phrasePart = res.data.words._HSK;
+    for (let a in phrasePart) {
+      if (a in copiedPhraseCount) {
+        copiedPhraseCount[a] = phrasePart[a].length;
+        numberOfPhrases += phrasePart[a].length;
+      }
+    }
+    setPhraseCount(copiedPhraseCount);
+    setTotalPhraseNumber(numberOfPhrases);
+    setInHSKTablePhraseCount(numberOfPhrases - copiedPhraseCount["未录入"]);
+
+    let copiedPhraseLevelCount = {
+      一级: 0,
+      二级: 0,
+      三级: 0,
+      四级: 0,
+      五级: 0,
+      六级: 0,
+      高等: 0,
+      未录入: 0,
+    };
+    let phraseLevelPart = res.data.words._369;
+    for (let a in phraseLevelPart) {
+      if (a in copiedPhraseLevelCount) {
+        copiedPhraseLevelCount[a] = phraseLevelPart[a].length;
+      }
+    }
+    setPhraseLevelCount(copiedPhraseLevelCount);
+    setInLevelTablePhraseCount(
+      numberOfPhrases - copiedPhraseLevelCount["未录入"]
+    );
+    setEditPhrase(true);
+  };
+
   const exportToExcel = () => {
     let copiedWordCount = { ...wordCount };
     let doubleCopy = { ...copiedWordCount };
@@ -443,147 +649,69 @@ function Result() {
             </html>`;
   };
   const log = () => {
-    // console.log(editorValue.current.startContent);
-    let content = editorValue.current.getContent();
+    let content =
+      '<p style="text-align: center;">' +
+      document.getElementById("titleInput").value +
+      "</p>" +
+      editorValue.current.getContent();
     let style = ".title-span{ font-size:16px; color:red }";
     let html = creatHtmlTree(content, style);
     let blob = new Blob([html], {
       type: "application/vnd.ms-word;charset=UTF-8",
     });
-    FileSaver.saveAs(blob, "文档名称.docx");
+    FileSaver.saveAs(blob, "文档名称.doc");
   };
   const client = new MeiliSearch({
     host: "http://106.75.250.96:3000/api2/",
     apiKey: "MASTER_KEY",
   });
-
-  // const searchLevel = () => {
-  //   let text_arr = getHanzi(getText(editorValue.current.getContent()));
-  //   getfenci(getText(editorValue.current.getContent()));
-  //   let zishu_num = editorValue.current.plugins.wordcount.body.getWordCount();
-  //   let ci_num = fenci.length;
-  //   console.log("分词结果", fenci);
-  //   console.log("词数", ci_num);
-  //   setZishuNum(zishu_num);
-  //   setCiNum(ci_num);
-  //   for (var q of text_arr) {
-  //     client
-  //       .index("HSK_utf8_id_space")
-  //       .search(q)
-  //       .then((res) => {
-  //         //console.log("HSK_res", res.hits.length !== 0 ? res.hits[0].HSK级别 : "无结果");
-  //         if (res.hits.length !== 0) {
-  //           zishu_hsk[res.hits[0].HSK级别]++;
-  //           zishu_hsk_rate[res.hits[0].HSK级别] = (
-  //             zishu_hsk[res.hits[0].HSK级别] / zishu_num
-  //           ).toFixed(2);
-  //         } else {
-  //           zishu_hsk["未录入"]++;
-  //           zishu_hsk_rate["未录入"] = (
-  //             zishu_hsk["未录入"] / zishu_num
-  //           ).toFixed(2);
-  //         }
-  //       });
-
-  //     client
-  //       .index("words_3d9j_space0")
-  //       .search(q)
-  //       .then((res) => {
-  //         //console.log("words_3d9j_space0_res", res.hits.length !== 0 ? res.hits[0].等级 : "无结果");
-  //         if (res.hits.length !== 0) {
-  //           zishu_369[res.hits[0].等级]++;
-  //           zishu_369_rate[res.hits[0].等级] = (
-  //             zishu_369[res.hits[0].等级] / zishu_num
-  //           ).toFixed(2);
-  //         } else {
-  //           zishu_369["未录入"]++;
-  //           zishu_369_rate["未录入"] = (
-  //             zishu_369["未录入"] / zishu_num
-  //           ).toFixed(2);
-  //         }
-  //       });
-  //   }
-  //   for (var q of fenci) {
-  //     client
-  //       .index("HSK_utf8_id_space")
-  //       .search(q)
-  //       .then((res) => {
-  //         //console.log("HSK_res", res.hits.length !== 0 ? res.hits[0].HSK级别 : "无结果");
-  //         if (res.hits.length !== 0) {
-  //           ci_hsk[res.hits[0].HSK级别]++;
-  //           ci_hsk_rate[res.hits[0].HSK级别] = (
-  //             ci_hsk[res.hits[0].HSK级别] / ci_num
-  //           ).toFixed(2);
-  //         } else {
-  //           ci_hsk["未录入"]++;
-  //           ci_hsk_rate["未录入"] = (ci_hsk["未录入"] / ci_num).toFixed(2);
-  //         }
-  //       });
-
-  //     client
-  //       .index("words_3d9j_space0")
-  //       .search(q)
-  //       .then((res) => {
-  //         //console.log("words_3d9j_space0_res", res.hits.length !== 0 ? res.hits[0].等级 : "无结果");
-  //         if (res.hits.length !== 0) {
-  //           ci_369[res.hits[0].等级]++;
-  //           ci_369_rate[res.hits[0].等级] = (
-  //             ci_369[res.hits[0].等级] / ci_num
-  //           ).toFixed(2);
-  //         } else {
-  //           ci_369["未录入"]++;
-  //           ci_369_rate["未录入"] = (ci_369["未录入"] / ci_num).toFixed(2);
-  //         }
-  //       });
-  //   }
-  //   //合并为对象数组
-  //   var zi_arr = [zishu_hsk, zishu_hsk_rate];
-  //   var zi_arr369 = [zishu_369, zishu_369_rate];
-  //   setZiArr(zi_arr.slice());
-  //   setZiArr369(zi_arr369.slice());
-
-  //   var ci_arr = [ci_hsk, ci_hsk_rate];
-  //   var ci_arr369 = [ci_369, ci_369_rate];
-  //   setCiArr(ci_arr.slice());
-  //   setCiArr369(ci_arr369.slice());
-
-  //   console.log("zi_hsk", ziArr);
-  //   console.log("zi_369", ziArr369);
-  //   console.log("ci_hsk", ciArr);
-  //   console.log("ci_369", ciArr369);
-  // };
   const myDate = new Date();
-  const setPrivate = (hit) => {
+  const setPrivate = () => {
     // 通过私有化申请,改为收藏，不从原数据删除
     if (userLoggedIn) {
       if (
         window.confirm(
-          "确定收藏？在all_private中搜索",
-          hit.title,
-          "查找收藏后的信息"
+          "确定收藏？在all_private中搜索" +
+            location.state.hit.title +
+            "查找收藏后的信息"
         )
       ) {
         if (location.state.userid === "") {
           window.alert("请先登录，才可收藏此条");
         } else {
+          const client = new MeiliSearch({
+            host: "http://106.75.250.96:3000/api2/",
+            apiKey: "MASTER_KEY",
+          });
+
           client.index("all_private").addDocuments([
             {
-              id: hit.id,
-              url: hit.url,
-              title: hit.title,
-              text: hit.text,
+              id: location.state.hit.id,
+              title: location.state.hit.title,
+              text: location.state.hit.text,
+              体裁: location.state.hit.体裁,
+              主题: location.state.hit.主题,
+              子主题: location.state.hit.子主题,
+              级别: location.state.hit.级别,
+              年份: location.state.hit.年份,
+              出处: location.state.hit.出处,
+              作者: location.state.hit.作者,
+              分级结果: location.state.hit.分级结果,
               创建时间: myDate.toLocaleString(),
               public: "true", //收藏后仍为公有，直到修改保存后需要改为false，直到将其公开
-              userid: location.state.userid,
-              级别: hit.级别,
-              genre: hit.genre,
+              userid: _userid,
             },
           ]);
-          client.index("wait_to_check").deleteDocument(hit.id);
         }
       }
     } else {
-      console.log("xxxxx");
+      const payload = {
+        value: location.state.hit.text,
+        hit: location.state.hit,
+        selectedIndex: location.state.selectedIndex,
+        userid: _userid,
+      };
+      dispatch(reloadArticle(payload));
       navigate("/");
       dispatch(login());
     }
@@ -597,17 +725,22 @@ function Result() {
         "查找公开后的数据"
       )
     ) {
-      client.index("doc_wiki_05").addDocuments([
+      client.index("real_text").addDocuments([
         {
-          id: hit.id,
-          url: hit.url,
-          userid: hit.userid,
-          title: hit.title,
-          text: hit.text,
-          发布时间: myDate.toLocaleString(),
+          id: location.state.hit.id,
+          userid: location.state.hit.userid,
+          title: location.state.hit.title,
+          text: location.state.hit.text,
+          体裁: location.state.hit.体裁,
+          主题: location.state.hit.主题,
+          子主题: location.state.hit.子主题,
+          级别: location.state.hit.级别,
+          年份: location.state.hit.年份,
+          出处: location.state.hit.出处,
+          作者: location.state.hit.作者,
+          分级结果: location.state.hit.分级结果,
+          创建时间: myDate.toLocaleString(),
           public: "true",
-          级别: hit.级别,
-          genre: hit.genre,
         },
       ]);
       //设为公有从此待审核index删除
@@ -615,7 +748,7 @@ function Result() {
       //不从待审核删除了，将状态更改为审核通过
       client.index("wait_to_check").updateDocuments([
         {
-          id: hit.id,
+          id: location.state.hit.id,
           public: "true",
           审核状态: "通过", //0 待审核，1：通过，2：不通过
         },
@@ -623,13 +756,16 @@ function Result() {
       //公有后将私有index的此条记录更新为公开状态
       client.index("all_private").updateDocuments([
         {
-          id: hit.id,
+          id: location.state.hit.id,
           public: "true",
           审核状态: "通过", //0 待审核，1：通过，2：不通过
         },
       ]);
-
-      // this.refreshIndex('wait_to_check')
+      navigate("/", {
+        state: {
+          toIndex: "wait_to_check",
+        },
+      });
     }
   };
   const refusePublic = (hit) => {
@@ -637,20 +773,23 @@ function Result() {
     if (window.confirm("确定拒绝申请？")) {
       client.index("all_private").updateDocuments([
         {
-          id: hit.id,
+          id: location.state.hit.id,
           public: "false",
           审核状态: "不通过", //0 待审核，1：通过，2：不通过
         },
       ]);
       client.index("wait_to_check").updateDocuments([
         {
-          id: hit.id,
+          id: location.state.hit.id,
           public: "false",
           审核状态: "不通过", //0 待审核，1：通过，2：不通过
         },
       ]);
-      // client.index('wait_to_check').deleteDocument(hit.id)
-      // this.refreshIndex('wait_to_check')
+      navigate("/", {
+        state: {
+          toIndex: "wait_to_check",
+        },
+      });
     }
   };
 
@@ -663,7 +802,10 @@ function Result() {
     //加入到待审核index，同时需要携带该用户的userid，以便后续限制此用户只能访问用户id是自己的数据
     // hit数据中加入userid
 
-    if (oldValue === newContent) {
+    if (
+      oldValue === newContent &&
+      document.getElementById("titleInput").value === location.state.hit.title
+    ) {
       // if (true) {
       //此判断内容有格式问题，还需修改
       window.alert("修改后请保存后提交");
@@ -681,32 +823,47 @@ function Result() {
         client.index("wait_to_check").addDocuments([
           {
             id: new_id,
-            url: hit.url,
-            title: hit.title,
+            title: document.getElementById("titleInput").value,
             text: newContent, // 将hit.text替换成tiny内新保存的值
-            级别: hit.级别,
-            genre: hit.genre,
-            提交时间: myDate.toLocaleString(),
+            体裁: location.state.hit.体裁,
+            主题: location.state.hit.主题,
+            子主题: location.state.hit.子主题,
+            级别: location.state.hit.级别,
+            年份: location.state.hit.年份,
+            出处: location.state.hit.出处,
+            作者: location.state.hit.作者,
+            分级结果: location.state.hit.分级结果,
+            创建时间: myDate.toLocaleString(),
             审核状态: "待审核", //0 待审核，1：通过，2：不通过
             public: "false",
-            userid: location.state.userid, //后续根据当前登录用户进行修改
+            userid: _userid, //后续根据当前登录用户进行修改
           },
         ]);
         client.index("wait_to_submit").deleteDocument(hit.id);
         client.index("all_private").addDocuments([
           {
             id: new_id,
-            url: hit.url,
-            title: hit.title,
+            title: document.getElementById("titleInput").value,
             text: newContent, // 将hit.text替换成tiny内新保存的值
-            级别: hit.级别,
-            genre: hit.genre,
+            体裁: location.state.hit.体裁,
+            主题: location.state.hit.主题,
+            子主题: location.state.hit.子主题,
+            级别: location.state.hit.级别,
+            年份: location.state.hit.年份,
+            出处: location.state.hit.出处,
+            作者: location.state.hit.作者,
+            分级结果: location.state.hit.分级结果,
             创建时间: myDate.toLocaleString(),
             审核状态: "待审核", //0 待审核，1：通过，2：不通过
             public: "false",
-            userid: location.state.userid, //后续根据当前登录用户进行修改
+            userid: _userid, //后续根据当前登录用户进行修改
           },
         ]);
+        navigate("/", {
+          state: {
+            toIndex: "all_private",
+          },
+        });
       }
     } else {
       //选择私有
@@ -714,17 +871,28 @@ function Result() {
         client.index("all_private").addDocuments([
           {
             id: nanoid(),
-            url: hit.url,
-            title: hit.title,
+            title: document.getElementById("titleInput").value,
             text: newcontent, // 将hit.text替换成tiny内新保存的值
+            体裁: location.state.hit.体裁,
+            主题: location.state.hit.主题,
+            子主题: location.state.hit.子主题,
+            级别: location.state.hit.级别,
+            年份: location.state.hit.年份,
+            出处: location.state.hit.出处,
+            作者: location.state.hit.作者,
+            分级结果: location.state.hit.分级结果,
             创建时间: myDate.toLocaleString(),
-            级别: hit.级别,
-            genre: hit.genre,
+            级别: location.state.hit.级别,
             public: "false",
-            userid: location.state.userid, //后续根据当前登录用户进行修改
+            userid: _userid, //后续根据当前登录用户进行修改
           },
         ]);
         client.index("wait_to_submit").deleteDocument(hit.id);
+        navigate("/", {
+          state: {
+            toIndex: "all_private",
+          },
+        });
       }
     }
   };
@@ -734,28 +902,29 @@ function Result() {
       host: "http://106.75.250.96:3000/api2/",
       apiKey: "MASTER_KEY",
     });
-    console.log(
-      "getContent()",
-      editorValue.current.getContent({ format: "text" }).slice(3, -4)
-    );
-    console.log("startContent", editorValue.current.startContent.slice(3, -4));
-    console.log("oldValue", oldValue);
     if (
       editorValue.current.getContent({ format: "text" }) ===
-      editorValue.current.startContent.slice(3, -4)
+        editorValue.current.startContent.slice(3, -4) &&
+      document.getElementById("titleInput").value === location.state.hit.title
     ) {
       alert("您没有更改");
     } else {
-      if (window.confirm("保存后将存入待提交")) {
+      if (window.confirm("保存后将存入草稿箱")) {
+        console.log("hit", location.state);
         client.index("wait_to_submit").addDocuments([
           {
             id: location.state.hit.id,
-            url: location.state.hit.url,
-            title: location.state.hit.title,
+            title: document.getElementById("titleInput").value,
             text: editorValue.current.getContent().slice(3, -4), // 将hit.text替换成tiny内新保存的值
+            体裁: location.state.hit.体裁,
+            主题: location.state.hit.主题,
+            子主题: location.state.hit.子主题,
             级别: location.state.hit.级别,
-            上次修改时间: myDate.toLocaleString(),
-            genre: location.state.hit.genre,
+            年份: location.state.hit.年份,
+            出处: location.state.hit.出处,
+            作者: location.state.hit.作者,
+            分级结果: location.state.hit.分级结果,
+            创建时间: myDate.toLocaleString(),
             public: "false",
             userid: location.state.userid, //后续根据当前登录用户进行修改
           },
@@ -775,97 +944,26 @@ function Result() {
       client.index("wait_to_submit").addDocuments([
         {
           id: new_id,
-          url: location.state.hit.url,
-          title: location.state.hit.title,
+          title: document.getElementById("titleInput").value,
           创建时间: myDate.toLocaleString(),
           text: editorValue.current.getContent().slice(3, -4), // 将hit.text替换成tiny内新保存的值
+          体裁: location.state.hit.体裁,
+          主题: location.state.hit.主题,
+          子主题: location.state.hit.子主题,
           级别: location.state.hit.级别,
-          genre: location.state.hit.genre,
+          年份: location.state.hit.年份,
+          出处: location.state.hit.出处,
+          作者: location.state.hit.作者,
+          分级结果: location.state.hit.分级结果,
           public: "false",
-          userid: location.state.userid,
+          userid: _userid,
         },
       ]);
     }
   };
-  const getText = (str) => {
-    if (!str) {
-      return;
-    }
-    return str.replace(/<[^<>]+>/g, "").replace(/&nbsp;/gi, "");
-  };
-
-  const getHanzi = (str) => {
-    var name = str;
-    var reg = /[\u4e00-\u9fa5]/g;
-    var names = name.match(reg);
-    name = names.join("");
-    // var n = name.split("");//去重
-    // const result = Array.from(new Set(n));
-
-    return name;
-  };
-
   useEffect(() => {
-    let tmp = editorValue.current.startContent;
-    // console.log("tmp", tmp);
-  });
-  const setOne1 = () => {
-    let i = 0;
-    let word = getHanzi(getText(editorValue.current.getContent()));
-    for (let q of word) {
-      i++;
-      client
-        .index("HSK_utf8_id_space")
-        .search(q)
-        .then((res) => {
-          // console.log(res.hits[0]);
-          // console.log(res.hits[0]);
-          // console.log(
-          //   "HSK_res",
-          //   res.hits.length !== 0 ? res.hits[0].HSK级别 : "无结果"
-          // );
-          if (typeof res.hits[0] !== "undefined") {
-            if (res.hits[0]["HSK级别"] === "一级") {
-              setContentOne(
-                // {
-                //   contentOne:
-                //     contentOne +
-                //     '<span style="background-color: rgb(252, 249, 4);">' +
-                //     "</span>",
-                // }
-                (contentOne) =>
-                  contentOne +
-                  '<span style="background-color: rgb(252, 249, 4);">' +
-                  q +
-                  "</span>"
-              );
-              // contentOne +=
-              //   '<span style="background-color: rgb(252, 249, 4);">';
-              // contentOne += q;
-              // contentOne += "</span>";
-            } else {
-              setContentOne(
-                // {
-                //   contentOne: contentOne + q,
-                // }
-                (contentOne) => contentOne + q
-              );
-              // contentOne += q;
-            }
-            console.log(contentOne);
-          }
-        });
-      if (i == word.length) setFlag(1);
-    }
-    setContentOne(
-      // {
-      //   contentOne: contentOne + "</p>",
-      // }
-      (contentOne) => contentOne + "</p>"
-    );
-    if (flag == 1) editorValue.current.setContent(contentOne);
-  };
-
+    console.log(selectedIndex);
+  }, []);
   useEffect(() => {
     const script = document.createElement("script");
     script.src =
@@ -876,357 +974,25 @@ function Result() {
       document.body.removeChild(script);
     };
   }, []);
-  async function searchForWords(word) {
-    const result = await client.index("HSK_utf8_id_space").search(word);
-    if (result.hits.length !== 0) {
-      return result.hits[0].HSK级别;
-    } else {
-      return "未录入";
-    }
-  }
-  async function searchForWordsLevel(word) {
-    const result = await client.index("words_3d9j_space0").search(word);
-    if (result.hits.length !== 0) {
-      return result.hits[0].等级;
-    } else {
-      return "未录入";
-    }
-  }
-  async function getSplitWord(text) {
-    const res = await axios.get("http://106.75.250.96:3000/api1/fenci/", {
-      params: { fenci_str: text },
-    });
-    return res.data;
-  }
-  async function searchForPhrases(phrase) {
-    const result = await client.index("HSK_utf8_id_space").search(phrase);
-    setEditPhrase(true);
-    if (result.hits.length !== 0) {
-      return result.hits[0].HSK级别;
-    } else {
-      return "未录入";
-    }
-  }
-  async function searchForPhrasesLevel(phrase) {
-    const result = await client.index("words_3d9j_space0").search(phrase);
-    if (result.hits.length !== 0) {
-      return result.hits[0].等级;
-    } else {
-      return "未录入";
-    }
-  }
-  const handleEditorChange = () => {
-    if (!value) {
-      // setOpenAlert(true);
-      return;
-    }
-    if (
-      !value
-        .replace(/(<([^>]+)>)/gi, "")
-        .replace(/&nbsp;/gi, "")
-        .match(/[\u4e00-\u9fa5]/g)
-    ) {
-      // setOpenAlert(true);
-      return;
-    }
-    setEditWord(true);
-    let numberOfWords =
-      editorValue.current.plugins.wordcount.body.getWordCount();
-    setTotalWordNumber(numberOfWords);
-    // Single word HSK count
-    let copiedWordCount = {
-      一级: 0,
-      二级: 0,
-      三级: 0,
-      四级: 0,
-      五级: 0,
-      六级: 0,
-      高等: 0,
-      未录入: 0,
-    };
-    let tmpInHSKTableCount = 0;
-    Promise.all(
-      [
-        ...value
-          .replace(/(<([^>]+)>)/gi, "")
-          .replace(/&nbsp;/gi, "")
-          .match(/[\u4e00-\u9fa5]/g)
-          .join(""),
-      ].map((word) => searchForWords(word))
-    ).then((values) => {
-      values.forEach((value) => {
-        copiedWordCount[value]
-          ? copiedWordCount[value]++
-          : (copiedWordCount[value] = 1);
-      });
-      for (let key in copiedWordCount) {
-        if (key !== "未录入") {
-          tmpInHSKTableCount += copiedWordCount[key];
-        }
-      }
-      setInHSKTableCount(tmpInHSKTableCount);
-      setWordCount(copiedWordCount);
-    });
-    // Single word level count
-    let copiedWordLevelCount = {
-      一级: 0,
-      二级: 0,
-      三级: 0,
-      四级: 0,
-      五级: 0,
-      六级: 0,
-      高等: 0,
-      未录入: 0,
-    };
-    let tmpInLevelTableCount = 0;
-    Promise.all(
-      [
-        ...value
-          .replace(/(<([^>]+)>)/gi, "")
-          .replace(/&nbsp;/gi, "")
-          .match(/[\u4e00-\u9fa5]/g)
-          .join(""),
-      ].map((word) => searchForWordsLevel(word))
-    ).then((values) => {
-      values.forEach((value) => {
-        copiedWordLevelCount[value]
-          ? copiedWordLevelCount[value]++
-          : (copiedWordLevelCount[value] = 1);
-      });
-      for (let key in copiedWordLevelCount) {
-        if (key !== "未录入") {
-          tmpInLevelTableCount += copiedWordLevelCount[key];
-        }
-      }
-      setInLevelTableCount(tmpInLevelTableCount);
-      setWordLevelCount(copiedWordLevelCount);
-    });
 
-    getSplitWord(
-      value
-        .replace(/(<([^>]+)>)/gi, "")
-        .replace(/&nbsp;/gi, "")
-        .match(/[\u4e00-\u9fa5]/g)
-        .join("")
-    ).then((val) => {
-      setGroupOfPhrases(Object.values(val));
-    });
-  };
   useEffect(() => {
-    if (!value) {
-      // setOpenAlert(true);
-      return;
-    }
-    if (
-      !value
-        .replace(/(<([^>]+)>)/gi, "")
-        .replace(/&nbsp;/gi, "")
-        .match(/[\u4e00-\u9fa5]/g)
-    ) {
-      // setOpenAlert(true);
-      return;
-    }
-    setEditWord(true);
-    let numberOfWords =
-      editorValue.current.plugins.wordcount.body.getWordCount();
-    setTotalWordNumber(numberOfWords);
-    // Single word HSK count
-    let copiedWordCount = {
-      一级: 0,
-      二级: 0,
-      三级: 0,
-      四级: 0,
-      五级: 0,
-      六级: 0,
-      高等: 0,
-      未录入: 0,
-    };
-    let tmpInHSKTableCount = 0;
-    Promise.all(
-      [
-        ...value
+    if (!firstRender.current) {
+      if (!value) {
+        return;
+      }
+      if (
+        !value
           .replace(/(<([^>]+)>)/gi, "")
           .replace(/&nbsp;/gi, "")
           .match(/[\u4e00-\u9fa5]/g)
-          .join(""),
-      ].map((word) => searchForWords(word))
-    ).then((values) => {
-      values.forEach((value) => {
-        copiedWordCount[value]
-          ? copiedWordCount[value]++
-          : (copiedWordCount[value] = 1);
-      });
-      for (let key in copiedWordCount) {
-        if (key !== "未录入") {
-          tmpInHSKTableCount += copiedWordCount[key];
-        }
+      ) {
+        return;
       }
-      setInHSKTableCount(tmpInHSKTableCount);
-      setWordCount(copiedWordCount);
-    });
-    // Single word level count
-    let copiedWordLevelCount = {
-      一级: 0,
-      二级: 0,
-      三级: 0,
-      四级: 0,
-      五级: 0,
-      六级: 0,
-      高等: 0,
-      未录入: 0,
-    };
-    let tmpInLevelTableCount = 0;
-    Promise.all(
-      [
-        ...value
-          .replace(/(<([^>]+)>)/gi, "")
-          .replace(/&nbsp;/gi, "")
-          .match(/[\u4e00-\u9fa5]/g)
-          .join(""),
-      ].map((word) => searchForWordsLevel(word))
-    ).then((values) => {
-      values.forEach((value) => {
-        copiedWordLevelCount[value]
-          ? copiedWordLevelCount[value]++
-          : (copiedWordLevelCount[value] = 1);
-      });
-      for (let key in copiedWordLevelCount) {
-        if (key !== "未录入") {
-          tmpInLevelTableCount += copiedWordLevelCount[key];
-        }
-      }
-      setInLevelTableCount(tmpInLevelTableCount);
-      setWordLevelCount(copiedWordLevelCount);
-    });
-
-    getSplitWord(
-      value
-        .replace(/(<([^>]+)>)/gi, "")
-        .replace(/&nbsp;/gi, "")
-        .match(/[\u4e00-\u9fa5]/g)
-        .join("")
-    ).then((val) => {
-      setGroupOfPhrases(Object.values(val));
-    });
+      analyze();
+      firstRender.current = true;
+    }
   }, [value]);
-  useEffect(() => {
-    setTotalPhraseNumber(groupOfPhrases.length);
-    // Phrase count
-    let copiedPhraseCount = {
-      一级: 0,
-      二级: 0,
-      三级: 0,
-      四级: 0,
-      五级: 0,
-      六级: 0,
-      高等: 0,
-      未录入: 0,
-    };
-    let tmpInHSKTablePhraseCount = 0;
-    Promise.all(groupOfPhrases.map((phrase) => searchForPhrases(phrase))).then(
-      (values) => {
-        values.forEach((value) => {
-          copiedPhraseCount[value]
-            ? copiedPhraseCount[value]++
-            : (copiedPhraseCount[value] = 1);
-        });
-        for (const key in copiedPhraseCount) {
-          if (key !== "未录入") {
-            tmpInHSKTablePhraseCount += copiedPhraseCount[key];
-          }
-        }
-        setInHSKTablePhraseCount(tmpInHSKTablePhraseCount);
-        setPhraseCount(copiedPhraseCount);
-      }
-    );
-    // Phrase level count
-    let copiedPhraseLevelCount = {
-      一级: 0,
-      二级: 0,
-      三级: 0,
-      四级: 0,
-      五级: 0,
-      六级: 0,
-      高等: 0,
-      未录入: 0,
-    };
-    let tmpInLevelTablePhraseCount = 0;
-    Promise.all(
-      groupOfPhrases.map((phrase) => searchForPhrasesLevel(phrase))
-    ).then((values) => {
-      values.forEach((value) => {
-        copiedPhraseLevelCount[value]
-          ? copiedPhraseLevelCount[value]++
-          : (copiedPhraseLevelCount[value] = 1);
-      });
-      for (const key in copiedPhraseLevelCount) {
-        if (key !== "未录入") {
-          tmpInLevelTablePhraseCount += copiedPhraseLevelCount[key];
-        }
-      }
-      setInLevelTablePhraseCount(tmpInLevelTablePhraseCount);
-      setPhraseLevelCount(copiedPhraseLevelCount);
-    });
-  }, [groupOfPhrases]);
-  const getPhrase = () => {
-    setTotalPhraseNumber(groupOfPhrases.length);
-    // Phrase count
-    let copiedPhraseCount = {
-      一级: 0,
-      二级: 0,
-      三级: 0,
-      四级: 0,
-      五级: 0,
-      六级: 0,
-      高等: 0,
-      未录入: 0,
-    };
-    let tmpInHSKTablePhraseCount = 0;
-    Promise.all(groupOfPhrases.map((phrase) => searchForPhrases(phrase))).then(
-      (values) => {
-        values.forEach((value) => {
-          copiedPhraseCount[value]
-            ? copiedPhraseCount[value]++
-            : (copiedPhraseCount[value] = 1);
-        });
-        for (const key in copiedPhraseCount) {
-          if (key !== "未录入") {
-            tmpInHSKTablePhraseCount += copiedPhraseCount[key];
-          }
-        }
-        setInHSKTablePhraseCount(tmpInHSKTablePhraseCount);
-        setPhraseCount(copiedPhraseCount);
-      }
-    );
-    // Phrase level count
-    let copiedPhraseLevelCount = {
-      一级: 0,
-      二级: 0,
-      三级: 0,
-      四级: 0,
-      五级: 0,
-      六级: 0,
-      高等: 0,
-      未录入: 0,
-    };
-    let tmpInLevelTablePhraseCount = 0;
-    Promise.all(
-      groupOfPhrases.map((phrase) => searchForPhrasesLevel(phrase))
-    ).then((values) => {
-      values.forEach((value) => {
-        copiedPhraseLevelCount[value]
-          ? copiedPhraseLevelCount[value]++
-          : (copiedPhraseLevelCount[value] = 1);
-      });
-      for (const key in copiedPhraseLevelCount) {
-        if (key !== "未录入") {
-          tmpInLevelTablePhraseCount += copiedPhraseLevelCount[key];
-        }
-      }
-      setInLevelTablePhraseCount(tmpInLevelTablePhraseCount);
-      setPhraseLevelCount(copiedPhraseLevelCount);
-    });
-  };
+
   const changeTitle = (event) => {
     console.log(event.target.value);
   };
@@ -1262,9 +1028,10 @@ function Result() {
                 <div className="box">
                   <div className="tit">
                     <input
+                      id="titleInput"
                       type="text"
                       placeholder="标题"
-                      defaultValue={"标题：" + location.state.hit.title}
+                      defaultValue={location.state.hit.title}
                       onBlur={changeTitle}
                     ></input>
                   </div>
@@ -1289,19 +1056,20 @@ function Result() {
                         menubar: false,
                         icons: "savetext3",
                         plugins:
-                          " image autoresize save  searchreplace autolink fullscreen link charmap pagebreak advlist lists wordcount",
+                          " image autoresize save  searchreplace autolink fullscreen charmap pagebreak advlist lists wordcount",
                         toolbar:
-                          " link  newdocument save  saveas print searchreplace undo redo cut copy paste blockquote removeformat forecolor backcolor bold italic underline strikethrough charmap blocks fontsize alignleft aligncenter alignright alignjustify ouTdent indent pagebreak fullscreen",
+                          "  newdocument save  saveas print searchreplace undo redo cut copy paste blockquote removeformat forecolor backcolor bold italic underline strikethrough charmap blocks fontsize alignleft aligncenter alignright alignjustify ouTdent indent pagebreak fullscreen",
                         setup: (editor) => {
                           editor.ui.registry.addButton("saveas", {
                             // text: "另存为",
-                            icon: "saveas",
+                            icon: "duplicate",
                             tooltip: "另存为",
                             onAction: (_) => {
                               saveAs();
                             },
                           });
                         },
+                        save_enablewhendirty: false,
                         content_style:
                           "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
                         file_picker_callback: function (callback, value, meta) {
@@ -1360,7 +1128,6 @@ function Result() {
                         },
                       }}
                       onEditorChange={(newValue, editor) => setValue(newValue)}
-                      onChange={handleEditorChange}
                     />
                   </div>
                 </div>
@@ -1372,7 +1139,9 @@ function Result() {
               <div>
                 <Button
                   style={{ backgroundColor: "#F0F2F5" }}
-                  onClick={getPhrase}
+                  onClick={() => {
+                    analyze();
+                  }}
                 >
                   分析文章
                 </Button>
@@ -1389,14 +1158,16 @@ function Result() {
                 <FlavorForm
                   hit={location.state.hit}
                   selectedIndex={location.state.selectedIndex}
-                  userid={location.state.userid}
+                  userid={_userid}
                 />
               </div>
             ) : (
               // 不可编辑状态
               <div>
                 <div style={{ textAlign: "center" }}>
-                  {location.state.selectedIndex !== "wait_to_check" ? (
+                  {_userid === 170 ? (
+                    <></>
+                  ) : location.state.selectedIndex !== "wait_to_check" ? (
                     <Button
                       style={{ backgroundColor: "#F0F2F5" }}
                       onClick={() => {
@@ -1406,6 +1177,13 @@ function Result() {
                         if (userLoggedIn) {
                           setEdit(true);
                         } else {
+                          const payload = {
+                            value: location.state.hit.text,
+                            hit: location.state.hit,
+                            selectedIndex: location.state.selectedIndex,
+                            userid: location.state.userid,
+                          };
+                          dispatch(reloadArticle(payload));
                           navigate("/");
                           dispatch(login());
                         }
@@ -1418,33 +1196,47 @@ function Result() {
                     <></>
                   )}
 
-                  {location.state.selectedIndex !== "all_private" &&
-                  location.state.selectedIndex !== "wait_to_check" ? (
-                    location.state.hit.public === "true" ? (
-                      <Button
-                        onClick={() => setPrivate(location.state.hit)}
-                        style={{ backgroundColor: "#F0F2F5" }}
-                      >
-                        点击收藏
-                      </Button>
+                  {_userid === 170 ? (
+                    <></>
+                  ) : location.state.selectedIndex !== "all_private" ? (
+                    location.state.selectedIndex !== "wait_to_check" ? (
+                      location.state.hit.public === "true" ? (
+                        <Button
+                          onClick={() => {
+                            if (userLoggedIn) {
+                              setPrivate();
+                            } else {
+                              const payload = {
+                                value: location.state.hit.text,
+                                hit: location.state.hit,
+                                selectedIndex: location.state.selectedIndex,
+                                userid: location.state.userid,
+                              };
+                              dispatch(reloadArticle(payload));
+                              navigate("/");
+                              dispatch(login());
+                            }
+                          }}
+                          style={{ backgroundColor: "#F0F2F5" }}
+                        >
+                          点击收藏
+                        </Button>
+                      ) : (
+                        <>不是true</>
+                      )
                     ) : (
-                      <></>
+                      <>check</>
                     )
                   ) : (
-                    <></>
+                    <>all_private</>
                   )}
                   {
                     //在审核页面显示
-                    location.state.userid === "MTcwXzI" ? (
+                    _userid === 170 ? (
                       location.state.selectedIndex === "wait_to_check" ? (
-                        location.state.hit.public === "true" ? (
-                          <Button
-                            onClick={() => setPrivate(location.state.hit)}
-                            style={{ backgroundColor: "#F0F2F5" }}
-                          >
-                            通过私有化申请
-                          </Button>
-                        ) : (
+                        location.state.hit.审核状态 === "通过" ? (
+                          <>已通过审核</>
+                        ) : location.state.hit.审核状态 === "待审核" ? (
                           <div>
                             <Button
                               onClick={() => setPublic(location.state.hit)}
@@ -1459,6 +1251,10 @@ function Result() {
                               拒绝
                             </Button>
                           </div>
+                        ) : location.state.hit.审核状态 === "不通过" ? (
+                          <>已拒绝通过审核</>
+                        ) : (
+                          <></>
                         )
                       ) : (
                         <></>
@@ -1470,7 +1266,7 @@ function Result() {
                 </div>
               </div>
             )}
-            <Button onClick={log}>下载当前文本docx</Button>
+            <Button onClick={log}>下载当前文本doc</Button>
           </Container>
           <Container>
             <motion.div
@@ -1509,7 +1305,14 @@ function Result() {
                       <TableHead>
                         <TableRow>
                           {Object.keys(wordCount).map((j, i) => (
-                            <TableCell key={i}>{j}</TableCell>
+                            <TableCell
+                              key={i}
+                              onClick={() => {
+                                highlight(i, "characters", "_HSK");
+                              }}
+                            >
+                              {j}
+                            </TableCell>
                           ))}
                         </TableRow>
                       </TableHead>
@@ -1549,7 +1352,14 @@ function Result() {
                       <TableHead>
                         <TableRow>
                           {Object.keys(wordLevelCount).map((j, i) => (
-                            <TableCell key={i}>{j}</TableCell>
+                            <TableCell
+                              key={i}
+                              onClick={() => {
+                                highlight(i, "characters", "_369");
+                              }}
+                            >
+                              {j}
+                            </TableCell>
                           ))}
                         </TableRow>
                       </TableHead>
@@ -1594,14 +1404,21 @@ function Result() {
                       <TableHead>
                         <TableRow>
                           {Object.keys(phraseCount).map((j, i) => (
-                            <TableCell key={i}>{j}</TableCell>
+                            <TableCell
+                              key={i}
+                              onClick={() => {
+                                highlight(i, "words", "_HSK");
+                              }}
+                            >
+                              {j}
+                            </TableCell>
                           ))}
                         </TableRow>
                       </TableHead>
                       <TableBody>
                         <TableRow>
                           {Object.entries(phraseCount).map(([key, value]) => {
-                            return <TableCell key={key}>{value}</TableCell>;
+                            return <TableCell>{value}</TableCell>;
                           })}
                         </TableRow>
                         <TableRow>
@@ -1635,7 +1452,14 @@ function Result() {
                       <TableHead>
                         <TableRow>
                           {Object.keys(phraseLevelCount).map((j, i) => (
-                            <TableCell key={i}>{j}</TableCell>
+                            <TableCell
+                              key={i}
+                              onClick={() => {
+                                highlight(i, "words", "_369");
+                              }}
+                            >
+                              {j}
+                            </TableCell>
                           ))}
                         </TableRow>
                       </TableHead>

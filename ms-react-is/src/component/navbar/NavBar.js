@@ -17,6 +17,7 @@ import { word, article, edit, login, reset } from "../store/display/homeSet";
 import { loggedin, loggedout } from "../store/user/loginState";
 import { userLoggedout } from "../store/user/userInfo";
 import { useNavigate } from "react-router-dom";
+import { clearArticle } from "../store/article/articleSet";
 
 const calculateColor = (value) => {
   let bgColor;
@@ -76,10 +77,19 @@ const ResponsiveAppBar = () => {
     dispatch(loggedout());
     const user = "";
     const token = "";
+    const userid = "";
     const payload = {
       user: user,
       token: token,
+      userid: userid,
     };
+    const articlePayload = {
+      value: "",
+      hit: "",
+      selectedIndex: "",
+      userid: "",
+    };
+    dispatch(clearArticle(articlePayload));
     dispatch(userLoggedout(payload));
     navigate("/");
   };
@@ -113,18 +123,21 @@ const ResponsiveAppBar = () => {
             <Button
               sx={{ my: 2, color: "white", display: "block" }}
               onClick={handleWordSearch}
+              onContextMenu={handleWordSearch}
             >
               词语检索
             </Button>
             <Button
               sx={{ my: 2, color: "white", display: "block" }}
               onClick={handleArticleSearch}
+              onContextMenu={handleArticleSearch}
             >
               文章检索
             </Button>
             <Button
               sx={{ my: 2, color: "white", display: "block" }}
               onClick={handleArticleAnalysis}
+              onContextMenu={handleArticleAnalysis}
             >
               分析文章
             </Button>

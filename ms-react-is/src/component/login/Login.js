@@ -7,10 +7,13 @@ import { motion } from "framer-motion";
 import axios from "axios";
 
 import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 import { loggedin } from "../store/user/loginState";
 import { userLoggedIn } from "../store/user/userInfo";
-import { reset } from "../store/display/homeSet";
+import { article, reset } from "../store/display/homeSet";
+import { articleSet } from "../store/article/articleSet";
 import PubSub from "pubsub-js";
 
 const options = {
@@ -21,12 +24,21 @@ const options = {
 const sendToken = (usertoken) => {
   PubSub.publish("sendtoken", usertoken);
 };
+
 export default function Login() {
+  const location = useLocation();
+  const navigate = useNavigate();
   // const theme = useTheme();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [userid2, setUserid2] = useState("");
   const dispatch = useDispatch();
+  // var _userid = "";
   const loggedIn = useSelector((state) => state.loginState.value);
+  const { value, hit, selectedIndex, userid } = useSelector(
+    (state) => state.articleSet
+  );
+  // const _userid = useSelector((state) => state.userInfo.userid);
   const handleLogin = (event) => {
     event.preventDefault();
     let info = { password: password, username: username };
@@ -37,12 +49,16 @@ export default function Login() {
         const statusCode = res.data.code;
         switch (statusCode) {
           case 200:
+            console.log("location", location);
             const token = res.data.data.token;
             sendToken(token);
+            const userid = res.data.data.id;
+            setUserid2(res.data.data.id);
             const user = res.data.data.name;
             const payload = {
               user: user,
               token: token,
+              userid: userid,
             };
             alert("用户" + user + "登陆成功！");
             dispatch(loggedin());
@@ -59,8 +75,21 @@ export default function Login() {
       });
   };
   if (loggedIn) {
-    dispatch(reset());
-    return <Navigate to="/" />;
+    if (hit !== "") {
+      dispatch(article());
+      console.log("userid2", userid2);
+      navigate("/result", {
+        state: {
+          value: value,
+          hit: hit,
+          selectedIndex: selectedIndex,
+          userid: userid2,
+        },
+      });
+    } else {
+      dispatch(reset());
+      return <Navigate to="/" />;
+    }
   }
   return (
     <>

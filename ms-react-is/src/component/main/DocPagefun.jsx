@@ -3,11 +3,13 @@ import React, { useState, useEffect } from "react";
 import { MeiliSearch } from "meilisearch";
 import IndexList from "../index/IndexList";
 import IndexRefine from "../index/IndexRefine";
-import { Snippet } from "react-instantsearch-dom";
+import { Snippet, ScrollTo } from "react-instantsearch-dom";
 import PubSub from "pubsub-js";
+import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
+import { memorizeSelect } from "../store/setting/docpageSet";
 
 import {
   InstantSearch,
@@ -16,108 +18,85 @@ import {
   HitsPerPage,
   Configure,
   Stats,
-  // connectSearchBox,
   SearchBox,
   CurrentRefinements,
 } from "react-instantsearch-dom";
 
 import "./DocPage.css";
 import { instantMeiliSearch } from "@meilisearch/instant-meilisearch";
-import { motion } from "framer-motion";
-import Box from "@mui/material/Box";
-import Input from "@mui/material/Input";
-import { useTheme } from "@mui/material/styles";
+import { current } from "@reduxjs/toolkit";
 
 const client = new MeiliSearch({
   host: "http://106.75.250.96:3000/api2/",
   apiKey: "MASTER_KEY",
 });
 
-// const SearchBox = ({ currentRefinement, refine }) => {
-//     const theme = useTheme();
-//     return (
-//         <motion.div
-//             initial={{ opacity: 0, scale: 0.5 }}
-//             animate={{ opacity: 1, scale: 1 }}
-//             transition={{ duration: 0.5 }}
-//         >
-//             <Box
-//                 display="flex"
-//                 alignItems="center"
-//                 justifyContent="center"
-//                 sx={{
-//                     bgcolor: "#C7D8DF",
-//                     borderRadius: 2,
-//                     boxShadow: 2
-//                 }}
-//                 minHeight="10vh"
-//             >
-//                 <Box sx={{
-//                     bgcolor: "white",
-//                 }}
-//                 flex="1"
-//                 >
-//                     <Input
-//                         type="search"
-//                         playholder="搜索"
-//                         disableUnderline={true}
-//                         value={currentRefinement}
-//                         onChange={(event) => refine(event.currentTarget.value)}
-//                     />
-//                 </Box>
-//             </Box>
-//         </motion.div>
-//     );
-// };
-
-// const CustomSearchBox = connectSearchBox(SearchBox);
-
 function DocPage(props) {
   const [apikey, setApikey] = useState(
     "b8816e913cdcb1e2bcedcf15f4f9f0d8ef5d64ac92738a4b2d5a83648e3f8397"
   );
   const [tenant_token, setTenant_token] = useState("");
+  const [keyword, setKeyword] = useState("");
+  const location = useLocation();
   const token = useSelector((state) => state.userInfo.token);
-  // const token = "user1"
-  let navigate = useNavigate();
+  const searchWord = useSelector((state) => state.docpageSet.searchWord);
+  const _userid = useSelector((state) => state.userInfo.userid);
+  const dispatch = useDispatch();
   useEffect(() => {
     if (token === "") {
       setApikey("");
       props.updateIndexs(
-        "72c339e2647a578e5a60a77bd99aff53ac7d1a424e9c1b6a1ae71e05cec8209d"
+        "23b7efa5284b126c0be49c9870bb286b594afaf09f8a6ed654db5f1e1f43b129"
       );
-      console.log("useSelector", token);
       createToken(token);
-    } else if (token.slice(0, 7) === "MTcwXzI") {
+    } else if (_userid === 170) {
       props.updateIndexs(
-        "8608eb83e984fa046ef83824e9418ee670471e2a95203b67c47345924c57aa09"
+        "79faa77f5e607344810fe45d433b11bf36fcf70a8184ed45bd51ee61c153b8b0"
       );
-      // props.updateIndexs("b8816e913cdcb1e2bcedcf15f4f9f0d8ef5d64ac92738a4b2d5a83648e3f8397");
       createToken(token);
-      console.log(2222, tenant_token);
     } else {
       props.updateIndexs(
-        "b8816e913cdcb1e2bcedcf15f4f9f0d8ef5d64ac92738a4b2d5a83648e3f8397"
+        "606be96bcf96949725e0a0d1d2bb666e15b99fba812d3b1cf7d49e8c370476b6"
       );
       createToken(token);
     }
-
-    refreshIndex("doc_wiki_05");
+    if (location.state !== null && location.state.toIndex !== null) {
+      setTimeout(() => refreshIndex(location.state.toIndex), 500);
+    } else {
+      setTimeout(() => refreshIndex("real_text"), 500);
+    }
+    document.getElementsByClassName("ais-SearchBox-input")[0].value =
+      searchWord;
   }, []);
 
-  const createToken = (userid) => {
-    console.log("usertoken:", userid.slice(0, 7));
-    var usertoken = userid.slice(0, 7);
-    // if(usertoken === "MTcwXzI"){
-    //   usertoken = "admin"
-    // }
-    //应在登陆成功后调用，登录后向state传递一个userid，产生其tenant_token
+  useEffect(() => {
+    //滚动到高亮
+    setTimeout(() => {
+      if (keyword !== "") {
+        testScroll();
+      }
+    }, 500);
+  });
+  const testScroll = () => {
+    let pArray = document.getElementsByClassName("passages");
+    let bArray = document.getElementsByClassName("box");
+    for (let i = 0; i < pArray.length; i++) {
+      let s2 = pArray[i].offsetHeight;
+      let s1 = pArray[i].getElementsByClassName("ais-Snippet-nonHighlighted")[0]
+        .offsetHeight;
+      bArray[i].scrollTop =
+        (s1 / (s2 + 0) - 0.06) *
+        document.getElementsByClassName("passages")[i].offsetHeight;
+    }
+  };
+  const createToken = (usertoken) => {
+    var usertoken = usertoken;
     axios
-      .get("http://106.75.250.96:3000/api1/newTenantToken/", {
-        params: { userid: usertoken },
+      .get("http://106.75.250.96:3000/api1/newTenantToken_dev", {
+        params: { usertoken: usertoken },
       })
       .then((response) => {
-        console.log("成功了", response.data);
+        // console.log("成功了", response.data);
         setTenant_token(response.data);
       });
   };
@@ -137,18 +116,25 @@ function DocPage(props) {
   const Hit = ({ hit }) => {
     let navigate = useNavigate();
     const routeChange = () => {
+      let name = document.getElementsByClassName("ais-SearchBox-input")[0]
+        .value;
+      const payload = {
+        searchWord: name,
+      };
+      dispatch(memorizeSelect(payload));
       let path = `/result`;
       navigate(path, {
         state: {
           value: hit.text,
           hit: hit,
           selectedIndex: props.selectedIndex,
-          userid: token.slice(0, 7),
+          userid: _userid,
+          refreshIndex: refreshIndex(),
         },
       });
     };
     return (
-      <div key={hit["id"]} className="hit-description">
+      <div key={hit.id} className="hit-description">
         {props.displayedAttributes.map((attribute) => {
           return attribute === "public" ? (
             <div key={hit.id + attribute}>
@@ -158,15 +144,15 @@ function DocPage(props) {
           ) : attribute === "id" ? (
             <></>
           ) : attribute === "genre" ? (
-            <>
+            <div key={hit.id + attribute}>
               {"体裁"}：{hit.genre}
-            </>
+            </div>
           ) : attribute === "url" ? (
             <></>
-          ) : attribute === "text" ? (
-            <div className="hit-passage" key={hit.id + attribute}>
+          ) : attribute === "text" || attribute === "文本内容" ? (
+            <div className="hit-passage box" key={hit.id + attribute}>
               {"文章"}：
-              <Snippet attribute={attribute} hit={hit} />
+              <Snippet attribute={attribute} hit={hit} className="passages" />
             </div>
           ) : attribute === "审核状态" ? (
             <div key={hit.id + attribute}>
@@ -186,7 +172,8 @@ function DocPage(props) {
         {token.slice(0, 7) === "" ? (
           <></>
         ) : token.slice(0, 7) === "MTcwXzI" ? (
-          props.selectedIndex === "doc_wiki_05" ? (
+          props.selectedIndex === "doc_wiki_05" ||
+          props.selectedIndex === "real_text" ? (
             <button
               onClick={() => deleteItem(props, hit)}
               className="btn btn-default"
@@ -234,15 +221,19 @@ function DocPage(props) {
     >
       <div className="ais-InstantSearch">
         <div className="left-panel">
-          {props.selectedIndex === "doc_wiki_05"}
           <IndexList
             indexs={props.indexs}
             setIndex={props.setIndex}
+            {...props}
             userid={token.slice(0, 7)}
           />
           {props.selectedIndex === "doc_wiki_05" ? (
             <IndexRefine filterableAttributes={props.filterableAttributes} />
           ) : props.selectedIndex === "wait_to_check" ? (
+            <IndexRefine filterableAttributes={props.filterableAttributes} />
+          ) : props.selectedIndex === "real_text" ? (
+            <IndexRefine filterableAttributes={props.filterableAttributes} />
+          ) : props.selectedIndex === "all_private" ? (
             <IndexRefine filterableAttributes={props.filterableAttributes} />
           ) : (
             <></>
@@ -256,9 +247,11 @@ function DocPage(props) {
         <div className="right-panel">
           <CurrentRefinements />
           <SearchBox
+            onChange={(event) => setKeyword(event.currentTarget.value)}
             translations={{
-              placeholder: "可使用 【文体+关键字】 搜索，如：记叙文 今天",
+              placeholder: "请输入要搜索的文章或关键字，可在左侧进行过滤",
             }}
+            defaultRefinement={searchWord}
           />
           <div className="stats">
             <Stats />
@@ -270,7 +263,9 @@ function DocPage(props) {
                 { value: 40, label: "显示 40 条每页" },
               ]}
             />
-            <Hits hitComponent={Hit} />
+            <ScrollTo>
+              <Hits hitComponent={Hit} />
+            </ScrollTo>
             <Pagination showLast={true} />
           </div>
         </div>

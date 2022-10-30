@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import PubSub from "pubsub-js";
+import { grey } from "@mui/material/colors";
+import { color } from "@mui/system";
 
 export default class IndexItem extends Component {
   handleChange = (indexStr) => {
@@ -18,10 +20,13 @@ export default class IndexItem extends Component {
     PubSub.unsubscribe(this.token);
   }
   render() {
-    const { indexStr, userid } = this.props;
+    const { indexStr, userid, selectedIndex } = this.props;
     return (
       <li
-        class="btn btn-default"
+        class={
+          indexStr === selectedIndex ? "btn btn-primary" : "btn btn-default"
+        }
+        // style={{color: "grey"}}
         value={{ indexStr }}
         onClick={() => this.handleChange(indexStr)}
       >
@@ -29,16 +34,16 @@ export default class IndexItem extends Component {
           ? "HSK词语"
           : indexStr === "words_3d9j_space0"
           ? "三等九级词语"
-          : indexStr === "doc_wiki_05"
+          : indexStr === "real_text"
           ? "公开文章"
           : indexStr === "all_private"
-          ? "私有文章"
+          ? "收藏夹"
           : indexStr === "wait_to_check"
           ? userid === "MTcwXzI"
             ? "待审核"
             : "已提交"
           : indexStr === "wait_to_submit"
-          ? "待提交"
+          ? "草稿箱"
           : indexStr}
       </li>
     );

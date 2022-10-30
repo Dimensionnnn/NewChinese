@@ -35,7 +35,7 @@ class Home extends Component {
     var newIndex = [];
     curIndex.then((res) => {
       for (var i = 0; i < res.results.length; i++) {
-        console.log(res.results);
+        // console.log(res.results);
         newIndex.push(res.results[i].uid);
       }
       this.setState({ indexs: newIndex });
